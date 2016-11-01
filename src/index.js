@@ -100,6 +100,12 @@ export function createRouter(options) {
   return router = cherrytree(options)
 }
 
+export function destroyRouter(instance) {
+  router = null
+  routeInstances = Object.create(null)
+  instance.destroy()
+}
+
 routerChannel.reply('transitionTo', function () {
   router.transitionTo.apply(router, arguments)
 })
