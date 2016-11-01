@@ -193,7 +193,7 @@ export function middleware(transition) {
     })
   }, Promise.resolve())
 
-  activatePromise.then(function () {
+  return activatePromise.then(function () {
     activated.forEach(function (route) {
       let instance = routeInstances[route.name]
       let parentRegion
