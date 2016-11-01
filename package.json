@@ -1,14 +1,13 @@
 {
-  "private": true,
-  "name": "babel-starter-kit",
-  "version": "0.0.0",
-  "description": "A project template for authoring and publishing JavaScript libraries",
-  "homepage": "https://www.kriasoft.com/babel-starter-kit/",
-  "repository": "kriasoft/babel-starter-kit",
-  "author": "Kriasoft <hello@kriasoft.com> (https://www.kriasoft.com)",
+  "private": false,
+  "name": "marionette.routing",
+  "version": "0.0.1",
+  "description": "A state based router for MarionetteJS applications",
+  "homepage": "https://github.com/blikblum/marionette.routing",
+  "repository": "blikblum/marionette.routing",
+  "author": "Luiz Américo Pereira Câmara",
   "contributors": [
-    "Konstantin Tarkus <hello@tarkus.me>",
-    "Vladimir Kutepov <frenzzy.man@gmail.com>"
+    "Luiz Américo Pereira Câmara"
   ],
   "license": "MIT",
   "keywords": [],
@@ -28,7 +27,14 @@
     "extends": "airbnb-base"
   },
   "dependencies": {
-    "babel-runtime": "^6.11.6"
+    "babel-runtime": "^6.11.6",
+    "cherrytree": "^2.3.2"    
+  },
+  "peerDependencies": {
+    "backbone": "^1.3.3",
+    "backbone.marionette": "^3.1.0",
+    "backbone.radio": "^2.0.0",    
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
@@ -58,7 +64,7 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "build": "node tools/build",
     "prepublish": "npm run build",
-    "publish:docs": "easystatic deploy docs --repo kriasoft/babel-starter-kit",
+    "publish:docs": "easystatic deploy docs --repo blikblum/marionette.routing",
     "start": "easystatic start docs"
   }
 }
