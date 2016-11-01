@@ -128,7 +128,7 @@ function getChangingRoutes(prev, current){
   }
   return {
     activated: current.slice(i),
-    deactivated: prev.slice(i) //todo: reverse
+    deactivated: prev.slice(i).reverse()
   }
 }
 
