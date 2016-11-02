@@ -202,8 +202,6 @@ export function middleware(transition) {
         instance.renderView(parentRegion)
       }
     })
-  }).catch(function (error) {
-    console.log('error activating: ', error)
   })
 }
 
