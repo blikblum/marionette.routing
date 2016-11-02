@@ -171,6 +171,7 @@ export function middleware(transition) {
   deactivated.some(function (route) {
     var instance = routeInstances[route.name]
     if (instance) {
+      router.log('deactivate', route.name)
       instance.deactivate(transition)
     }
     return transition.isCancelled
@@ -184,8 +185,8 @@ export function middleware(transition) {
     let instance = routeInstances[route.name] || (routeInstances[route.name] = createRouteInstance(route.options))
 
     return prevPromise.then(function () {
-      console.log('calling activate', route.name)
       if (!transition.isCancelled) {
+        router.log('activate', route.name)
         return Promise.resolve(instance.activate(transition))
       } else {
         return Promise.resolve()
