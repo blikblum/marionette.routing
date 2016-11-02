@@ -115,20 +115,19 @@ routerChannel.reply('goBack', function () {
   global.history.back();
 })
 
-function getChangingRoutes(prev, current){
-  //todo: consider params changes
-  let i, prevName, currentName;
-  const count = Math.max(prev.length, current.length)
+function getChangingRoutes(prevRoutes, currentRoutes){
+  let i, prev, current;
+  const count = Math.max(prevRoutes.length, currentRoutes.length)
   for (i = 0; i < count; i++) {
-    prevName = prev[i] ? prev[i].name : null
-    currentName = current[i] ? current[i].name : null
-    if (prevName !== currentName) {
+    prev = prevRoutes[i]
+    current = currentRoutes[i]
+    if (!(prev && current) || (prev.name !== current.name) || !_.isEqual(prev.params, current.params)) {
       break
     }
   }
   return {
-    activated: current.slice(i),
-    deactivated: prev.slice(i).reverse()
+    activated: currentRoutes.slice(i),
+    deactivated: prevRoutes.slice(i).reverse()
   }
 }
 

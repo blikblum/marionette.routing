@@ -169,12 +169,12 @@ describe('Lifecycle hooks', () => {
       }).catch(done)
     });
 
-    it.skip('should be called when a route param changes', function (done) {
+    it('should be called when a route param changes', function (done) {
       let parentSpy, childSpy, grandChildSpy;
       router.transitionTo('dyngrandchild', {id: 1}).then(function () {
         parentSpy = sinon.spy(DynParentRoute.prototype, 'activate');
         childSpy = sinon.spy(DynChildRoute.prototype, 'activate');
-        grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate');
+        grandChildSpy = sinon.spy(DynGrandChildRoute.prototype, 'activate');
         return router.transitionTo('dyngrandchild', {id: 2})
       }).then(function () {
         expect(parentSpy).to.not.be.called;
@@ -266,12 +266,12 @@ describe('Lifecycle hooks', () => {
       }).catch(done)
     });
 
-    it.skip('should be called when a route param changes', function (done) {
+    it('should be called when a route param changes', function (done) {
       let parentSpy, childSpy, grandChildSpy;
       router.transitionTo('dyngrandchild', {id: 1}).then(function () {
         parentSpy = sinon.spy(DynParentRoute.prototype, 'deactivate');
         childSpy = sinon.spy(DynChildRoute.prototype, 'deactivate');
-        grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate');
+        grandChildSpy = sinon.spy(DynGrandChildRoute.prototype, 'deactivate');
         return router.transitionTo('dyngrandchild', {id: 2})
       }).then(function () {
         expect(parentSpy).to.not.be.called;
