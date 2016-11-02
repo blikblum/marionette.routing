@@ -7,17 +7,9 @@ let expect = chai.expect
 chai.use(sinonChai)
 
 let router, routes;
-let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute;
+let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute,
+  Child2Route, DynParentRoute, DynChildRoute, DynGrandChildRoute;
 let currentTransition
-
-function createRouteClass() {
-  return Route.extend({
-    initialize() {
-    },
-    activate() {
-    }
-  });
-}
 
 describe('Lifecycle hooks', () => {
 
@@ -28,7 +20,11 @@ describe('Lifecycle hooks', () => {
     });
     router.use(middleware);
     RootRoute = Route.extend({}), ParentRoute = Route.extend({}), ChildRoute = Route.extend({}),
-      GrandChildRoute = Route.extend({}), LeafRoute = Route.extend({})
+      GrandChildRoute = Route.extend({}), LeafRoute = Route.extend({}),
+      Child2Route = Route.extend({}), DynParentRoute = Route.extend({}), DynChildRoute = Route.extend({}),
+      DynGrandChildRoute = Route.extend({});
+
+
     routes = function (route) {
       route('parent', {routeClass: ParentRoute, routeOptions: {x: 1}}, function () {
         route('child', {routeClass: ChildRoute}, function () {
@@ -36,8 +32,14 @@ describe('Lifecycle hooks', () => {
             route('leaf', {routeClass: LeafRoute})
           })
         })
+        route('child2', {routeClass: Child2Route})
       })
       route('root', {routeClass: RootRoute})
+      route('dynparent', {routeClass: DynParentRoute}, function () {
+        route('dynchild', {path: ':id', routeClass: DynChildRoute}, function () {
+          route('dyngrandchild', {routeClass: DynGrandChildRoute})
+        })
+      })
     }
     router.map(routes);
     router.listen();
@@ -94,7 +96,6 @@ describe('Lifecycle hooks', () => {
     })
   });
 
-
   describe('activate', () => {
     it('should be called once with transition when enter route', function (done) {
       let spy = sinon.spy(ParentRoute.prototype, 'activate');
@@ -135,6 +136,53 @@ describe('Lifecycle hooks', () => {
         done()
       }).catch(done)
     })
+
+    it('should not be called if transition is canceled in a parent route', function (done) {
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
+      let childStub = sinon.stub(ChildRoute.prototype, 'activate', function (transition) {
+        transition.cancel()
+      });
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate');
+      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate');
+      router.transitionTo('leaf').then(function () {
+        done('Transition promise should be rejected')
+      }).catch(function () {
+        expect(parentSpy).to.have.been.calledOnce;
+        expect(childStub).to.have.been.calledOnce;
+        expect(grandChildSpy).to.not.have.been.called;
+        expect(leafSpy).to.not.have.been.called;
+        done()
+      })
+    })
+
+    it('should be called when child route change to a route with some parent', function (done) {
+      let parentSpy;
+      let child2Spy;
+      router.transitionTo('child').then(function () {
+        parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
+        child2Spy = sinon.spy(Child2Route.prototype, 'activate');
+        return router.transitionTo('child2')
+      }).then(function () {
+        expect(parentSpy).to.not.be.called;
+        expect(child2Spy).to.be.calledOnce;
+        done()
+      }).catch(done)
+    });
+
+    it.skip('should be called when a route param changes', function (done) {
+      let parentSpy, childSpy, grandChildSpy;
+      router.transitionTo('dyngrandchild', {id: 1}).then(function () {
+        parentSpy = sinon.spy(DynParentRoute.prototype, 'activate');
+        childSpy = sinon.spy(DynChildRoute.prototype, 'activate');
+        grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate');
+        return router.transitionTo('dyngrandchild', {id: 2})
+      }).then(function () {
+        expect(parentSpy).to.not.be.called;
+        expect(childSpy).to.be.calledOnce;
+        expect(grandChildSpy).to.be.calledOnce;
+        done()
+      }).catch(done)
+    });
   });
 
   describe('deactivate', () => {
@@ -183,6 +231,55 @@ describe('Lifecycle hooks', () => {
         done()
       }).catch(done)
     })
+
+    it('should not be called if transition is canceled in a child route', function (done) {
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate');
+      let childStub = sinon.stub(ChildRoute.prototype, 'deactivate', function (transition) {
+        transition.cancel()
+      });
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate');
+      let leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate');
+      router.transitionTo('leaf').then(function () {
+        return router.transitionTo('root')
+      }).then(function () {
+        done('Transition promise should be rejected')
+      }).catch(function () {
+        expect(parentSpy).to.not.have.been.called;
+        expect(childStub).to.have.been.calledOnce;
+        expect(grandChildSpy).to.have.been.calledOnce;
+        expect(leafSpy).to.have.been.calledOnce;
+        done()
+      })
+    })
+
+    it('should be called when child route change to a route with some parent', function (done) {
+      let parentSpy;
+      let childSpy;
+      router.transitionTo('child').then(function () {
+        parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate');
+        childSpy = sinon.spy(ChildRoute.prototype, 'deactivate');
+        return router.transitionTo('child2')
+      }).then(function () {
+        expect(parentSpy).to.not.be.called;
+        expect(childSpy).to.be.calledOnce;
+        done()
+      }).catch(done)
+    });
+
+    it.skip('should be called when a route param changes', function (done) {
+      let parentSpy, childSpy, grandChildSpy;
+      router.transitionTo('dyngrandchild', {id: 1}).then(function () {
+        parentSpy = sinon.spy(DynParentRoute.prototype, 'deactivate');
+        childSpy = sinon.spy(DynChildRoute.prototype, 'deactivate');
+        grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate');
+        return router.transitionTo('dyngrandchild', {id: 2})
+      }).then(function () {
+        expect(parentSpy).to.not.be.called;
+        expect(childSpy).to.be.calledOnce;
+        expect(grandChildSpy).to.be.calledOnce;
+        done()
+      }).catch(done)
+    });
   });
 
 
