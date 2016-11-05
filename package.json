@@ -15,11 +15,7 @@
   "jsnext:main": "index.es6.js",
   "babel": {
     "presets": [
-      "latest",
-      "stage-0"
-    ],
-    "plugins": [
-      "transform-runtime"
+      "latest"
     ]
   },
   "eslintConfig": {
@@ -27,7 +23,6 @@
     "extends": "airbnb-base"
   },
   "dependencies": {
-    "babel-runtime": "^6.11.6",
     "cherrytree": "^2.3.2"    
   },
   "peerDependencies": {
@@ -40,9 +35,7 @@
     "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
     "babel-eslint": "^7.0.0",
-    "babel-plugin-transform-runtime": "^6.15.0",
     "babel-preset-latest": "^6.16.0",
-    "babel-preset-stage-0": "^6.16.0",
     "babel-register": "^6.16.3",
     "chai": "^3.5.0",
     "coveralls": "^2.11.14",

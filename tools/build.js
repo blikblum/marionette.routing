@@ -28,7 +28,6 @@ for (const format of ['es6', 'cjs', 'umd']) {
     plugins: [babel(Object.assign(pkg.babel, {
       babelrc: false,
       exclude: 'node_modules/**',
-      runtimeHelpers: true,
       presets: pkg.babel.presets.map(x => (x === 'latest' ? ['latest', { es2015: { modules: false } }] : x)),
     }))],
   }).then(bundle => bundle.write({
