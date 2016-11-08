@@ -138,7 +138,7 @@ function createRouteInstance(options) {
   } else if (options.viewClass || options.abstract) {
     return new Route(routeOptions)
   } else {
-    throw 'Unable to create route instance: routeClass or viewClass must be defined'
+    throw new Error('Unable to create route instance: routeClass or viewClass must be defined')
   }
 }
 
