@@ -70,6 +70,9 @@ export const Route = Marionette.Object.extend(
       this.view = new this.viewClass(_.result(this, 'viewOptions', {}))
       region.show(this.view)
       routerChannel.trigger('route:render', this)
+      if (this.viewEvents) {
+        Marionette.bindEvents(this, this.view, this.viewEvents)
+      }
     },
 
     getContext(transition) {
