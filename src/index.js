@@ -16,37 +16,28 @@ let mnRouteMap = Object.create(null)
 let routerChannel = Radio.channel('router')
 let router
 
-function getParentInstances(index, transition) {
-  let activeInstances = transition.routes.map(function (value) {
-    return mnRouteMap[value.name]
-  })
-  return activeInstances.slice(0, index)
-}
-
 class RouteContext {
   constructor(route, transition) {
-    let routeIndex = _.findIndex(transition.routes, function (value) {
-      return route === mnRouteMap[value.name]
-    })
-    this.parentInstances = getParentInstances(routeIndex, transition)
+    let routeIndex = transition.mnRoutes.indexOf(route)
+    this.parentRoutes = transition.mnRoutes.slice(0, routeIndex)
   }
 
   trigger() {
-    let parentInstances = this.parentInstances
-    for (let i = parentInstances.length - 1; i >= 0; i--) {
-      let instance = parentInstances[i]
-      if (instance._contextChannel) {
-        instance._contextChannel.trigger.apply(instance._contextChannel, arguments)
+    let parentRoutes = this.parentRoutes
+    for (let i = parentRoutes.length - 1; i >= 0; i--) {
+      let channel = parentRoutes[i]._contextChannel
+      if (channel) {
+        channel.trigger.apply(channel, arguments)
       }
     }
   }
 
   request(name) {
-    let parentInstances = this.parentInstances
-    for (let i = parentInstances.length - 1; i >= 0; i--) {
-      let instance = parentInstances[i]
-      if (instance._contextChannel && instance._contextChannel._requests[name]) {
-        return instance._contextChannel.request(name)
+    let parentRoutes = this.parentRoutes
+    for (let i = parentRoutes.length - 1; i >= 0; i--) {
+      let channel = parentRoutes[i]._contextChannel
+      if (channel && channel._requests[name]) {
+        return channel.request(name)
       }
     }
   }
@@ -125,7 +116,7 @@ routerChannel.reply('goBack', function () {
 })
 
 function getChangingRoutes(prevRoutes, currentRoutes){
-  let i, prev, current;
+  var i, prev, current;
   const count = Math.max(prevRoutes.length, currentRoutes.length)
   for (i = 0; i < count; i++) {
     prev = prevRoutes[i]
@@ -152,12 +143,11 @@ function createMnRoute(route) {
   }
 }
 
-function getParentRegion(routes, routeIndex) {
-  let region
-  let parent
-  routeIndex--
+function getParentRegion(routes, route) {
+  var region, parent
+  let routeIndex = routes.indexOf(route) - 1
   while (routeIndex >= 0) {
-    parent = mnRouteMap[routes[routeIndex].name]
+    parent = routes[routeIndex]
     if (parent.view) {
       region = parent.view.getRegion('outlet')
       if (region) {
@@ -185,12 +175,12 @@ export function middleware(transition) {
   const {activated, deactivated} = getChangingRoutes(transition.prev.routes, transition.routes)
 
   deactivated.some(function (route) {
-    var instance = mnRouteMap[route.name]
-    if (instance) {
-      routerChannel.trigger('before:deactivate', transition, instance)
+    let mnRoute = mnRouteMap[route.name]
+    if (mnRoute) {
+      routerChannel.trigger('before:deactivate', transition, mnRoute)
       if (!transition.isCancelled) {
-        instance.deactivate(transition)
-        routerChannel.trigger('deactivate', transition, instance)
+        mnRoute.deactivate(transition)
+        routerChannel.trigger('deactivate', transition, mnRoute)
       }
     }
     return transition.isCancelled
@@ -216,13 +206,16 @@ export function middleware(transition) {
     })
   }, Promise.resolve())
 
+  transition.mnRoutes = transition.routes.map(function (route) {
+    return mnRouteMap[route.name]
+  })
+
   return activatePromise.then(function () {
     activated.forEach(function (route) {
-      let instance = mnRouteMap[route.name]
-      let parentRegion
-      if (instance.viewClass) {
-        parentRegion = getParentRegion(transition.routes, transition.routes.indexOf(route))
-        instance.renderView(parentRegion)
+      let mnRoute = mnRouteMap[route.name]
+      if (mnRoute.viewClass) {
+        let parentRegion = getParentRegion(transition.mnRoutes, mnRoute)
+        mnRoute.renderView(parentRegion)
       }
     })
     routerChannel.trigger('transition', transition)
