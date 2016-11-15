@@ -32,7 +32,13 @@ class RouteContext {
   }
 
   trigger() {
-    //todo
+    let parentInstances = this.parentInstances
+    for (let i = parentInstances.length - 1; i >= 0; i--) {
+      let instance = parentInstances[i]
+      if (instance._contextChannel) {
+        instance._contextChannel.trigger.apply(instance._contextChannel, arguments)
+      }
+    }
   }
 
   request(name) {

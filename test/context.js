@@ -115,7 +115,33 @@ describe('Route context', () => {
 
   describe('trigger', () => {
 
-   //todo
+    it('should be captured by a parent route', function (done) {
+      let spy = sinon.spy();
+      GrandChildRoute.prototype.contextEvents =  {
+        'my:event': spy
+      };
+      let leafStub = sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
+        this.getContext(transition).trigger('my:event')
+      });
+      router.transitionTo('leaf').then(function () {
+        expect(spy).to.be.calledOnce;
+        done()
+      }).catch(done)
+    });
+
+    it('should not be captured by a child route', function (done) {
+      let spy = sinon.spy();
+      GrandChildRoute.prototype.contextEvents =  {
+        'my:event': spy
+      };
+      let childStub = sinon.stub(ChildRoute.prototype, 'activate', function (transition) {
+        this.getContext(transition).trigger('my:event')
+      });
+      router.transitionTo('leaf').then(function () {
+        expect(spy).to.not.be.called;
+        done()
+      }).catch(done)
+    });
     
   });
 
