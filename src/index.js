@@ -12,13 +12,13 @@ import Radio from 'backbone.radio'
 import Marionette from 'backbone.marionette'
 import cherrytree from 'cherrytree'
 
-let routeInstances = Object.create(null)
+let mnRouteMap = Object.create(null)
 let routerChannel = Radio.channel('router')
 let router
 
 function getParentInstances(index, transition) {
   let activeInstances = transition.routes.map(function (value) {
-    return routeInstances[value.name]
+    return mnRouteMap[value.name]
   })
   return activeInstances.slice(0, index)
 }
@@ -26,7 +26,7 @@ function getParentInstances(index, transition) {
 class RouteContext {
   constructor(route, transition) {
     let routeIndex = _.findIndex(transition.routes, function (value) {
-      return route === routeInstances[value.name]
+      return route === mnRouteMap[value.name]
     })
     this.parentInstances = getParentInstances(routeIndex, transition)
   }
@@ -111,7 +111,7 @@ export function createRouter(options) {
 
 export function destroyRouter(instance) {
   router = null
-  routeInstances = Object.create(null)
+  mnRouteMap = Object.create(null)
   instance.destroy()
 }
 
@@ -121,7 +121,7 @@ routerChannel.reply('transitionTo', function () {
 
 routerChannel.reply('goBack', function () {
   //in wait of a better implementation
-  global.history.back();
+  history.back();
 })
 
 function getChangingRoutes(prevRoutes, currentRoutes){
@@ -140,14 +140,15 @@ function getChangingRoutes(prevRoutes, currentRoutes){
   }
 }
 
-function createRouteInstance(options) {
+function createMnRoute(route) {
+  let options = route.options
   let routeOptions = Object.assign({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
     return new options.routeClass(routeOptions)
   } else if (options.viewClass || options.abstract) {
     return new Route(routeOptions)
   } else {
-    throw new Error('Unable to create route instance: routeClass or viewClass must be defined')
+    throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
   }
 }
 
@@ -156,7 +157,7 @@ function getParentRegion(routes, routeIndex) {
   let parent
   routeIndex--
   while (routeIndex >= 0) {
-    parent = routeInstances[routes[routeIndex].name]
+    parent = mnRouteMap[routes[routeIndex].name]
     if (parent.view) {
       region = parent.view.getRegion('outlet')
       if (region) {
@@ -174,6 +175,7 @@ function getParentRegion(routes, routeIndex) {
 }
 
 export function middleware(transition) {
+
   routerChannel.trigger('before:transition', transition)
 
   if (transition.isCancelled) {
@@ -183,7 +185,7 @@ export function middleware(transition) {
   const {activated, deactivated} = getChangingRoutes(transition.prev.routes, transition.routes)
 
   deactivated.some(function (route) {
-    var instance = routeInstances[route.name]
+    var instance = mnRouteMap[route.name]
     if (instance) {
       routerChannel.trigger('before:deactivate', transition, instance)
       if (!transition.isCancelled) {
@@ -199,7 +201,7 @@ export function middleware(transition) {
   }
 
   let activatePromise = activated.reduce(function (prevPromise, route) {
-    let instance = routeInstances[route.name] || (routeInstances[route.name] = createRouteInstance(route.options))
+    let instance = mnRouteMap[route.name] || (mnRouteMap[route.name] = createMnRoute(route))
 
     return prevPromise.then(function () {
       if (!transition.isCancelled) {
@@ -208,18 +210,15 @@ export function middleware(transition) {
           return Promise.resolve(instance.activate(transition)).then(function () {
             routerChannel.trigger('activate', transition, instance)
           })
-        } else {
-          return Promise.resolve()
         }
-      } else {
-        return Promise.resolve()
       }
+      return Promise.resolve()
     })
   }, Promise.resolve())
 
   return activatePromise.then(function () {
     activated.forEach(function (route) {
-      let instance = routeInstances[route.name]
+      let instance = mnRouteMap[route.name]
       let parentRegion
       if (instance.viewClass) {
         parentRegion = getParentRegion(transition.routes, transition.routes.indexOf(route))
