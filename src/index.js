@@ -168,13 +168,22 @@ function getParentRegion(routes, routeIndex) {
 }
 
 export function middleware(transition) {
+  routerChannel.trigger('before:transition', transition)
+
+  if (transition.isCancelled) {
+    return
+  }
+
   const {activated, deactivated} = getChangingRoutes(transition.prev.routes, transition.routes)
 
   deactivated.some(function (route) {
     var instance = routeInstances[route.name]
     if (instance) {
-      router.log('deactivate', route.name)
-      instance.deactivate(transition)
+      routerChannel.trigger('before:deactivate', transition, instance)
+      if (!transition.isCancelled) {
+        instance.deactivate(transition)
+        routerChannel.trigger('deactivate', transition, instance)
+      }
     }
     return transition.isCancelled
   })
@@ -188,8 +197,14 @@ export function middleware(transition) {
 
     return prevPromise.then(function () {
       if (!transition.isCancelled) {
-        router.log('activate', route.name)
-        return Promise.resolve(instance.activate(transition))
+        routerChannel.trigger('before:activate', transition, instance)
+        if (!transition.isCancelled) {
+          return Promise.resolve(instance.activate(transition)).then(function () {
+            routerChannel.trigger('activate', transition, instance)
+          })
+        } else {
+          return Promise.resolve()
+        }
       } else {
         return Promise.resolve()
       }
@@ -205,6 +220,6 @@ export function middleware(transition) {
         instance.renderView(parentRegion)
       }
     })
+    routerChannel.trigger('transition', transition)
   })
 }
-
