@@ -12,7 +12,6 @@
   "license": "MIT",
   "keywords": [],
   "main": "index.js",
-  "jsnext:main": "index.es6.js",
   "babel": {
     "presets": [
       "latest"
