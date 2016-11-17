@@ -17,9 +17,9 @@ let routerChannel = Radio.channel('router')
 let router
 
 class RouteContext {
-  constructor(route, transition) {
-    let routeIndex = transition.mnRoutes.indexOf(route)
-    this.parentRoutes = transition.mnRoutes.slice(0, routeIndex)
+  constructor(routes, route) {
+    let routeIndex = routes.indexOf(route)
+    this.parentRoutes = routes.slice(0, routeIndex)
   }
 
   trigger() {
@@ -72,9 +72,16 @@ export const Route = Marionette.Object.extend(
       }
     },
 
-    getContext(transition) {
+    getContext() {
       //todo: cache context??
-      return new RouteContext(this, transition)
+      let state = router.state
+      let mnRoutes = (state.activeTransition || state).mnRoutes
+      if (!mnRoutes) {
+        mnRoutes = state.routes.map(function (route) {
+          return mnRouteMap[route.name]
+        })
+      }
+      return new RouteContext(mnRoutes, this)
     },
 
     _bindContext() {
@@ -211,6 +218,7 @@ export function middleware(transition) {
   })
 
   transition.then(function () {
+    router.state.mnRoutes = transition.mnRoutes
     routerChannel.trigger('transition', transition)
   })
 

@@ -48,9 +48,27 @@ describe('Route context', () => {
         }
       };
       let leafStub = sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
-        contextValue = this.getContext(transition).request('value')
+        contextValue = this.getContext().request('value')
       });
       router.transitionTo('leaf').then(function () {
+        expect(contextValue).to.be.equal('The Context');
+        done()
+      }).catch(done)
+    });
+
+    it('should work outside of transition lifecycle', function (done) {
+      let leafRoute;
+      GrandChildRoute.prototype.contextRequests =  {
+        value: function () {
+          return 'The Context'
+        }
+      };
+      sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
+        leafRoute = this
+      });
+      router.transitionTo('leaf').then(function () {
+        let contextValue = leafRoute.getContext().request('value');
+        expect(router.state.activeTransition).to.be.equal(null);
         expect(contextValue).to.be.equal('The Context');
         done()
       }).catch(done)
@@ -64,7 +82,7 @@ describe('Route context', () => {
         }
       };
       let childStub = sinon.stub(ChildRoute.prototype, 'activate', function (transition) {
-        contextValue = this.getContext(transition).request('value')
+        contextValue = this.getContext().request('value')
       });
       router.transitionTo('leaf').then(function () {
         expect(contextValue).to.be.equal(undefined);
@@ -87,7 +105,7 @@ describe('Route context', () => {
         }
       };
       let leafStub = sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
-        contextValue = this.getContext(transition).request('value')
+        contextValue = this.getContext().request('value')
       });
       router.transitionTo('leaf').then(function () {
         expect(contextValue).to.be.equal('Grand Child Context');
@@ -103,7 +121,7 @@ describe('Route context', () => {
         }
       };
       let leafStub = sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
-        contextValue = this.getContext(transition).request('othervalue')
+        contextValue = this.getContext().request('othervalue')
       });
       router.transitionTo('leaf').then(function () {
         expect(contextValue).to.be.equal(undefined);
@@ -121,9 +139,26 @@ describe('Route context', () => {
         'my:event': spy
       };
       let leafStub = sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
-        this.getContext(transition).trigger('my:event')
+        this.getContext().trigger('my:event')
       });
       router.transitionTo('leaf').then(function () {
+        expect(spy).to.be.calledOnce;
+        done()
+      }).catch(done)
+    });
+
+    it('should work outside of transition lifecycle', function (done) {
+      let spy = sinon.spy();
+      let leafRoute;
+      GrandChildRoute.prototype.contextEvents =  {
+        'my:event': spy
+      };
+      sinon.stub(LeafRoute.prototype, 'activate', function () {
+        leafRoute = this;
+      });
+      router.transitionTo('leaf').then(function () {
+        leafRoute.getContext().trigger('my:event')
+        expect(router.state.activeTransition).to.be.equal(null);
         expect(spy).to.be.calledOnce;
         done()
       }).catch(done)
@@ -135,7 +170,7 @@ describe('Route context', () => {
         'my:event': spy
       };
       let childStub = sinon.stub(ChildRoute.prototype, 'activate', function (transition) {
-        this.getContext(transition).trigger('my:event')
+        this.getContext().trigger('my:event')
       });
       router.transitionTo('leaf').then(function () {
         expect(spy).to.not.be.called;
