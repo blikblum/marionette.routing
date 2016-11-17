@@ -210,6 +210,10 @@ export function middleware(transition) {
     return mnRouteMap[route.name]
   })
 
+  transition.then(function () {
+    routerChannel.trigger('transition', transition)
+  })
+
   return activatePromise.then(function () {
     activated.forEach(function (route) {
       let mnRoute = mnRouteMap[route.name]
@@ -218,6 +222,5 @@ export function middleware(transition) {
         mnRoute.renderView(parentRegion)
       }
     })
-    routerChannel.trigger('transition', transition)
   })
 }

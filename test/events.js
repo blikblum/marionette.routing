@@ -95,23 +95,28 @@ describe('Events', () => {
         expect(transition).to.be.equal(currentTransition)
       });
       router.transitionTo('root').then(function () {
-        expect(spy).to.be.calledOnce;
-        done()
+        Promise.resolve().then(function () {
+          expect(spy).to.be.calledOnce;
+          done()
+        })
       }).catch(done)
     });
 
     it('should be triggered after a transition is resolved', function (done) {
       let spy = sinon.spy()
-      Radio.channel('router').on('transition', spy);
+      Radio.channel('router').on('transition', function () {
+        expect(router.state.activeTransition).to.be.equal(null);
+        spy();
+      });
       let leafSpy = sinon.spy(LeafRoute.prototype, 'activate');
       router.transitionTo('leaf').then(function () {
-        expect(spy).to.be.calledOnce;
-        expect(spy).to.be.calledAfter(leafSpy);
-        done()
+        Promise.resolve().then(function () {
+          expect(spy).to.be.calledOnce;
+          expect(spy).to.be.calledAfter(leafSpy);
+          done()
+        })
       }).catch(done)
     });
-
-
   });
 
   describe('before:activate', () => {
