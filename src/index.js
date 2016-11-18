@@ -122,20 +122,17 @@ routerChannel.reply('goBack', function () {
   history.back();
 })
 
-function getChangingRoutes(prevRoutes, currentRoutes){
-  var i, prev, current;
+function getChangingIndex(prevRoutes, currentRoutes){
+  var index, prev, current;
   const count = Math.max(prevRoutes.length, currentRoutes.length)
-  for (i = 0; i < count; i++) {
-    prev = prevRoutes[i]
-    current = currentRoutes[i]
+  for (index = 0; index < count; index++) {
+    prev = prevRoutes[index]
+    current = currentRoutes[index]
     if (!(prev && current) || (prev.name !== current.name) || !_.isEqual(prev.params, current.params)) {
       break
     }
   }
-  return {
-    activated: currentRoutes.slice(i),
-    deactivated: prevRoutes.slice(i).reverse()
-  }
+  return index
 }
 
 function createMnRoute(route) {
@@ -179,33 +176,37 @@ export function middleware(transition) {
     return
   }
 
-  const {activated, deactivated} = getChangingRoutes(transition.prev.routes, transition.routes)
+  let prevRoutes = transition.prev.routes
+  let changingIndex = getChangingIndex(prevRoutes, transition.routes)
+  var routeIndex, routeInstance
 
-  deactivated.some(function (route) {
-    let mnRoute = mnRouteMap[route.name]
-    if (mnRoute) {
-      routerChannel.trigger('before:deactivate', transition, mnRoute)
+  for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
+    routeInstance = mnRouteMap[prevRoutes[routeIndex].name]
+    if (routeInstance) {
+      routerChannel.trigger('before:deactivate', transition, routeInstance)
       if (!transition.isCancelled) {
-        mnRoute.deactivate(transition)
-        routerChannel.trigger('deactivate', transition, mnRoute)
+        routeInstance.deactivate(transition)
+        routerChannel.trigger('deactivate', transition, routeInstance)
+      }
+      if (transition.isCancelled) {
+        return
       }
     }
-    return transition.isCancelled
-  })
-
-  if (transition.isCancelled) {
-    return
   }
 
-  let activatePromise = activated.reduce(function (prevPromise, route) {
-    let instance = mnRouteMap[route.name] || (mnRouteMap[route.name] = createMnRoute(route))
+  let mnRoutes = transition.mnRoutes = transition.routes.map(function (route) {
+    return mnRouteMap[route.name] || (mnRouteMap[route.name] = createMnRoute(route))
+  })
 
+  let activated = mnRoutes.slice(changingIndex)
+
+  let activatePromise = activated.reduce(function (prevPromise, mnRoute) {
     return prevPromise.then(function () {
       if (!transition.isCancelled) {
-        routerChannel.trigger('before:activate', transition, instance)
+        routerChannel.trigger('before:activate', transition, mnRoute)
         if (!transition.isCancelled) {
-          return Promise.resolve(instance.activate(transition)).then(function () {
-            routerChannel.trigger('activate', transition, instance)
+          return Promise.resolve(mnRoute.activate(transition)).then(function () {
+            routerChannel.trigger('activate', transition, mnRoute)
           })
         }
       }
@@ -213,20 +214,15 @@ export function middleware(transition) {
     })
   }, Promise.resolve())
 
-  transition.mnRoutes = transition.routes.map(function (route) {
-    return mnRouteMap[route.name]
-  })
-
   transition.then(function () {
-    router.state.mnRoutes = transition.mnRoutes
+    router.state.mnRoutes = mnRoutes
     routerChannel.trigger('transition', transition)
   })
 
   return activatePromise.then(function () {
-    activated.forEach(function (route) {
-      let mnRoute = mnRouteMap[route.name]
+    activated.forEach(function (mnRoute) {
       if (mnRoute.viewClass) {
-        let parentRegion = getParentRegion(transition.mnRoutes, mnRoute)
+        let parentRegion = getParentRegion(mnRoutes, mnRoute)
         mnRoute.renderView(parentRegion)
       }
     })
