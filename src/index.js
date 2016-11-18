@@ -37,7 +37,7 @@ class RouteContext {
     for (let i = parentRoutes.length - 1; i >= 0; i--) {
       let channel = parentRoutes[i]._contextChannel
       if (channel && channel._requests[name]) {
-        return channel.request(name)
+        return channel.request.apply(channel, arguments)
       }
     }
   }

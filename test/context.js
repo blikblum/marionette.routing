@@ -42,15 +42,18 @@ describe('Route context', () => {
 
     it('should be replied by a parent route', function (done) {
       let contextValue;
+      let spy = sinon.spy(function () {
+        return 'The Context'
+      })
       GrandChildRoute.prototype.contextRequests =  {
-        value: function () {
-          return 'The Context'
-        }
+        value: spy
       };
       let leafStub = sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
-        contextValue = this.getContext().request('value')
+        contextValue = this.getContext().request('value', 'a', 5)
       });
       router.transitionTo('leaf').then(function () {
+        expect(spy).to.be.calledOnce;
+        expect(spy).to.be.calledWith('a', 5)
         expect(contextValue).to.be.equal('The Context');
         done()
       }).catch(done)
@@ -139,10 +142,11 @@ describe('Route context', () => {
         'my:event': spy
       };
       let leafStub = sinon.stub(LeafRoute.prototype, 'activate', function (transition) {
-        this.getContext().trigger('my:event')
+        this.getContext().trigger('my:event', 'a', 5)
       });
       router.transitionTo('leaf').then(function () {
         expect(spy).to.be.calledOnce;
+        expect(spy).to.be.calledWith('a', 5)
         done()
       }).catch(done)
     });
