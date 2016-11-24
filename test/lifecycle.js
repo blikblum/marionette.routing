@@ -49,6 +49,13 @@ describe('Lifecycle hooks', () => {
     destroyRouter(router);
   })
 
+  describe('router instance', () => {
+    it('should be accessible in Route classes as $router', function () {
+      let route = new Route();
+      expect(route.$router).to.be.equal(router)
+    })
+  })
+
   describe('initialize', () => {
 
     it('should be called once with routeOptions', function (done) {

@@ -74,7 +74,7 @@ export const Route = Marionette.Object.extend(
 
     getContext() {
       //todo: cache context??
-      let state = router.state
+      let state = this.$router.state
       let mnRoutes = (state.activeTransition || state).mnRoutes
       if (!mnRoutes) {
         mnRoutes = state.routes.map(function (route) {
@@ -104,11 +104,12 @@ export function createRouter(options) {
   if (router) {
     throw new Error('Instance of router already created')
   }
-  return router = cherrytree(options)
+  return router = Route.prototype.$router = cherrytree(options)
 }
 
 export function destroyRouter(instance) {
   router = null
+  Route.prototype.$router = null
   mnRouteMap = Object.create(null)
   instance.destroy()
 }
