@@ -11,6 +11,7 @@ export default Marionette.Object.extend(
       Marionette.Object.call(this, options);
       this._bindContext()
     },
+
     activate() {
 
     },
@@ -53,6 +54,8 @@ export default Marionette.Object.extend(
 
       this.bindRequests(channel, requests)
       this.bindEvents(channel, events)
-    }
+    },
+
+    $router: null
   }
 )
