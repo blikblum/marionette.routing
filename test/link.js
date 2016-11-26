@@ -46,7 +46,7 @@ describe('RouterLink', () => {
   });
 
   beforeEach(() => {
-    router = createRouter({location: 'memory'});
+    router = createRouter();
     router.use(middleware);
     ParentRoute = Route.extend({
       viewClass: ParentView
@@ -74,13 +74,14 @@ describe('RouterLink', () => {
 
   afterEach(() => {
     destroyRouter(router);
+    document.location.path = ''
   });
 
   it('should generate href attributes in anchor tags with route attribute', function () {
     return router.transitionTo('parent').then(function () {
-      expect($('#a-parentlink').attr('href')).to.be.equal('/parent')
-      expect($('#a-rootlink').attr('href')).to.be.equal('/root/2')
-      expect($('#a-grandchildlink').attr('href')).to.be.equal('/parent/child/grandchild')
+      expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
+      expect($('#a-rootlink').attr('href')).to.be.equal('#root/2')
+      expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild')
     })
   })
 
