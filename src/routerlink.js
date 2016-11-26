@@ -40,12 +40,10 @@ export default Marionette.Behavior.extend({
   },
 
   onRender() {
-    let view = this.view
     this.$('a[route]').attr({href: function () {
       let routeName = this.getAttribute('route')
       let params = getRouteParams(this)
-      let value = routerChannel.request('generate', routeName, params)
-      return value
+      return routerChannel.request('generate', routeName, params)
     }})
   },
 
