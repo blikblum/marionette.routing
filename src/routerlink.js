@@ -25,9 +25,13 @@ export default Marionette.Behavior.extend({
   },
 
   onTransition(transition) {
-    let self = this
+    let view = this.view
     this.$('[route]').each(function () {
-      self.$(this).toggleClass('active', this.getAttribute('href') === transition.path)
+      let $el = view.$(this)
+      let routeName = $el.attr('route')
+      if (!routeName) return;
+      let isActive = routerChannel.request('isActive', routeName, getRouteParams(this))
+      $el.toggleClass('active', isActive)
     })
   },
 

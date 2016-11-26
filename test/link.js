@@ -16,9 +16,10 @@ let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute;
 let ParentView = Mn.View.extend({
   behaviors: [RouterLink],
   template: function () {
-    return `<div id="div-rootlink" route="root" param-id="1"></div>
+    return `<div id="div-rootlink1" route="root" param-id="1"></div>
       <div id="div-grandchildlink" route="grandchild"></div>
-      <a id="a-rootlink" route="root" param-id="2"></a>
+      <div id="div-parentlink" route="parent"></div>
+      <a id="a-rootlink2" route="root" param-id="2"></a>
       <a id="a-parentlink" route="parent"></a>
       <a id="a-grandchildlink" route="grandchild"></a>
       <div class="child-view"></div>
@@ -80,7 +81,7 @@ describe('RouterLink', () => {
   it('should generate href attributes in anchor tags with route attribute', function () {
     return router.transitionTo('parent').then(function () {
       expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
-      expect($('#a-rootlink').attr('href')).to.be.equal('#root/2')
+      expect($('#a-rootlink2').attr('href')).to.be.equal('#root/2')
       expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild')
     })
   })
@@ -88,12 +89,42 @@ describe('RouterLink', () => {
   it('should call transitionTo when a non anchor tags with route attribute is clicked', function () {
     return router.transitionTo('parent').then(function () {
       let spy = sinon.spy(router, 'transitionTo')
-      $('#div-rootlink').click()
+      $('#div-rootlink1').click()
       expect(spy).to.be.calledOnce.and.calledWith('root', {'id': '1'})
 
       spy.reset()
       $('#div-grandchildlink').click()
       expect(spy).to.be.calledOnce.and.calledWith('grandchild')
+    })
+  })
+
+  it('should set active class in tag with route attribute when respective route is active', function () {
+    return router.transitionTo('parent').then(function () {
+      //this handler will be called before middleware one. PostPone actual test
+      return Promise.resolve()
+    }).then(function () {
+      expect($('#a-parentlink').hasClass('active')).to.be.true
+      expect($('#div-parentlink').hasClass('active')).to.be.true
+      expect($('#a-rootlink2').hasClass('active')).to.be.false
+      expect($('#div-rootlink1').hasClass('active')).to.be.false
+      expect($('#a-grandchildlink').hasClass('active')).to.be.false
+      expect($('#div-grandchildlink').hasClass('active')).to.be.false
+      return router.transitionTo('root', {id: '1'})
+    }).then(function () {
+      expect($('#a-parentlink').hasClass('active')).to.be.false
+      expect($('#div-parentlink').hasClass('active')).to.be.false
+      expect($('#a-rootlink2').hasClass('active')).to.be.false
+      expect($('#div-rootlink1').hasClass('active')).to.be.true
+      expect($('#a-grandchildlink').hasClass('active')).to.be.false
+      expect($('#div-grandchildlink').hasClass('active')).to.be.false
+      return router.transitionTo('grandchild')
+    }).then(function () {
+      expect($('#a-parentlink').hasClass('active')).to.be.true
+      expect($('#div-parentlink').hasClass('active')).to.be.true
+      expect($('#a-rootlink2').hasClass('active')).to.be.false
+      expect($('#div-rootlink1').hasClass('active')).to.be.false
+      expect($('#a-grandchildlink').hasClass('active')).to.be.true
+      expect($('#div-grandchildlink').hasClass('active')).to.be.true
     })
   })
 });
