@@ -37,7 +37,15 @@ export function getMnRoutes(routes) {
 }
 
 routerChannel.reply('transitionTo', function () {
-  router.transitionTo.apply(router, arguments)
+  return router.transitionTo.apply(router, arguments)
+})
+
+routerChannel.reply('isActive', function () {
+  return router.isActive.apply(router, arguments)
+})
+
+routerChannel.reply('generate', function () {
+  return router.generate.apply(router, arguments)
 })
 
 routerChannel.reply('goBack', function () {
