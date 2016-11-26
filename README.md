@@ -15,7 +15,7 @@
 &nbsp; &nbsp; ✓ Expose route events through [Radio](https://github.com/marionettejs/backbone.radio)<br>
 &nbsp; &nbsp; ✓ Implement route context for scoped messaging<br>
 &nbsp; &nbsp; ✓ API interface semantics similar to MarionetteJS one<br>
-&nbsp; &nbsp; ✓ Inherits mostly of cherrytree features<br>
+&nbsp; &nbsp; ✓ Inherits most of [Cherrytree](https://github.com/QubitProducts/cherrytree) features<br>
 &nbsp; &nbsp; ✓ (Planned) Lazy loading of routes through code splitting<br>
 
 ### Installation
