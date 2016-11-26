@@ -36,7 +36,7 @@ export default Marionette.Behavior.extend({
   },
 
   onLinkClick(e) {
-    let el = e.target
+    let el = e.currentTarget
     let routeName = el.getAttribute('route')
     if (!routeName) return;
     let params = getRouteParams(el)

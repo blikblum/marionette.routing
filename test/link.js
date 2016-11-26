@@ -18,7 +18,7 @@ let ParentView = Mn.View.extend({
   template: function () {
     return `<div id="div-rootlink1" route="root" param-id="1"></div>
       <div id="div-grandchildlink" route="grandchild"></div>
-      <div id="div-parentlink" route="parent"></div>
+      <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
       <a id="a-rootlink2" route="root" param-id="2"></a>
       <a id="a-parentlink" route="parent"></a>
       <a id="a-grandchildlink" route="grandchild"></a>
@@ -95,6 +95,10 @@ describe('RouterLink', () => {
       spy.reset()
       $('#div-grandchildlink').click()
       expect(spy).to.be.calledOnce.and.calledWith('grandchild')
+
+      spy.reset()
+      $('#innerparent').click()
+      expect(spy).to.be.calledOnce.and.calledWith('parent')
     })
   })
 
