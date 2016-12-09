@@ -22,7 +22,7 @@ let ParentView = Mn.View.extend({
       <a id="a-rootlink2" route="root" param-id="2"></a>
       <a id="a-parentlink" route="parent"></a>
       <a id="a-grandchildlink" route="grandchild"></a>
-      <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a></div>
+      <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
       <div class="child-view"></div>
      `
   },
@@ -91,6 +91,7 @@ describe('RouterLink', () => {
     return router.transitionTo('parent').then(function () {
       expect($('#childanchor').attr('href')).to.be.equal('#parent')
       expect($('#childanchor2').attr('href')).to.be.equal(undefined)
+      expect($('#childanchor3').attr('href')).to.be.equal(undefined)
     })
   })
 

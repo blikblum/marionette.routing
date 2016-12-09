@@ -56,7 +56,7 @@ export default Marionette.Behavior.extend({
       if (this.tagName === 'A') {
         this.setAttribute('href', href)
       } else {
-        view.$(this).find('a:first-of-type').attr({href: href})
+        view.$(this).find('a').eq(0).attr({href: href})
       }
     })
   },
