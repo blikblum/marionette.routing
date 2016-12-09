@@ -22,6 +22,7 @@ let ParentView = Mn.View.extend({
       <a id="a-rootlink2" route="root" param-id="2"></a>
       <a id="a-parentlink" route="parent"></a>
       <a id="a-grandchildlink" route="grandchild"></a>
+      <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a></div>
       <div class="child-view"></div>
      `
   },
@@ -86,6 +87,13 @@ describe('RouterLink', () => {
     })
   })
 
+  it('should generate href attributes in first child anchor of a element with route attribute', function () {
+    return router.transitionTo('parent').then(function () {
+      expect($('#childanchor').attr('href')).to.be.equal('#parent')
+      expect($('#childanchor2').attr('href')).to.be.equal(undefined)
+    })
+  })
+
   it('should call transitionTo when a non anchor tags with route attribute is clicked', function () {
     return router.transitionTo('parent').then(function () {
       let spy = sinon.spy(router, 'transitionTo')
@@ -99,6 +107,14 @@ describe('RouterLink', () => {
       spy.reset()
       $('#innerparent').click()
       expect(spy).to.be.calledOnce.and.calledWith('parent')
+    })
+  })
+
+  it('should not call transitionTo when a non anchor tags with route attribute with an anchor descendant is clicked', function () {
+    return router.transitionTo('parent').then(function () {
+      let spy = sinon.spy(router, 'transitionTo')
+      $('#div-a-parent').click()
+      expect(spy).not.to.be.called
     })
   })
 

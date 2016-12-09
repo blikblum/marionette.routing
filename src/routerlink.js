@@ -37,6 +37,7 @@ export default Marionette.Behavior.extend({
 
   onLinkClick(e) {
     let el = e.currentTarget
+    if (this.$(el).find('a').length) return ;
     let routeName = el.getAttribute('route')
     if (!routeName) return;
     let params = getRouteParams(el)
@@ -44,11 +45,20 @@ export default Marionette.Behavior.extend({
   },
 
   onRender() {
-    this.$('a[route]').attr({href: function () {
+    let view = this.view
+    let $routes = view.$('[route]');
+
+    $routes.each(function () {
       let routeName = this.getAttribute('route')
+      if (!routeName) return;
       let params = getRouteParams(this)
-      return routerChannel.request('generate', routeName, params)
-    }})
+      let href = routerChannel.request('generate', routeName, params)
+      if (this.tagName === 'A') {
+        this.setAttribute('href', href)
+      } else {
+        view.$(this).find('a:first-of-type').attr({href: href})
+      }
+    })
   },
 
   onDestroy() {
