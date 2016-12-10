@@ -57,4 +57,26 @@ describe('Route configuration', () => {
     })
   });
 
+  it('can be loaded asynchronously', function () {
+    ChildRoute.prototype.childRoutes = function () {
+      return {
+        grandchild: GrandChildRoute,
+        leaf: function () {
+          let promise = new Promise(function (resolve) {
+            setTimeout(function () {
+              resolve()
+            }, 200)
+          })
+          return promise.then(function () {
+            return LeafRoute
+          })
+        }
+      }
+    };
+    let spy = sinon.spy(LeafRoute.prototype, 'initialize');
+    return router.transitionTo('leaf').then(function () {
+      expect(spy).to.be.calledOnce;
+    })
+  });
+
 });

@@ -101,11 +101,17 @@ function createMnRoute(route, index, routes) {
   let instance = createRouteInstance(route.options)
   if (!instance) {
     let config = findRouteConfig(route.name, index, routes)
-    instance = config && createRouteInstance(config)
+    return Promise.resolve(config).then(function (options) {
+      if (options.prototype instanceof Route) {
+        options = {routeClass: options}
+      }
+      return options && createRouteInstance(options)
+    })
   }
   if (!instance) {
     throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
   }
+  instance.$name = route.name
   return instance
 }
 
@@ -156,32 +162,50 @@ export function middleware(transition) {
     }
   }
 
-  let mnRoutes = transition.mnRoutes = transition.routes.map(function (route, i, routes) {
-    return mnRouteMap[route.name] || (mnRouteMap[route.name] = createMnRoute(route, i, routes))
-  })
-
-  let activated = mnRoutes.slice(changingIndex)
-
-  let activatePromise = activated.reduce(function (prevPromise, mnRoute) {
-    return prevPromise.then(function () {
-      if (!transition.isCancelled) {
-        routerChannel.trigger('before:activate', transition, mnRoute)
-        if (!transition.isCancelled) {
-          return Promise.resolve(mnRoute.activate(transition)).then(function () {
-            routerChannel.trigger('activate', transition, mnRoute)
-          })
-        }
+  let promise = transition.routes.reduce(function (acc, route, i, routes) {
+    return acc.then(function (res) {
+      let instance = mnRouteMap[route.name]
+      if (instance) {
+        res.push(instance)
+        return res
+      } else {
+        instance = createMnRoute(route, i, routes)
+        return Promise.resolve(instance).then(function (mnRoute) {
+          mnRouteMap[route.name] = mnRoute
+          res.push(mnRoute)
+          return res
+        })
       }
-      return Promise.resolve()
-    })
-  }, Promise.resolve())
+    });
+  }, Promise.resolve([]));
+
+  let mnRoutes
+  let activated
+
+  promise = promise.then(function (res) {
+    transition.mnRoutes = mnRoutes = res
+    activated = mnRoutes.slice(changingIndex)
+    return activated.reduce(function (prevPromise, mnRoute) {
+      return prevPromise.then(function () {
+        if (!transition.isCancelled) {
+          routerChannel.trigger('before:activate', transition, mnRoute)
+          if (!transition.isCancelled) {
+            return Promise.resolve(mnRoute.activate(transition)).then(function () {
+              routerChannel.trigger('activate', transition, mnRoute)
+            })
+          }
+        }
+        return Promise.resolve()
+      })
+    }, Promise.resolve())
+  })
 
   transition.then(function () {
     router.state.mnRoutes = mnRoutes
     routerChannel.trigger('transition', transition)
   })
 
-  return activatePromise.then(function () {
+  return promise.then(function () {
     activated.forEach(function (mnRoute) {
       if (mnRoute.viewClass) {
         let parentRegion = getParentRegion(mnRoutes, mnRoute)
