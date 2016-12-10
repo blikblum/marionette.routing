@@ -1,5 +1,4 @@
 import chai from 'chai';
-import jsdom from 'mocha-jsdom';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {Route, RouterLink, createRouter, destroyRouter, middleware} from '../src/index';
@@ -41,11 +40,15 @@ let GrandChildView = Mn.View.extend({
 describe('RouterLink', () => {
 
   let $;
-  jsdom();
 
   before(function () {
+    this.jsdom = require('jsdom-global')()
     Backbone.$ = $ = require('jquery')(window)
   });
+
+  after(function () {
+    this.jsdom()
+  })
 
   beforeEach(() => {
     router = createRouter();

@@ -1,5 +1,4 @@
 import chai from 'chai';
-import jsdom from 'mocha-jsdom';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {Route, createRouter, destroyRouter, middleware} from '../src/index';
@@ -8,7 +7,6 @@ import Backbone from 'backbone';
 
 let expect = chai.expect;
 chai.use(sinonChai);
-
 
 let router, routes;
 let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute;
@@ -66,11 +64,15 @@ describe('Render', () => {
 
   describe('viewClass', function () {
     let $;
-    jsdom();
 
     before(function () {
+      this.jsdom = require('jsdom-global')()
       Backbone.$ = $ = require('jquery')(window)
     });
+
+    after(function () {
+      this.jsdom()
+    })
 
     beforeEach(function () {
       document.body.innerHTML = '<div id="main"></div>';
