@@ -206,6 +206,10 @@ export function middleware(transition) {
   })
 
   return promise.then(function () {
+    //ensure at least the target (last) route is rendered
+    if (!activated.length && mnRoutes.length) {
+      activated.push(mnRoutes[mnRoutes.length - 1])
+    }
     activated.forEach(function (mnRoute) {
       if (mnRoute.viewClass) {
         let parentRegion = getParentRegion(mnRoutes, mnRoute)

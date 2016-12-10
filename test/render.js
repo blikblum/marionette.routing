@@ -163,6 +163,19 @@ describe('Render', () => {
 
     })
 
+    describe('of a target route', function () {
+
+      it('should be rendered even if already activated', function () {
+        let spy = sinon.spy(ParentView.prototype, 'render')
+        return router.transitionTo('grandchild').then(function () {
+          return router.transitionTo('parent')
+        }).then(function () {
+          expect(spy).to.be.calledTwice;
+          expect($('#main').html()).to.be.equal('<div><div class="child-view"></div></div>');
+        })
+      });
+    })
+
   })
 
 });
