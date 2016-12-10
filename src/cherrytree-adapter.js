@@ -148,6 +148,7 @@ export function middleware(transition) {
   let changingIndex = getChangingIndex(prevRoutes, transition.routes)
   var routeIndex, routeInstance
 
+  //deactivate previous routes
   for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
     routeInstance = mnRouteMap[prevRoutes[routeIndex].name]
     if (routeInstance) {
@@ -161,6 +162,9 @@ export function middleware(transition) {
       }
     }
   }
+
+  //build route tree and creating instances if necessary
+  let mnRoutes = transition.mnRoutes = []
 
   let promise = transition.routes.reduce(function (acc, route, i, routes) {
     return acc.then(function (res) {
@@ -177,13 +181,12 @@ export function middleware(transition) {
         })
       }
     });
-  }, Promise.resolve([]));
+  }, Promise.resolve(mnRoutes));
 
-  let mnRoutes
+  //activate routes in order
   let activated
 
-  promise = promise.then(function (res) {
-    transition.mnRoutes = mnRoutes = res
+  promise = promise.then(function () {
     activated = mnRoutes.slice(changingIndex)
     return activated.reduce(function (prevPromise, mnRoute) {
       return prevPromise.then(function () {
@@ -205,6 +208,7 @@ export function middleware(transition) {
     routerChannel.trigger('transition', transition)
   })
 
+  //render views
   return promise.then(function () {
     //ensure at least the target (last) route is rendered
     if (!activated.length && mnRoutes.length) {
