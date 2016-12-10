@@ -74,14 +74,8 @@ function findRouteConfig(routeName, index, routes) {
   parentRoutes.some(function (route) {
     let childRoutes = _.result(route, 'childRoutes')
     config = childRoutes && childRoutes[routeName]
-    if (!config) return;
-    if (config.prototype instanceof Route) {
-      config = {routeClass: config}
-    } else if (_.isFunction(config)) {
+    if (_.isFunction(config) && !(config.prototype instanceof Route)) {
       config = config.call(route)
-      if (config.prototype instanceof Route) {
-        config = {routeClass: config}
-      }
     }
     return config
   })
@@ -89,6 +83,9 @@ function findRouteConfig(routeName, index, routes) {
 }
 
 function createRouteInstance(options) {
+  if (options.prototype instanceof Route) {
+    return new options()
+  }
   let routeOptions = Object.assign({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
     return new options.routeClass(routeOptions)
@@ -102,9 +99,6 @@ function createMnRoute(route, index, routes) {
   if (!instance) {
     let config = findRouteConfig(route.name, index, routes)
     return Promise.resolve(config).then(function (options) {
-      if (options.prototype instanceof Route) {
-        options = {routeClass: options}
-      }
       return options && createRouteInstance(options)
     })
   }
