@@ -66,16 +66,47 @@ function getChangingIndex(prevRoutes, currentRoutes){
   return index
 }
 
-function createMnRoute(route) {
-  let options = route.options
+function findRouteConfig(routeName, index, routes) {
+  let parentRoutes = routes.slice(0, index).reverse().map(function (route) {
+    return mnRouteMap[route.name]
+  })
+  let config
+  parentRoutes.some(function (route) {
+    let childRoutes = _.result(route, 'childRoutes')
+    config = childRoutes && childRoutes[routeName]
+    if (!config) return;
+    if (config.prototype instanceof Route) {
+      config = {routeClass: config}
+    } else if (_.isFunction(config)) {
+      config = config.call(route)
+      if (config.prototype instanceof Route) {
+        config = {routeClass: config}
+      }
+    }
+    return config
+  })
+  return config
+}
+
+function createRouteInstance(options) {
   let routeOptions = Object.assign({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
     return new options.routeClass(routeOptions)
   } else if (options.viewClass || options.abstract) {
     return new Route(routeOptions)
-  } else {
+  }
+}
+
+function createMnRoute(route, index, routes) {
+  let instance = createRouteInstance(route.options)
+  if (!instance) {
+    let config = findRouteConfig(route.name, index, routes)
+    instance = config && createRouteInstance(config)
+  }
+  if (!instance) {
     throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
   }
+  return instance
 }
 
 function getParentRegion(routes, route) {
@@ -125,8 +156,8 @@ export function middleware(transition) {
     }
   }
 
-  let mnRoutes = transition.mnRoutes = transition.routes.map(function (route) {
-    return mnRouteMap[route.name] || (mnRouteMap[route.name] = createMnRoute(route))
+  let mnRoutes = transition.mnRoutes = transition.routes.map(function (route, i, routes) {
+    return mnRouteMap[route.name] || (mnRouteMap[route.name] = createMnRoute(route, i, routes))
   })
 
   let activated = mnRoutes.slice(changingIndex)
