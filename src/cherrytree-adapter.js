@@ -200,6 +200,10 @@ export function middleware(transition) {
   transition.then(function () {
     router.state.mnRoutes = mnRoutes
     routerChannel.trigger('transition', transition)
+  }).catch(function (err) {
+    if (err.type !== 'TransitionCancelled' && err.type !== 'TransitionRedirected') {
+      routerChannel.trigger('transition:error', transition, err)
+    }
   })
 
   //render views

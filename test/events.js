@@ -119,6 +119,74 @@ describe('Events', () => {
     });
   });
 
+  describe('transition:error', () => {
+
+    it('should be called when an error occurs in middle of transaction', function () {
+      let spy = sinon.spy()
+
+      Radio.channel('router').on('transition:error', spy);
+
+      RootRoute.prototype.activate = function () {
+        throw new Error('xx')
+      }
+
+      return router.transitionTo('root').catch(function () {
+        Promise.resolve().then(function () {
+          expect(spy).to.be.calledOnce;
+        })
+      })
+    });
+
+    it('should be called with transition and error as arguments', function (done) {
+
+      Radio.channel('router').on('transition:error', function (transition, e) {
+        expect(transition).to.be.equal(currentTransition)
+        expect(e).to.be.a('error')
+        done()
+      });
+
+      RootRoute.prototype.activate = function () {
+        throw new Error('xx')
+      }
+
+      router.transitionTo('root')
+    });
+
+    it('should not be called when transaction is redirected', function (done) {
+      let spy = sinon.spy()
+
+      Radio.channel('router').on('transition:error', spy);
+
+      RootRoute.prototype.activate = function (transition) {
+        transition.redirectTo('parent')
+      }
+
+     router.transitionTo('root').catch(function () {
+        Promise.resolve().then(function () {
+          expect(spy).to.not.be.called;
+          done()
+        })
+      })
+    });
+
+    it('should not be called when transaction is cancelled', function () {
+      let spy = sinon.spy()
+
+      Radio.channel('router').on('transition:error', spy);
+
+      RootRoute.prototype.activate = function (transition) {
+        transition.cancel()
+      }
+
+      return router.transitionTo('root').catch(function () {
+        Promise.resolve().then(function () {
+          expect(spy).to.not.be.called;
+        })
+      })
+    });
+
+  });
+
   describe('before:activate', () => {
 
     it('should be called with transition and route as arguments', function (done) {
