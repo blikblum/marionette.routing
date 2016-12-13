@@ -225,5 +225,22 @@ describe('Render', () => {
 
   })
 
+  describe('view', function () {
+
+    it('should be set to undefined after is destroyed', function () {
+      let routeInstance
+      sinon.stub(ParentRoute.prototype, 'initialize', function () {
+        routeInstance = this
+      })
+
+      return router.transitionTo('parent').then(function () {
+        return router.transitionTo('root')
+      }).then(function () {
+        expect(routeInstance.view).to.not.exist
+      })
+    })
+
+  })
+
 });
   
