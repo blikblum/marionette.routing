@@ -20,17 +20,22 @@ export default Marionette.Object.extend(
 
     },
 
-    renderView(region) {
+    renderView(region, transition) {
       //todo: move renderView out of Route class??
       if (!this.viewClass) {
         throw new Error('render: viewClass not defined')
       }
+      if (this.view && this.updateView(transition)) return ;
       this.view = new this.viewClass(_.result(this, 'viewOptions', {}))
       region.show(this.view)
       routerChannel.trigger('route:render', this)
       if (this.viewEvents) {
         Marionette.bindEvents(this, this.view, this.viewEvents)
       }
+    },
+
+    updateView() {
+
     },
 
     getContext() {

@@ -211,7 +211,7 @@ export function middleware(transition) {
     activated.forEach(function (mnRoute) {
       if (mnRoute.viewClass) {
         let parentRegion = getParentRegion(mnRoutes, mnRoute)
-        mnRoute.renderView(parentRegion)
+        mnRoute.renderView(parentRegion, transition)
       }
     })
   })

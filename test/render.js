@@ -35,6 +35,17 @@ let LeafView = Mn.View.extend({
 
 describe('Render', () => {
 
+  let $;
+
+  before(function () {
+    this.jsdom = require('jsdom-global')()
+    Backbone.$ = $ = require('jquery')(window)
+  });
+
+  after(function () {
+    this.jsdom()
+  })
+
   beforeEach(() => {
     router = createRouter({location: 'memory'});
     router.use(middleware);
@@ -56,6 +67,12 @@ describe('Render', () => {
     };
     router.map(routes);
     router.listen();
+
+    document.body.innerHTML = '<div id="main"></div>';
+    let RootRegion = Mn.Region.extend({
+      el: '#main'
+    });
+    router.rootRegion = new RootRegion()
   });
 
   afterEach(() => {
@@ -63,24 +80,6 @@ describe('Render', () => {
   });
 
   describe('viewClass', function () {
-    let $;
-
-    before(function () {
-      this.jsdom = require('jsdom-global')()
-      Backbone.$ = $ = require('jquery')(window)
-    });
-
-    after(function () {
-      this.jsdom()
-    })
-
-    beforeEach(function () {
-      document.body.innerHTML = '<div id="main"></div>';
-      let RootRegion = Mn.Region.extend({
-        el: '#main'
-      });
-      router.rootRegion = new RootRegion()
-    });
 
     it('can be defined in the Route class', function(done){
       router.transitionTo('parent').then(function () {
@@ -176,6 +175,52 @@ describe('Render', () => {
           expect($('#main').html()).to.be.equal('<div><div class="child-view"></div></div>');
         })
       });
+    })
+
+  })
+
+  describe('renderView', function () {
+    it('should be called with region and transition objects', function () {
+      let spy = sinon.spy(ParentRoute.prototype, 'renderView')
+      let transition = router.transitionTo('parent')
+      return transition.then(function () {
+        expect(spy).to.be.calledOnce.and.calledWith(router.rootRegion, transition)
+      })
+    })
+  })
+
+  describe('updateView', function () {
+
+    it('should be called only if route has a rendered view', function () {
+      let spy = sinon.spy(ParentRoute.prototype, 'updateView')
+      let transition
+      return router.transitionTo('parent').then(function () {
+        expect(spy).not.to.be.called
+        //force a new render
+        transition = router.transitionTo('parent', {}, {id: 1})
+        return transition
+      }).then(function () {
+        expect(spy).to.be.calledOnce.and.calledWith(transition)
+      })
+    })
+
+    it('should prevent view re render if returns truthy', function () {
+      let routeInstance, savedView
+      sinon.stub(ParentRoute.prototype, 'initialize', function () {
+        routeInstance = this
+      })
+
+      ParentRoute.prototype.updateView = function () {
+        return true
+      }
+
+      return router.transitionTo('parent').then(function () {
+        savedView = routeInstance.view
+        //force a new render
+        return router.transitionTo('parent', {}, {id: 1})
+      }).then(function () {
+        expect(savedView).to.be.equal(routeInstance.view)
+      })
     })
 
   })
