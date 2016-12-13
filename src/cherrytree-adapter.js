@@ -86,7 +86,7 @@ function createRouteInstance(options) {
   if (options.prototype instanceof Route) {
     return new options()
   }
-  let routeOptions = Object.assign({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
+  let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
     return new options.routeClass(routeOptions)
   } else if (options.viewClass || options.abstract) {
