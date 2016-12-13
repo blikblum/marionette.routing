@@ -62,13 +62,10 @@ describe('Route configuration', () => {
       return {
         grandchild: GrandChildRoute,
         leaf: function () {
-          let promise = new Promise(function (resolve) {
+          return new Promise(function (resolve) {
             setTimeout(function () {
-              resolve()
+              resolve(LeafRoute)
             }, 200)
-          })
-          return promise.then(function () {
-            return LeafRoute
           })
         }
       }
