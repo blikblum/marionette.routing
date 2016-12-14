@@ -273,6 +273,19 @@ describe('Render', () => {
       })
     })
 
+    it('should not be set to undefined after rendering the same route', function () {
+      let routeInstance
+      sinon.stub(ParentRoute.prototype, 'initialize', function () {
+        routeInstance = this
+      })
+
+      return router.transitionTo('parent').then(function () {
+        return router.transitionTo('parent', {}, {page: 1})
+      }).then(function () {
+        expect(routeInstance.view).to.exist
+      })
+    })
+
   })
 
 });

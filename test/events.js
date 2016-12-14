@@ -1,6 +1,7 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import _ from 'underscore';
 import Radio from 'backbone.radio';
 import {Route, createRouter, destroyRouter, middleware} from '../src/index';
 
@@ -266,6 +267,20 @@ describe('Events', () => {
         expect(spy).to.be.calledAfter(promiseSpy);
         done()
       }).catch(done)
+    });
+
+    it('should not be triggered when transition is cancelled in activate method', function (done) {
+      let spy = sinon.spy()
+      Radio.channel('router').on('activate', spy);
+      sinon.stub(RootRoute.prototype, 'activate', function (transition) {
+        transition.cancel()
+      });
+      router.transitionTo('root').catch(function () {
+        _.defer(function () {
+          expect(spy).to.not.be.called;
+          done();
+        })
+      })
     });
 
     it('should allow to cancel the transition', function (done) {
