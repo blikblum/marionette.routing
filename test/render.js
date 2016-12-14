@@ -2,6 +2,8 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {Route, createRouter, destroyRouter, middleware} from '../src/index';
+import _ from 'underscore';
+import Radio from 'backbone.radio';
 import Mn from 'backbone.marionette';
 import Backbone from 'backbone';
 
@@ -185,6 +187,37 @@ describe('Render', () => {
       let transition = router.transitionTo('parent')
       return transition.then(function () {
         expect(spy).to.be.calledOnce.and.calledWith(router.rootRegion, transition)
+      })
+    })
+
+    it('should be called after activate is resolved', function () {
+      let spy = sinon.spy(ParentRoute.prototype, 'renderView')
+      let activateSpy = sinon.spy()
+      ParentRoute.prototype.activate = function () {
+        return new Promise(function (resolve) {
+          setTimeout(function () {
+            resolve()
+          }, 100)
+        })
+      }
+      Radio.channel('router').on('activate', activateSpy)
+
+      return router.transitionTo('parent').then(function () {
+        expect(spy).to.be.calledAfter(activateSpy)
+      })
+    })
+
+    it('should be not be called when transition is cancelled', function (done) {
+      let spy = sinon.spy(ParentRoute.prototype, 'renderView')
+      ParentRoute.prototype.activate = function (transition) {
+        transition.cancel()
+      }
+
+      router.transitionTo('parent').catch(function () {
+        _.defer(function () {
+          expect(spy).to.not.be.called
+          done()
+        })
       })
     })
   })
