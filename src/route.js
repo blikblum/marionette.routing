@@ -12,6 +12,8 @@ export default Marionette.Object.extend(
       this._bindContext()
     },
 
+    cidPrefix: 'rou',
+
     activate() {
 
     },
