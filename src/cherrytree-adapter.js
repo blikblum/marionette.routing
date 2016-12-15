@@ -134,9 +134,7 @@ export function middleware(transition) {
 
   routerChannel.trigger('before:transition', transition)
 
-  if (transition.isCancelled) {
-    return
-  }
+  if (transition.isCancelled) return ;
 
   let prevRoutes = transition.prev.routes
   let changingIndex = getChangingIndex(prevRoutes, transition.routes)
@@ -151,9 +149,7 @@ export function middleware(transition) {
         routeInstance.deactivate(transition)
         routerChannel.trigger('deactivate', transition, routeInstance)
       }
-      if (transition.isCancelled) {
-        return
-      }
+      if (transition.isCancelled) return ;
     }
   }
 
@@ -188,7 +184,9 @@ export function middleware(transition) {
           routerChannel.trigger('before:activate', transition, mnRoute)
           if (!transition.isCancelled) {
             return Promise.resolve(mnRoute.activate(transition)).then(function () {
-              routerChannel.trigger('activate', transition, mnRoute)
+              if (!transition.isCancelled) {
+                routerChannel.trigger('activate', transition, mnRoute)
+              }
             })
           }
         }
