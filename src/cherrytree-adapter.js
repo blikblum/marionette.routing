@@ -208,6 +208,7 @@ export function middleware(transition) {
 
   //render views
   return promise.then(function () {
+    if (transition.isCancelled) return ;
     //ensure at least the target (last) route is rendered
     if (!activated.length && mnRoutes.length) {
       activated.push(mnRoutes[mnRoutes.length - 1])
