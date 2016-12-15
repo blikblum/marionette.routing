@@ -28,14 +28,15 @@ export default Marionette.Object.extend(
         throw new Error('render: viewClass not defined')
       }
       if (this.view && this.updateView(transition)) return ;
-      this.view = new this.viewClass(_.result(this, 'viewOptions', {}))
-      this.listenToOnce(this.view, 'destroy', function () {
+      let view = new this.viewClass(_.result(this, 'viewOptions', {}))
+      this.listenToOnce(view, 'destroy', function () {
         this.view = void 0
       })
-      region.show(this.view)
+      region.show(view)
+      this.view = view
       routerChannel.trigger('route:render', this)
       if (this.viewEvents) {
-        Marionette.bindEvents(this, this.view, this.viewEvents)
+        Marionette.bindEvents(this, view, this.viewEvents)
       }
     },
 
