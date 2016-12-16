@@ -15,7 +15,12 @@ by the event handlers
  Arguments: transition
  
  Emitted after a route transition finishes
+
+###<code>'transition:error' </code>
  
+ Arguments: transition, error
+ 
+ Emitted when a transition fails 
   
 ###<code>'before:activate' </code>
   

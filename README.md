@@ -12,11 +12,12 @@
 
 &nbsp; &nbsp; ✓ Nested routes / states / rendering<br>
 &nbsp; &nbsp; ✓ Handle asynchronous operations<br>
+&nbsp; &nbsp; ✓ Lazy loading of routes through code splitting<br>
 &nbsp; &nbsp; ✓ Expose route events through [Radio](https://github.com/marionettejs/backbone.radio)<br>
 &nbsp; &nbsp; ✓ Implement route context for scoped messaging<br>
 &nbsp; &nbsp; ✓ API interface semantics similar to MarionetteJS one<br>
 &nbsp; &nbsp; ✓ Inherits most of [Cherrytree](https://github.com/QubitProducts/cherrytree) features<br>
-&nbsp; &nbsp; ✓ (Planned) Lazy loading of routes through code splitting<br>
+
 
 ### Installation
 
@@ -59,6 +60,7 @@ Configure and start the router
 ```js
 import { createRouter, middleware} from 'marionette.routing';
 import ContactsRoute from './contacts/route';
+import LoginView from './login/view';
 import Mn from 'backbone.marionette';
 import Radio from 'backbone.radio';
 
@@ -69,6 +71,7 @@ let router = createRouter({log: true, logError: true});
 router.map(function (route) {
   route('application', {path: '/', abstract: true}, function () {
     route('contacts', {routeClass: ContactsRoute})
+    route('login', {viewClass: LoginView})
   })
 });
 
@@ -80,6 +83,14 @@ router.use(middleware);
 
 //start listening to URL changes
 router.listen();
+
+//listen to events using Radio
+Radio.channel('router').on('before:activate', function(transition, route) {
+  let isAuthenticate = checkAuth();
+  if (!isAuthenticate && route.requiresAuth) {
+    transition.redirectTo('login');
+  }
+})
 ```
 
 Warning: the router configuration interface will likely change in future becoming simpler
@@ -90,11 +101,13 @@ Warning: the router configuration interface will likely change in future becomin
   * [Router Configuration](docs/configuration.md)
   * [Route Class](docs/route.md)
   * [Events](docs/events.md)
+* Guides
+  * [Route lazy loading](docs/lazyload.md)
 
 ### Examples
 
- * [Contact Manager](https://github.com/blikblum/marionette-contact-manager) Fully functional example. Tutorial coming
-
+ * [Contact Manager](https://github.com/blikblum/marionette-contact-manager) Fully functional example. Read the [tutorial](http://jsroad.blogspot.com.br/2016/11/tutorial-contact-manager-application.html)
+ * [Marionette Wires Revisited](https://github.com/blikblum/marionette-wires-revisited)
 
 ### Related Projects
 

@@ -30,6 +30,14 @@
  The context object provides two methods: trigger and requests both with 
  the same semantics as the used in Radio. The events and requests will be handled
  by one of the parent routes through contextEvents and contextRequests 
+
+   
+### <code>updateView(transition)</code>
+ 
+ Called when the view associated with the route is about to be re-rendered. 
+ 
+Allows to configure how a view already rendered will be updated. Returning
+a truthy value will prevent the default behavior (render a new view)
    
 ## Properties    
 
@@ -51,4 +59,8 @@
  
 ### <code>contextEvents</code>
     
- A hash defining listeners to events triggered by child routes through getContext 
+ A hash defining listeners to events triggered by child routes through getContext
+  
+### <code>childRoutes</code>
+    
+ A hash defining route definitions for children routes   
