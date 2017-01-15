@@ -138,20 +138,26 @@ export function middleware(transition) {
 
   let prevRoutes = transition.prev.routes
   let changingIndex = getChangingIndex(prevRoutes, transition.routes)
-  var routeIndex, routeInstance
+  var routeIndex, routeInstance, deactivated = []
 
   //deactivate previous routes
   for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
     routeInstance = mnRouteMap[prevRoutes[routeIndex].name]
     if (routeInstance) {
-      routerChannel.trigger('before:deactivate', transition, routeInstance)
-      if (!transition.isCancelled) {
-        routeInstance.deactivate(transition)
-        routerChannel.trigger('deactivate', transition, routeInstance)
-      }
-      if (transition.isCancelled) return ;
+      deactivated.push(routeInstance)
     }
   }
+
+  if (deactivated.some(function (route) {
+      routerChannel.trigger('before:deactivate', transition, route)
+      return transition.isCancelled
+    })) return
+
+  if (deactivated.some(function (route) {
+      route.deactivate(transition)
+      routerChannel.trigger('deactivate', transition, route)
+      return transition.isCancelled
+    })) return
 
   //build route tree and creating instances if necessary
   let mnRoutes = transition.mnRoutes = []
@@ -179,16 +185,14 @@ export function middleware(transition) {
   promise = promise.then(function () {
     activated = mnRoutes.slice(changingIndex)
     return activated.reduce(function (prevPromise, mnRoute) {
+      routerChannel.trigger('before:activate', transition, mnRoute)
       return prevPromise.then(function () {
         if (!transition.isCancelled) {
-          routerChannel.trigger('before:activate', transition, mnRoute)
-          if (!transition.isCancelled) {
-            return Promise.resolve(mnRoute.activate(transition)).then(function () {
-              if (!transition.isCancelled) {
-                routerChannel.trigger('activate', transition, mnRoute)
-              }
-            })
-          }
+          return Promise.resolve(mnRoute.activate(transition)).then(function () {
+            if (!transition.isCancelled) {
+              routerChannel.trigger('activate', transition, mnRoute)
+            }
+          })
         }
         return Promise.resolve()
       })

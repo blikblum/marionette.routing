@@ -203,13 +203,28 @@ describe('Events', () => {
       }).catch(done)
     });
 
-    it('should be triggered before activate', function (done) {
+    it('should be triggered before activate of same route', function (done) {
       let spy = sinon.spy()
       Radio.channel('router').on('before:activate', spy);
       let rootSpy = sinon.spy(RootRoute.prototype, 'activate');
       router.transitionTo('root').then(function () {
         expect(spy).to.be.calledOnce;
         expect(spy).to.be.calledBefore(rootSpy);
+        done()
+      }).catch(done)
+    });
+
+    it('should be triggered before activate of parent route', function (done) {
+      let spy = sinon.spy()
+      Radio.channel('router').on('before:activate', function (transition, route) {
+        if (route instanceof GrandChildRoute) {
+          spy()
+        }
+      });
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
+      router.transitionTo('grandchild').then(function () {
+        expect(spy).to.be.calledOnce;
+        expect(spy).to.be.calledBefore(parentSpy);
         done()
       }).catch(done)
     });
@@ -321,7 +336,7 @@ describe('Events', () => {
       }).catch(done)
     });
 
-    it('should be triggered before deactivate', function (done) {
+    it('should be triggered before deactivate of same route', function (done) {
       let spy = sinon.spy()
       Radio.channel('router').on('before:deactivate', spy);
       let rootSpy = sinon.spy(RootRoute.prototype, 'deactivate');
@@ -332,6 +347,22 @@ describe('Events', () => {
         expect(spy).to.be.calledBefore(rootSpy);
         done()
       }).catch(done)
+    });
+
+    it('should be triggered before deactivate of child route', function () {
+      let spy = sinon.spy()
+      Radio.channel('router').on('before:deactivate', function (transition, route) {
+        if (route instanceof ParentRoute) {
+          spy()
+        }
+      });
+      let childSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate');
+      return router.transitionTo('grandchild').then(function () {
+        return router.transitionTo('root')
+      }).then(function () {
+        expect(spy).to.be.calledOnce;
+        expect(spy).to.be.calledBefore(childSpy);
+      })
     });
 
     it('should allow to cancel the transition', function (done) {
