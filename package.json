@@ -22,7 +22,7 @@
     "extends": "airbnb-base"
   },
   "dependencies": {
-    "cherrytree": "^2.3.2"
+    "cherrytree": "^2.4.1"
   },
   "peerDependencies": {
     "backbone": "^1.3.3",
