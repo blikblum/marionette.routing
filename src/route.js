@@ -6,9 +6,10 @@ import {getMnRoutes, routerChannel} from './cherrytree-adapter'
 
 export default Marionette.Object.extend(
   {
-    constructor (options) {
+    constructor (options, config) {
       this.mergeOptions(options, ['viewClass', 'viewOptions'])
-      Marionette.Object.call(this, options);
+      this.$config = config
+      Marionette.Object.call(this, options)
       this._bindContext()
     },
 

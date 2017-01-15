@@ -26,7 +26,7 @@ describe('Lifecycle hooks', () => {
 
 
     routes = function (route) {
-      route('parent', {routeClass: ParentRoute, routeOptions: {x: 1}}, function () {
+      route('parent', {routeClass: ParentRoute, routeOptions: {x: 1}, arbitrary: 3}, function () {
         route('child', {routeClass: ChildRoute}, function () {
           route('grandchild', {routeClass: GrandChildRoute}, function () {
             route('leaf', {routeClass: LeafRoute})
@@ -100,6 +100,17 @@ describe('Lifecycle hooks', () => {
         expect(leafSpy).to.have.been.calledAfter(grandChildSpy);
         done()
       }).catch(done)
+    })
+
+    it('should allow to access $config property', function () {
+      ParentRoute.prototype.initialize = function() {
+        expect(this.$config).to.be.defined
+        expect(this.$config.name).to.be.equal('parent')
+        expect(this.$config.path).to.be.equal('parent')
+        expect(this.$config.options).to.be.defined
+        expect(this.$config.options.arbitrary).to.be.equal(3)
+      }
+      return router.transitionTo('parent')
     })
   });
 

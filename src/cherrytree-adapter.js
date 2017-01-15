@@ -82,24 +82,29 @@ function findRouteConfig(routeName, index, routes) {
   return config
 }
 
-function createRouteInstance(options) {
+function createRouteInstance(options, config) {
   if (options.prototype instanceof Route) {
     return new options()
   }
   let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
-    return new options.routeClass(routeOptions)
+    return new options.routeClass(routeOptions, config)
   } else if (options.viewClass || options.abstract) {
-    return new Route(routeOptions)
+    return new Route(routeOptions, config)
   }
 }
 
 function createMnRoute(route, index, routes) {
-  let instance = createRouteInstance(route.options)
+  let config = {
+    name: route.name,
+    path: route.path,
+    options: _.clone(route.options)
+  }
+  let instance = createRouteInstance(route.options, config)
   if (!instance) {
     let config = findRouteConfig(route.name, index, routes)
     return Promise.resolve(config).then(function (options) {
-      return options && createRouteInstance(options)
+      return options && createRouteInstance(options, config)
     })
   }
   return instance
@@ -170,7 +175,6 @@ export function middleware(transition) {
           if (!mnRoute) {
             throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
           }
-          mnRoute.$name = route.name
           mnRouteMap[route.name] = mnRoute
           res.push(mnRoute)
           return res
