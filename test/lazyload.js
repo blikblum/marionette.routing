@@ -57,6 +57,20 @@ describe('Route configuration', () => {
     })
   });
 
+  it('gives a meaningful error when not defined in a parent route class', function (done) {
+    ChildRoute.prototype.childRoutes = function () {
+      return {
+        grandchild: GrandChildRoute,
+      }
+    };
+    router.transitionTo('leaf').then(function () {
+      done('transition should fail')
+    }).catch(function (err) {
+      expect(err.message).to.be.equal('Unable to create route leaf: routeClass or viewClass must be defined')
+      done()
+    })
+  });
+
   it('can be loaded asynchronously', function () {
     ChildRoute.prototype.childRoutes = function () {
       return {
@@ -75,5 +89,7 @@ describe('Route configuration', () => {
       expect(spy).to.be.calledOnce;
     })
   });
+
+
 
 });

@@ -102,10 +102,6 @@ function createMnRoute(route, index, routes) {
       return options && createRouteInstance(options)
     })
   }
-  if (!instance) {
-    throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
-  }
-  instance.$name = route.name
   return instance
 }
 
@@ -171,6 +167,10 @@ export function middleware(transition) {
       } else {
         instance = createMnRoute(route, i, routes)
         return Promise.resolve(instance).then(function (mnRoute) {
+          if (!mnRoute) {
+            throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
+          }
+          mnRoute.$name = route.name
           mnRouteMap[route.name] = mnRoute
           res.push(mnRoute)
           return res
