@@ -65,7 +65,9 @@ describe('Render', () => {
         })
       });
       route('root', {routeClass: RootRoute, routeOptions: {viewClass: ParentView}});
-      route('root2', {viewClass: ParentView})
+      route('root2', {viewClass: ParentView, outlet: false}, function () {
+        route('leaf2', {routeClass: LeafRoute, viewClass: LeafView})
+      })
     };
     router.map(routes);
     router.listen();
@@ -161,6 +163,15 @@ describe('Render', () => {
           expect(error).to.be.an('error');
           expect(error.message).to.be.equal('No outlet region in view');
           done()
+        })
+      })
+
+      it('should look for outlet region in the parent routes when route with a view has option outlet = false', function () {
+        return router.transitionTo('root2').then(function () {
+          //force root2 render view before going to leaf2
+          return router.transitionTo('leaf2')
+        }).then(function () {
+          expect($('#main').html()).to.be.equal('<div>Leaf</div>');
         })
       })
 

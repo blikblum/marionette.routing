@@ -115,7 +115,7 @@ function getParentRegion(routes, route) {
   let routeIndex = routes.indexOf(route) - 1
   while (routeIndex >= 0) {
     parent = routes[routeIndex]
-    if (parent.view) {
+    if (parent.view && parent.$config.options.outlet !== false) {
       region = parent.view.getRegion('outlet')
       if (region) {
         return region
@@ -219,11 +219,20 @@ export function middleware(transition) {
     if (!activated.length && mnRoutes.length) {
       activated.push(mnRoutes[mnRoutes.length - 1])
     }
-    activated.forEach(function (mnRoute) {
+
+    let renderQueue = activated.reduce(function (memo, mnRoute) {
       if (mnRoute.viewClass) {
-        let parentRegion = getParentRegion(mnRoutes, mnRoute)
-        mnRoute.renderView(parentRegion, transition)
+        if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
+          memo.pop()
+        }
+        memo.push(mnRoute)
       }
+      return memo
+    }, [])
+
+    renderQueue.forEach(function (mnRoute) {
+      let parentRegion = getParentRegion(mnRoutes, mnRoute)
+      mnRoute.renderView(parentRegion, transition)
     })
   })
 }
