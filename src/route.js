@@ -55,6 +55,10 @@ export default Marionette.Object.extend(
       return new RouteContext(mnRoutes, this)
     },
 
+    getOutlet() {
+      return this.view.getRegion('outlet')
+    },
+
     _bindContext() {
       let channel, requests = _.result(this, 'contextRequests'),
         events = _.result(this, 'contextEvents')

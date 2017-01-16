@@ -116,7 +116,7 @@ function getParentRegion(routes, route) {
   while (routeIndex >= 0) {
     parent = routes[routeIndex]
     if (parent.view && parent.$config.options.outlet !== false) {
-      region = parent.view.getRegion('outlet')
+      region = parent.getOutlet()
       if (region) {
         return region
       } else {
