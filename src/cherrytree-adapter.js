@@ -84,7 +84,7 @@ function findRouteConfig(routeName, index, routes) {
 
 function createRouteInstance(options, config) {
   if (options.prototype instanceof Route) {
-    return new options()
+    return new options(undefined, config)
   }
   let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
