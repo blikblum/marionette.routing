@@ -95,16 +95,16 @@ function createRouteInstance(options, config) {
 }
 
 function createMnRoute(route, index, routes) {
-  let config = {
+  let instanceConfig = {
     name: route.name,
     path: route.path,
     options: _.clone(route.options)
   }
-  let instance = createRouteInstance(route.options, config)
+  let instance = createRouteInstance(route.options, instanceConfig)
   if (!instance) {
-    let config = findRouteConfig(route.name, index, routes)
-    return Promise.resolve(config).then(function (options) {
-      return options && createRouteInstance(options, config)
+    let routeConfig = findRouteConfig(route.name, index, routes)
+    return Promise.resolve(routeConfig).then(function (options) {
+      return options && createRouteInstance(options, instanceConfig)
     })
   }
   return instance
