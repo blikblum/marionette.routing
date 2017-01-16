@@ -120,13 +120,13 @@ function getParentRegion(routes, route) {
       if (region) {
         return region
       } else {
-        throw new Error('No outlet region in view')
+        throw new Error(`No outlet region defined in ${parent.$config.name} route`)
       }
     }
     routeIndex--
   }
   if (!router.rootRegion) {
-    throw new Error('No outlet region')
+    throw new Error('No root outlet region defined')
   }
   return router.rootRegion
 }

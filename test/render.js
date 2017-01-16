@@ -141,7 +141,7 @@ describe('Render', () => {
           done('transition resolved')
         }).catch(function (error) {
           expect(error).to.be.an('error');
-          expect(error.message).to.be.equal('No outlet region');
+          expect(error.message).to.be.equal('No root outlet region defined');
           done()
         })
       })
@@ -161,7 +161,7 @@ describe('Render', () => {
           done('transition resolved')
         }).catch(function (error) {
           expect(error).to.be.an('error');
-          expect(error.message).to.be.equal('No outlet region in view');
+          expect(error.message).to.be.equal('No outlet region defined in grandchild route');
           done()
         })
       })
