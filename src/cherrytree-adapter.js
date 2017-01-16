@@ -89,7 +89,7 @@ function createRouteInstance(options, config) {
   let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
     return new options.routeClass(routeOptions, config)
-  } else if (options.viewClass || options.abstract) {
+  } else if (options.viewClass) {
     return new Route(routeOptions, config)
   }
 }
