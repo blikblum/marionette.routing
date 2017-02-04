@@ -68,6 +68,7 @@ describe('Render', () => {
       route('root2', {viewClass: ParentView, outlet: false}, function () {
         route('leaf2', {routeClass: LeafRoute, viewClass: LeafView})
       })
+      route('root3', {routeClass: RootRoute});
     };
     router.map(routes);
     router.listen();
@@ -135,7 +136,7 @@ describe('Render', () => {
         }).catch(done)
       });
 
-      it('should abort transition if no rootRegion is defined', function (done) {
+      it('should abort transition when no rootRegion is defined', function (done) {
         router.rootRegion = null;
         router.transitionTo('parent').then(function () {
           done('transition resolved')
@@ -143,6 +144,14 @@ describe('Render', () => {
           expect(error).to.be.an('error');
           expect(error.message).to.be.equal('No root outlet region defined');
           done()
+        })
+      })
+
+      it('should not abort transition when no rootRegion is defined and view is prerendered', function () {
+        router.rootRegion = null;
+        RootRoute.prototype.viewClass = Mn.View.extend({el: $('#main')})
+        return router.transitionTo('root3').then(function () {
+          expect(router.isActive('root3'))
         })
       })
     });

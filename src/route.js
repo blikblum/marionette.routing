@@ -33,7 +33,13 @@ export default Marionette.Object.extend(
       this.listenToOnce(view, 'destroy', function () {
         this.view = void 0
       })
-      region.show(view)
+      if (region) {
+        region.show(view)
+      } else {
+        // if region is undefined means no rootRegion is defined
+        // accept a pre-rendered view in those situations throwing otherwise
+        if (!view.isRendered()) throw new Error('No root outlet region defined')
+      }
       this.view = view
       routerChannel.trigger('route:render', this)
       if (this.viewEvents) {

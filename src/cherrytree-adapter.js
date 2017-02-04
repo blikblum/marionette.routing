@@ -125,9 +125,6 @@ function getParentRegion(routes, route) {
     }
     routeIndex--
   }
-  if (!router.rootRegion) {
-    throw new Error('No root outlet region defined')
-  }
   return router.rootRegion
 }
 
