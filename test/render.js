@@ -82,6 +82,8 @@ describe('Render', () => {
 
   afterEach(() => {
     destroyRouter(router);
+    document.location.pathname = ''
+    document.location.hash = ''
   });
 
   describe('viewClass', function () {
