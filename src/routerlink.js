@@ -36,11 +36,13 @@ export default Marionette.Behavior.extend({
   initialize() {
     let view = this.view
     this.listenTo(routerChannel, 'transition', this.onTransition)
-    view.initialize = _.wrap(view.initialize, function (fn) {
-      let args = _.rest(arguments, 1)
-      fn.apply(view, args)
-      if (view.isRendered()) createLinks(view)
-    })
+    if (view.el) {
+      view.initialize = _.wrap(view.initialize, function (fn) {
+        let args = _.rest(arguments, 1)
+        fn.apply(view, args)
+        if (view.isRendered()) createLinks(view)
+      })
+    }
   },
 
   events: {
