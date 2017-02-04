@@ -10,7 +10,7 @@ chai.use(sinonChai);
 
 
 let router, routes;
-let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute;
+let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute, PreRenderedView;
 
 let ParentView = Mn.View.extend({
   behaviors: [RouterLink],
@@ -68,7 +68,12 @@ describe('RouterLink', () => {
     };
     router.map(routes);
 
-    document.body.innerHTML = '<div id="main"></div>';
+    document.body.innerHTML = `<div id="main"></div>
+      <div id="prerendered">
+      <a id="a-prerootlink2" route="root" param-id="2"></a>
+      <a id="a-preparentlink" route="parent"></a>
+      <a id="a-pregrandchildlink" route="grandchild"></a>
+      </div>`;
     let RootRegion = Mn.Region.extend({
       el: '#main'
     });
@@ -79,7 +84,8 @@ describe('RouterLink', () => {
 
   afterEach(() => {
     destroyRouter(router);
-    document.location.path = ''
+    document.location.pathname = ''
+    document.location.hash = ''
   });
 
   it('should generate href attributes in anchor tags with route attribute', function () {
@@ -150,6 +156,37 @@ describe('RouterLink', () => {
       expect($('#a-grandchildlink').hasClass('active')).to.be.true
       expect($('#div-grandchildlink').hasClass('active')).to.be.true
     })
+  })
+
+  describe('in a pre-rendered view', function () {
+
+    beforeEach(function () {
+      PreRenderedView = Mn.View.extend({
+        behaviors: [RouterLink],
+        el: $('#prerendered')
+      })
+
+      ParentRoute.prototype.viewClass = PreRenderedView
+
+      ParentRoute.prototype.viewOptions = {x: 1}
+    })
+
+    it('should generate href attributes in anchor tags with route attribute', function () {
+      return router.transitionTo('parent').then(function () {
+        expect($('#a-preparentlink').attr('href')).to.be.equal('#parent')
+        expect($('#a-prerootlink2').attr('href')).to.be.equal('#root/2')
+        expect($('#a-pregrandchildlink').attr('href')).to.be.equal('#parent/child/grandchild')
+      })
+    })
+
+    it('should call view.initialize with proper arguments', function () {
+      let spy = PreRenderedView.prototype.initialize = sinon.spy()
+      return router.transitionTo('parent').then(function () {
+        expect(spy).to.be.calledOnce
+        expect(spy).to.be.calledWith({x: 1})
+      })
+    })
+
   })
 });
 

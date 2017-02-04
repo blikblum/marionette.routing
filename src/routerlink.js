@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import Marionette from 'backbone.marionette'
 import {routerChannel} from './cherrytree-adapter'
 
@@ -15,16 +16,38 @@ function getRouteParams(el) {
   return result
 }
 
+function createLinks(view) {
+  let $routes = view.$('[route]');
+
+  $routes.each(function () {
+    let routeName = this.getAttribute('route')
+    if (!routeName) return;
+    let params = getRouteParams(this)
+    let href = routerChannel.request('generate', routeName, params)
+    if (this.tagName === 'A') {
+      this.setAttribute('href', href)
+    } else {
+      view.$(this).find('a').eq(0).attr({href: href})
+    }
+  })
+}
+
 export default Marionette.Behavior.extend({
   initialize() {
+    let view = this.view
     this.listenTo(routerChannel, 'transition', this.onTransition)
+    view.initialize = _.wrap(view.initialize, function (fn) {
+      let args = _.rest(arguments, 1)
+      fn.apply(view, args)
+      if (view.isRendered()) createLinks(view)
+    })
   },
 
   events: {
     'click [route]:not(a)': 'onLinkClick'
   },
 
-  onTransition(transition) {
+  onTransition() {
     let view = this.view
     this.$('[route]').each(function () {
       let $el = view.$(this)
@@ -45,20 +68,7 @@ export default Marionette.Behavior.extend({
   },
 
   onRender() {
-    let view = this.view
-    let $routes = view.$('[route]');
-
-    $routes.each(function () {
-      let routeName = this.getAttribute('route')
-      if (!routeName) return;
-      let params = getRouteParams(this)
-      let href = routerChannel.request('generate', routeName, params)
-      if (this.tagName === 'A') {
-        this.setAttribute('href', href)
-      } else {
-        view.$(this).find('a').eq(0).attr({href: href})
-      }
-    })
+    createLinks(this.view)
   },
 
   onDestroy() {
