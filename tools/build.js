@@ -34,7 +34,13 @@ for (const format of ['cjs', 'umd']) {
     dest: `dist/${format === 'cjs' ? 'index' : `index.${format}`}.js`,
     format,
     sourceMap: true,
-    moduleName: format === 'umd' ? pkg.name : undefined,
+    moduleName: format === 'umd' ? 'Backbone.Marionette.Routing' : undefined,
+    globals: {
+      backbone: 'Backbone',
+      underscore: '_',
+      'backbone.marionette': 'Backbone.Marionette',
+      'backbone.radio': 'Backbone.Radio'
+    }
   })));
 }
 
