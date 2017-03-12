@@ -103,6 +103,7 @@ Warning: the router configuration interface will likely change in future becomin
   * [Events](docs/events.md)
 * Guides
   * [Route lazy loading](docs/lazyload.md)
+  * [Managing authorization](docs/authorization.md)
 
 ### Examples
 

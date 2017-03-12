@@ -35,14 +35,19 @@ Each route can be configure with the following options:
  * viewOptions: options passed to the Marionette.View constructor
  * path: the route path
  * abstract: pass true to define an abstract route
+ * outlet: pass true to allow a viewClass without a outlet region
 
-All routes, except the abstract ones, must have at least viewClass or routeClass defined.
+All routes must have at least viewClass or routeClass defined.
 
 For more information about route mapping refer to cherrytree documentation
  
 ### `router.listen`
  
  Starts listening for URL changes
+
+### `router.rootRegion`
+ 
+ Property that defines the region where the top level views will be rendered
 
 ### `middleware`
  
