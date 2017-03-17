@@ -101,9 +101,11 @@ Warning: the router configuration interface will likely change in future becomin
   * [Router Configuration](docs/configuration.md)
   * [Route Class](docs/route.md)
   * [Events](docs/events.md)
+  * [RouterLink](docs/routerlink.md)
 * Guides
   * [Route lazy loading](docs/lazyload.md)
   * [Managing authorization](docs/authorization.md)
+  * [Handling errors](docs/errors.md)
 
 ### Examples
 
