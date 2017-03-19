@@ -334,14 +334,14 @@ var Route = Marionette.Object.extend({
   $router: null
 });
 
-function getRouteParams(el) {
+function getAttributeValues(el, prefix) {
   var result = {};
   var attributes = el.attributes;
 
   for (var i = 0; i < attributes.length; i++) {
     var attr = attributes[i];
-    if (attr.name.indexOf('param-') === 0) {
-      var paramName = attr.name.slice('param-'.length);
+    if (attr.name.indexOf(prefix) === 0) {
+      var paramName = attr.name.slice(prefix.length);
       result[paramName] = attr.value;
     }
   }
@@ -354,8 +354,9 @@ function createLinks(view) {
   $routes.each(function () {
     var routeName = this.getAttribute('route');
     if (!routeName) return;
-    var params = getRouteParams(this);
-    var href = routerChannel.request('generate', routeName, params);
+    var params = getAttributeValues(this, 'param-');
+    var query = getAttributeValues(this, 'query-');
+    var href = routerChannel.request('generate', routeName, params, query);
     if (this.tagName === 'A') {
       this.setAttribute('href', href);
     } else {
@@ -388,7 +389,9 @@ var routerlink = Marionette.Behavior.extend({
       var $el = view.$(this);
       var routeName = $el.attr('route');
       if (!routeName) return;
-      var isActive = routerChannel.request('isActive', routeName, getRouteParams(this));
+      var params = getAttributeValues(this, 'param-');
+      var query = getAttributeValues(this, 'query-');
+      var isActive = routerChannel.request('isActive', routeName, params, query);
       $el.toggleClass('active', isActive);
     });
   },
@@ -397,8 +400,9 @@ var routerlink = Marionette.Behavior.extend({
     if (this.$(el).find('a').length) return;
     var routeName = el.getAttribute('route');
     if (!routeName) return;
-    var params = getRouteParams(el);
-    routerChannel.request('transitionTo', routeName, params);
+    var params = getAttributeValues(el, 'param-');
+    var query = getAttributeValues(el, 'query-');
+    routerChannel.request('transitionTo', routeName, params, query);
   },
   onRender: function onRender() {
     createLinks(this.view);
