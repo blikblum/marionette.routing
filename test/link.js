@@ -3,7 +3,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {Route, RouterLink, createRouter, destroyRouter, middleware} from '../src/index';
 import Mn from 'backbone.marionette';
-import Backbone from 'backbone';
 
 let expect = chai.expect;
 chai.use(sinonChai);
@@ -38,17 +37,6 @@ let GrandChildView = Mn.View.extend({
 });
 
 describe('RouterLink', () => {
-
-  let $;
-
-  before(function () {
-    this.jsdom = require('jsdom-global')()
-    Backbone.$ = $ = require('jquery')(window)
-  });
-
-  after(function () {
-    this.jsdom()
-  })
 
   beforeEach(() => {
     router = createRouter();

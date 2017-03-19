@@ -2,10 +2,8 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {Route, createRouter, destroyRouter, middleware} from '../src/index';
-import _ from 'underscore';
 import Radio from 'backbone.radio';
 import Mn from 'backbone.marionette';
-import Backbone from 'backbone';
 
 let expect = chai.expect;
 chai.use(sinonChai);
@@ -36,17 +34,6 @@ let LeafView = Mn.View.extend({
 });
 
 describe('Render', () => {
-
-  let $;
-
-  before(function () {
-    this.jsdom = require('jsdom-global')()
-    Backbone.$ = $ = require('jquery')(window)
-  });
-
-  after(function () {
-    this.jsdom()
-  })
 
   beforeEach(() => {
     router = createRouter({location: 'memory'});
