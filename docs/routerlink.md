@@ -16,7 +16,8 @@ export default View.extend({
 ```
 
 In the template, add an attribute named `route` to the element to be linked. The attribute value must be the name
-of the route. Optionally pass route params adding `param-[paramname]` attributes
+of the route. Optionally pass route params adding `param-[paramname]` attributes. Query fields can be passed through
+`query-[queryfield]` attributes.
 
 When the element is an anchor (<code>a</code>), its href will be expanded to the route path.
 

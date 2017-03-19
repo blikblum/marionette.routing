@@ -2,14 +2,14 @@ import _ from 'underscore'
 import Marionette from 'backbone.marionette'
 import {routerChannel} from './cherrytree-adapter'
 
-function getRouteParams(el) {
+function getAttributeValues(el, prefix) {
   let result = {}
   let attributes = el.attributes
 
   for (let i = 0; i < attributes.length; i++) {
     let attr = attributes[i]
-    if (attr.name.indexOf('param-') === 0) {
-      let paramName = attr.name.slice('param-'.length)
+    if (attr.name.indexOf(prefix) === 0) {
+      let paramName = attr.name.slice(prefix.length)
       result[paramName] = attr.value
     }
   }
@@ -22,8 +22,9 @@ function createLinks(view) {
   $routes.each(function () {
     let routeName = this.getAttribute('route')
     if (!routeName) return;
-    let params = getRouteParams(this)
-    let href = routerChannel.request('generate', routeName, params)
+    let params = getAttributeValues(this, 'param-')
+    let query = getAttributeValues(this, 'query-')
+    let href = routerChannel.request('generate', routeName, params, query)
     if (this.tagName === 'A') {
       this.setAttribute('href', href)
     } else {
@@ -55,7 +56,9 @@ export default Marionette.Behavior.extend({
       let $el = view.$(this)
       let routeName = $el.attr('route')
       if (!routeName) return;
-      let isActive = routerChannel.request('isActive', routeName, getRouteParams(this))
+      let params = getAttributeValues(this, 'param-')
+      let query = getAttributeValues(this, 'query-')
+      let isActive = routerChannel.request('isActive', routeName, params, query)
       $el.toggleClass('active', isActive)
     })
   },
@@ -65,8 +68,9 @@ export default Marionette.Behavior.extend({
     if (this.$(el).find('a').length) return ;
     let routeName = el.getAttribute('route')
     if (!routeName) return;
-    let params = getRouteParams(el)
-    routerChannel.request('transitionTo', routeName, params)
+    let params = getAttributeValues(el, 'param-')
+    let query = getAttributeValues(el, 'query-')
+    routerChannel.request('transitionTo', routeName, params, query)
   },
 
   onRender() {

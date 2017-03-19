@@ -16,11 +16,11 @@ let ParentView = Mn.View.extend({
   behaviors: [RouterLink],
   template: function () {
     return `<div id="div-rootlink1" route="root" param-id="1"></div>
-      <div id="div-grandchildlink" route="grandchild"></div>
+      <div id="div-grandchildlink" route="grandchild" query-name="test"></div>
       <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
       <a id="a-rootlink2" route="root" param-id="2"></a>
       <a id="a-parentlink" route="parent"></a>
-      <a id="a-grandchildlink" route="grandchild"></a>
+      <a id="a-grandchildlink" route="grandchild" query-name="test"></a>
       <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
       <div class="child-view"></div>
      `
@@ -72,7 +72,7 @@ describe('RouterLink', () => {
       <div id="prerendered">
       <a id="a-prerootlink2" route="root" param-id="2"></a>
       <a id="a-preparentlink" route="parent"></a>
-      <a id="a-pregrandchildlink" route="grandchild"></a>
+      <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
       </div>`;
     let RootRegion = Mn.Region.extend({
       el: '#main'
@@ -92,7 +92,7 @@ describe('RouterLink', () => {
     return router.transitionTo('parent').then(function () {
       expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
       expect($('#a-rootlink2').attr('href')).to.be.equal('#root/2')
-      expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild')
+      expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
     })
   })
 
@@ -108,15 +108,15 @@ describe('RouterLink', () => {
     return router.transitionTo('parent').then(function () {
       let spy = sinon.spy(router, 'transitionTo')
       $('#div-rootlink1').click()
-      expect(spy).to.be.calledOnce.and.calledWith('root', {'id': '1'})
+      expect(spy).to.be.calledOnce.and.calledWithExactly('root', {'id': '1'}, {})
 
       spy.reset()
       $('#div-grandchildlink').click()
-      expect(spy).to.be.calledOnce.and.calledWith('grandchild')
+      expect(spy).to.be.calledOnce.and.calledWithExactly('grandchild', {}, {name: 'test'})
 
       spy.reset()
       $('#innerparent').click()
-      expect(spy).to.be.calledOnce.and.calledWith('parent')
+      expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
     })
   })
 
@@ -147,7 +147,7 @@ describe('RouterLink', () => {
       expect($('#div-rootlink1').hasClass('active')).to.be.true
       expect($('#a-grandchildlink').hasClass('active')).to.be.false
       expect($('#div-grandchildlink').hasClass('active')).to.be.false
-      return router.transitionTo('grandchild')
+      return router.transitionTo('grandchild', null, {name: 'test'})
     }).then(function () {
       expect($('#a-parentlink').hasClass('active')).to.be.true
       expect($('#div-parentlink').hasClass('active')).to.be.true
@@ -175,7 +175,7 @@ describe('RouterLink', () => {
       return router.transitionTo('parent').then(function () {
         expect($('#a-preparentlink').attr('href')).to.be.equal('#parent')
         expect($('#a-prerootlink2').attr('href')).to.be.equal('#root/2')
-        expect($('#a-pregrandchildlink').attr('href')).to.be.equal('#parent/child/grandchild')
+        expect($('#a-pregrandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
       })
     })
 
