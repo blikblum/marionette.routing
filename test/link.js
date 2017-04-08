@@ -12,21 +12,40 @@ let router, routes;
 let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute, PreRenderedView;
 
 let ParentView = Mn.View.extend({
-  behaviors: [RouterLink],
+  behaviors: [{
+    behaviorClass: RouterLink,
+    defaults: {
+      child: {
+        query: {
+          foo: 'bar'
+        }
+      },
+      root: {
+        params: {
+          id: function () {
+            return this.rootId
+          }
+        }
+      }
+    }
+  }],
   template: function () {
     return `<div id="div-rootlink1" route="root" param-id="1"></div>
       <div id="div-grandchildlink" route="grandchild" query-name="test"></div>
       <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
       <a id="a-rootlink2" route="root" param-id="2"></a>
+      <a id="a-rootlink3" route="root"></a>
       <a id="a-parentlink" route="parent"></a>
       <a id="a-grandchildlink" route="grandchild" query-name="test"></a>
+      <a id="a-childlink" route="child" query-name="test"></a>
       <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
       <div class="child-view"></div>
      `
   },
   regions: {
     outlet: '.child-view'
-  }
+  },
+  rootId: 5
 });
 
 let GrandChildView = Mn.View.extend({
@@ -84,11 +103,29 @@ describe('RouterLink', () => {
     })
   })
 
+  it.skip('should update href attributes in anchor tags when attribute is changed', function () {
+    return router.transitionTo('parent').then(function () {
+      let rootLink = $('#a-rootlink2')
+      let grandChildLink = $('#a-grandchildlink')
+      rootLink.attr('param-id', '3')
+      grandChildLink.attr('query-other', 'boo')
+      expect(rootLink.attr('href')).to.be.equal('#root/3')
+      expect(grandChildLink.attr('href')).to.be.equal('#parent/child/grandchild?name=test&other=boo')
+    })
+  })
+
   it('should generate href attributes in first child anchor of a element with route attribute', function () {
     return router.transitionTo('parent').then(function () {
       expect($('#childanchor').attr('href')).to.be.equal('#parent')
       expect($('#childanchor2').attr('href')).to.be.equal(undefined)
       expect($('#childanchor3').attr('href')).to.be.equal(undefined)
+    })
+  })
+
+  it('should use defaults defined in behavior options', function () {
+    return router.transitionTo('parent').then(function () {
+      expect($('#a-childlink').attr('href')).to.be.equal('#parent/child?foo=bar&name=test')
+      expect($('#a-rootlink3').attr('href')).to.be.equal('#root/5')
     })
   })
 

@@ -3,20 +3,18 @@ import Marionette from 'backbone.marionette'
 import {routerChannel} from './cherrytree-adapter'
 import {$} from 'backbone'
 
-function attrChanged(mutations) {
+function attrChanged(mutations, observer) {
   mutations.forEach(function (mutation) {
     let attr = mutation.attributeName
     if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
-      updateHref(mutation.target)
+      updateHref(mutation.target, observer.link)
     }
   })
 }
 
 const attrObserverConfig = {attributes: true}
-let attrObserver
 
-function getAttributeValues(el, prefix) {
-  let result = {}
+function getAttributeValues(el, prefix, result) {
   let attributes = el.attributes
 
   for (let i = 0; i < attributes.length; i++) {
@@ -29,11 +27,11 @@ function getAttributeValues(el, prefix) {
   return result
 }
 
-function updateHref(el) {
+function updateHref(el, routerLink) {
   let routeName = el.getAttribute('route')
   if (!routeName) return;
-  let params = getAttributeValues(el, 'param-')
-  let query = getAttributeValues(el, 'query-')
+  let params = getAttributeValues(el, 'param-', routerLink.getDefaults(routeName, 'params'))
+  let query = getAttributeValues(el, 'query-', routerLink.getDefaults(routeName, 'query'))
   let href = routerChannel.request('generate', routeName, params, query)
   let anchorEl
   if (el.tagName === 'A') {
@@ -45,13 +43,12 @@ function updateHref(el) {
   return anchorEl
 }
 
-function createLinks(view) {
-  let $routes = view.$('[route]');
+function createLinks(routerLink) {
+  let $routes = routerLink.view.$('[route]');
 
   $routes.each(function () {
-    if (updateHref(this)) {
-      attrObserver &&  (attrObserver = window.MutationObserver ? new MutationObserver(attrChanged) : undefined)
-      if (attrObserver) attrObserver.observe(this, attrObserverConfig)
+    if (updateHref(this, routerLink)) {
+      if (routerLink.attrObserver) routerLink.attrObserver.observe(this, attrObserverConfig)
     }
   })
 }
@@ -59,13 +56,18 @@ function createLinks(view) {
 export default Marionette.Behavior.extend({
   initialize() {
     let view = this.view
+    let self = this
     this.listenTo(routerChannel, 'transition', this.onTransition)
     if (view.el) {
       view.initialize = _.wrap(view.initialize, function (fn) {
         let args = _.rest(arguments, 1)
         fn.apply(view, args)
-        if (view.isRendered()) createLinks(view)
+        if (view.isRendered()) createLinks(self)
       })
+    }
+    if (window.MutationObserver) {
+      this.attrObserver = new window.MutationObserver(attrChanged)
+      this.attrObserver.link = this
     }
   },
 
@@ -74,13 +76,14 @@ export default Marionette.Behavior.extend({
   },
 
   onTransition() {
+    let self = this
     let view = this.view
     this.$('[route]').each(function () {
       let $el = view.$(this)
       let routeName = $el.attr('route')
       if (!routeName) return;
-      let params = getAttributeValues(this, 'param-')
-      let query = getAttributeValues(this, 'query-')
+      let params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params'))
+      let query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query'))
       let isActive = routerChannel.request('isActive', routeName, params, query)
       $el.toggleClass('active', isActive)
     })
@@ -91,16 +94,30 @@ export default Marionette.Behavior.extend({
     if (this.$(el).find('a').length) return ;
     let routeName = el.getAttribute('route')
     if (!routeName) return;
-    let params = getAttributeValues(el, 'param-')
-    let query = getAttributeValues(el, 'query-')
+    let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params'))
+    let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query'))
     routerChannel.request('transitionTo', routeName, params, query)
   },
 
   onRender() {
-    createLinks(this.view)
+    createLinks(this)
   },
 
   onDestroy() {
     this.stopListening(routerChannel)
-  }
+  },
+  
+  getDefaults(routeName, prop) {
+    let defaults = this.options.defaults && this.options.defaults[routeName]
+    defaults = (defaults && defaults[prop]) || {}
+    return _.mapObject(defaults, (val) => {
+      if (_.isFunction(val)) {
+        return val.call(this.view)
+      } else {
+        return val
+      }
+    })
+  },
+
+  attrObserver: undefined
 })
