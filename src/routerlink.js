@@ -1,6 +1,19 @@
 import _ from 'underscore'
 import Marionette from 'backbone.marionette'
 import {routerChannel} from './cherrytree-adapter'
+import {$} from 'backbone'
+
+function attrChanged(mutations) {
+  mutations.forEach(function (mutation) {
+    let attr = mutation.attributeName
+    if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
+      updateHref(mutation.target)
+    }
+  })
+}
+
+const attrObserverConfig = {attributes: true}
+let attrObserver
 
 function getAttributeValues(el, prefix) {
   let result = {}
@@ -16,19 +29,29 @@ function getAttributeValues(el, prefix) {
   return result
 }
 
+function updateHref(el) {
+  let routeName = el.getAttribute('route')
+  if (!routeName) return;
+  let params = getAttributeValues(el, 'param-')
+  let query = getAttributeValues(el, 'query-')
+  let href = routerChannel.request('generate', routeName, params, query)
+  let anchorEl
+  if (el.tagName === 'A') {
+    anchorEl = el
+  } else {
+    anchorEl = $(el).find('a').eq(0)[0]
+  }
+  if (anchorEl) anchorEl.setAttribute('href', href)
+  return anchorEl
+}
+
 function createLinks(view) {
   let $routes = view.$('[route]');
 
   $routes.each(function () {
-    let routeName = this.getAttribute('route')
-    if (!routeName) return;
-    let params = getAttributeValues(this, 'param-')
-    let query = getAttributeValues(this, 'query-')
-    let href = routerChannel.request('generate', routeName, params, query)
-    if (this.tagName === 'A') {
-      this.setAttribute('href', href)
-    } else {
-      view.$(this).find('a').eq(0).attr({href: href})
+    if (updateHref(this)) {
+      attrObserver &&  (attrObserver = window.MutationObserver ? new MutationObserver(attrChanged) : undefined)
+      if (attrObserver) attrObserver.observe(this, attrObserverConfig)
     }
   })
 }
