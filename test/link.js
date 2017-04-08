@@ -36,8 +36,10 @@ let ParentView = Mn.View.extend({
       <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
       <a id="a-rootlink2" route="root" param-id="2"></a>
       <a id="a-rootlink3" route="root"></a>
-      <a id="a-parentlink" route="parent"></a>
-      <a id="a-grandchildlink" route="grandchild" query-name="test"></a>
+      <div id="scoped">
+        <a id="a-parentlink" route="parent"></a>
+        <a id="a-grandchildlink" route="grandchild" query-name="test"></a>
+      </div>      
       <a id="a-childlink" route="child" query-name="test"></a>
       <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
       <div class="child-view"></div>
@@ -213,6 +215,21 @@ describe('RouterLink', () => {
       })
     })
 
+  })
+
+  describe('with rootEl set', function () {
+
+    beforeEach(function () {
+      ParentView.prototype.behaviors = [{behaviorClass: RouterLink, rootEl: '#scoped'}]
+    })
+
+    it('should generate href attributes only in children of rootEl', function () {
+      return router.transitionTo('parent').then(function () {
+        expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
+        expect($('#a-rootlink2').attr('href')).to.be.equal(undefined)
+        expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
+      })
+    })
   })
 });
 

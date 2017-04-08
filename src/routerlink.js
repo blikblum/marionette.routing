@@ -44,7 +44,9 @@ function updateHref(el, link) {
 }
 
 function createLinks(routerLink) {
-  let $routes = routerLink.view.$('[route]');
+  let rootEl = routerLink.options.rootEl
+  let selector = rootEl ? rootEl + ' [route]' : '[route]'
+  let $routes = routerLink.view.$(selector)
 
   $routes.each(function () {
     if (updateHref(this, routerLink)) {
@@ -77,9 +79,10 @@ export default Marionette.Behavior.extend({
 
   onTransition() {
     let self = this
-    let view = this.view
-    this.$('[route]').each(function () {
-      let $el = view.$(this)
+    let rootEl = self.options.rootEl
+    let selector = rootEl ? rootEl + ' [route]' : '[route]'
+    self.$(selector).each(function () {
+      let $el = $(this)
       let routeName = $el.attr('route')
       if (!routeName) return;
       let params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this))
