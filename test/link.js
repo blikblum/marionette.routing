@@ -21,10 +21,11 @@ let ParentView = Mn.View.extend({
         }
       },
       root: {
-        params: {
-          id: function () {
-            return this.rootId
-          }
+        params: function(){
+          return {id: this.rootId}
+        },
+        query: function (el) {
+          if (el.id === 'a-rootlink3') return {tag: el.tagName}
         }
       }
     }
@@ -125,7 +126,7 @@ describe('RouterLink', () => {
   it('should use defaults defined in behavior options', function () {
     return router.transitionTo('parent').then(function () {
       expect($('#a-childlink').attr('href')).to.be.equal('#parent/child?foo=bar&name=test')
-      expect($('#a-rootlink3').attr('href')).to.be.equal('#root/5')
+      expect($('#a-rootlink3').attr('href')).to.be.equal('#root/5?tag=A')
     })
   })
 

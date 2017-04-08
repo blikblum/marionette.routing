@@ -27,11 +27,11 @@ function getAttributeValues(el, prefix, result) {
   return result
 }
 
-function updateHref(el, routerLink) {
+function updateHref(el, link) {
   let routeName = el.getAttribute('route')
   if (!routeName) return;
-  let params = getAttributeValues(el, 'param-', routerLink.getDefaults(routeName, 'params'))
-  let query = getAttributeValues(el, 'query-', routerLink.getDefaults(routeName, 'query'))
+  let params = getAttributeValues(el, 'param-', link.getDefaults(routeName, 'params', el))
+  let query = getAttributeValues(el, 'query-', link.getDefaults(routeName, 'query', el))
   let href = routerChannel.request('generate', routeName, params, query)
   let anchorEl
   if (el.tagName === 'A') {
@@ -82,8 +82,8 @@ export default Marionette.Behavior.extend({
       let $el = view.$(this)
       let routeName = $el.attr('route')
       if (!routeName) return;
-      let params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params'))
-      let query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query'))
+      let params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this))
+      let query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query', this))
       let isActive = routerChannel.request('isActive', routeName, params, query)
       $el.toggleClass('active', isActive)
     })
@@ -94,8 +94,8 @@ export default Marionette.Behavior.extend({
     if (this.$(el).find('a').length) return ;
     let routeName = el.getAttribute('route')
     if (!routeName) return;
-    let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params'))
-    let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query'))
+    let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
+    let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
     routerChannel.request('transitionTo', routeName, params, query)
   },
 
@@ -107,16 +107,11 @@ export default Marionette.Behavior.extend({
     this.stopListening(routerChannel)
   },
   
-  getDefaults(routeName, prop) {
+  getDefaults(routeName, prop, el) {
     let defaults = this.options.defaults && this.options.defaults[routeName]
-    defaults = (defaults && defaults[prop]) || {}
-    return _.mapObject(defaults, (val) => {
-      if (_.isFunction(val)) {
-        return val.call(this.view)
-      } else {
-        return val
-      }
-    })
+    defaults = (defaults && defaults[prop])
+    if (_.isFunction(defaults)) defaults = defaults.call(this.view, el)
+    return _.clone(defaults) || {}
   },
 
   attrObserver: undefined
