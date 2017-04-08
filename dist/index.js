@@ -8,6 +8,7 @@ var _ = _interopDefault(require('underscore'));
 var Radio = _interopDefault(require('backbone.radio'));
 var Marionette = _interopDefault(require('backbone.marionette'));
 var cherrytree = _interopDefault(require('cherrytree'));
+var backbone = require('backbone');
 
 function RouteContext(routes, route) {
   var routeIndex = routes.indexOf(route);
@@ -334,8 +335,18 @@ var Route = Marionette.Object.extend({
   $router: null
 });
 
-function getAttributeValues(el, prefix) {
-  var result = {};
+function attrChanged(mutations, observer) {
+  mutations.forEach(function (mutation) {
+    var attr = mutation.attributeName;
+    if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
+      updateHref(mutation.target, observer.link);
+    }
+  });
+}
+
+var attrObserverConfig = { attributes: true };
+
+function getAttributeValues(el, prefix, result) {
   var attributes = el.attributes;
 
   for (var i = 0; i < attributes.length; i++) {
@@ -348,19 +359,30 @@ function getAttributeValues(el, prefix) {
   return result;
 }
 
-function createLinks(view) {
-  var $routes = view.$('[route]');
+function updateHref(el, link) {
+  var routeName = el.getAttribute('route');
+  if (!routeName) return;
+  var params = getAttributeValues(el, 'param-', link.getDefaults(routeName, 'params', el));
+  var query = getAttributeValues(el, 'query-', link.getDefaults(routeName, 'query', el));
+  var href = routerChannel.request('generate', routeName, params, query);
+  var anchorEl = void 0;
+  if (el.tagName === 'A') {
+    anchorEl = el;
+  } else {
+    anchorEl = backbone.$(el).find('a').eq(0)[0];
+  }
+  if (anchorEl) anchorEl.setAttribute('href', href);
+  return anchorEl;
+}
+
+function createLinks(routerLink) {
+  var rootEl = routerLink.options.rootEl;
+  var selector = rootEl ? rootEl + ' [route]' : '[route]';
+  var $routes = routerLink.view.$(selector);
 
   $routes.each(function () {
-    var routeName = this.getAttribute('route');
-    if (!routeName) return;
-    var params = getAttributeValues(this, 'param-');
-    var query = getAttributeValues(this, 'query-');
-    var href = routerChannel.request('generate', routeName, params, query);
-    if (this.tagName === 'A') {
-      this.setAttribute('href', href);
-    } else {
-      view.$(this).find('a').eq(0).attr({ href: href });
+    if (updateHref(this, routerLink)) {
+      if (routerLink.attrObserver) routerLink.attrObserver.observe(this, attrObserverConfig);
     }
   });
 }
@@ -368,13 +390,18 @@ function createLinks(view) {
 var routerlink = Marionette.Behavior.extend({
   initialize: function initialize() {
     var view = this.view;
+    var self = this;
     this.listenTo(routerChannel, 'transition', this.onTransition);
     if (view.el) {
       view.initialize = _.wrap(view.initialize, function (fn) {
         var args = _.rest(arguments, 1);
         fn.apply(view, args);
-        if (view.isRendered()) createLinks(view);
+        if (view.isRendered()) createLinks(self);
       });
+    }
+    if (window.MutationObserver) {
+      this.attrObserver = new window.MutationObserver(attrChanged);
+      this.attrObserver.link = this;
     }
   },
 
@@ -384,13 +411,15 @@ var routerlink = Marionette.Behavior.extend({
   },
 
   onTransition: function onTransition() {
-    var view = this.view;
-    this.$('[route]').each(function () {
-      var $el = view.$(this);
+    var self = this;
+    var rootEl = self.options.rootEl;
+    var selector = rootEl ? rootEl + ' [route]' : '[route]';
+    self.$(selector).each(function () {
+      var $el = backbone.$(this);
       var routeName = $el.attr('route');
       if (!routeName) return;
-      var params = getAttributeValues(this, 'param-');
-      var query = getAttributeValues(this, 'query-');
+      var params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this));
+      var query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query', this));
       var isActive = routerChannel.request('isActive', routeName, params, query);
       $el.toggleClass('active', isActive);
     });
@@ -400,16 +429,25 @@ var routerlink = Marionette.Behavior.extend({
     if (this.$(el).find('a').length) return;
     var routeName = el.getAttribute('route');
     if (!routeName) return;
-    var params = getAttributeValues(el, 'param-');
-    var query = getAttributeValues(el, 'query-');
+    var params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el));
+    var query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el));
     routerChannel.request('transitionTo', routeName, params, query);
   },
   onRender: function onRender() {
-    createLinks(this.view);
+    createLinks(this);
   },
   onDestroy: function onDestroy() {
     this.stopListening(routerChannel);
-  }
+  },
+  getDefaults: function getDefaults(routeName, prop, el) {
+    var defaults = this.options.defaults && this.options.defaults[routeName];
+    defaults = defaults && defaults[prop];
+    if (_.isFunction(defaults)) defaults = defaults.call(this.view, el);
+    return _.clone(defaults) || {};
+  },
+
+
+  attrObserver: undefined
 });
 
 /**
