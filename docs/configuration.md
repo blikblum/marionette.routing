@@ -1,18 +1,21 @@
 # Router Configuration
- 
-### `createRouter(options)`
- 
- Returns a cherrytree router instance. Accepts an options hash as argument:
 
- * **options.log** - a function that is called with logging info, default is noop. Pass in `true`/`false` or a custom logging function.
- * **options.logError** - default is true. A function that is called when transitions error (except for the special `TransitionRedirected` and `TransitionCancelled` errors). Pass in `true`/`false` or a custom error handling function.
- * **options.pushState** - default is false, which means using hashchange events. Set to `true` to use pushState.
- * **options.root** - default is `/`. Use in combination with `pushState: true` if your application is not being served from the root url /.
- * **options.interceptLinks** - default is true. When pushState is used - intercepts all link clicks when appropriate, prevents the default behaviour and instead uses pushState to update the URL and handle the transition via the router. You can also set this option to a custom function that will get called whenever a link is clicked if you want to customize the behaviour. Read more on [intercepting links below](#intercepting-links).
- * **options.qs** - default is a simple built in query string parser. Pass in an object with `parse` and `stringify` functions to customize how query strings get treated.
- * **options.Promise** - default is window.Promise or global.Promise. Promise implementation to be used when constructing transitions.
+## `createRouter(options)`
 
-### `router.map(fn)`
+ Returns a router instance. Accepts an options hash as argument:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `log`  | `noop` | Called with logging info - takes `true`, `false` or a custom logging function |
+| `logError` | `true` | Called when transitions error (except `TransitionRedirected` and `TransitionCancelled`). Takes `true`, `false`, or a custom function |
+| `pushState` | `false` | Use browser History API or the default hash change |
+| `root` | `/` | Used in combination with `pushState: true` - if your app isn't served from `/`, pass the new root |
+| `interceptLinks` | (same as `pushState`) | When `pushState: true` this intercepts all link clicks, preventing the default behavior. This can take a function to set custom behavior - see [intercepting links](#intercepting-links) |
+| `qs` | `object` | The parser function for query strings with a simple parser. Pass in an object with `parse` and `stringify` functions to customize the handling of query strings. |
+| `promise` | `window.Promise` | The Promises implementation to use for transitions |
+
+
+## `router.map(fn)`
 
 Configure the router with a route map. e.g.
 
@@ -29,31 +32,30 @@ router.map(function (route) {
 
 Each route can be configure with the following options:
 
- * routeClass: a Route class
- * routeOptions: options passed to the Route constructor
- * viewClass: a Marionette.View class. Can be used alone or with routeClass
- * viewOptions: options passed to the Marionette.View constructor
- * path: the route path
- * abstract: pass true to define an abstract route
- * outlet: pass true to allow a viewClass without a outlet region
+ * `routeClass`: a [`Route`](./route.md) class
+ * `routeOptions`: options passed to the Route constructor
+ * `viewClass`: a `Marionette.View` class. Can be used alone or with `routeClass`
+ * `viewOptions`: options passed to the Marionette.View constructor
+ * `path`: the route path
+ * `abstract`: pass true to define an abstract route
+ * `outlet`: pass true to allow a viewClass without an `outlet` region
 
-All routes must have at least viewClass or routeClass defined.
+**All routes must have at least viewClass or routeClass defined.**
 
 For more information about route mapping refer to cherrytree documentation
- 
-### `router.listen`
- 
+
+## `router.listen`
+
  Starts listening for URL changes
 
-### `router.rootRegion`
- 
+## `router.rootRegion`
+
  Property that defines the region where the top level views will be rendered
 
-### `middleware`
- 
-  A cherrytree middleware to be used by the route. Probably will be removed from public interface in the future  
+## `middleware`
 
-### `destroyRouter(routerInstance)`   
+  A cherrytree middleware to be used by the route. May be removed from public interface in the future.
 
-  Cleanup a router. Mostly used in tests
-    
+## `destroyRouter(routerInstance)`
+
+  Cleanup a router. This is mostly used for testing.
