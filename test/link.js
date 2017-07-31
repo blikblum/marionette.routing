@@ -53,8 +53,20 @@ let ParentView = Mn.View.extend({
 
 let GrandChildView = Mn.View.extend({
   tagName: 'h2',
+  behaviors: [{
+    behaviorClass: RouterLink,
+    defaults () {
+      return {
+        grandchild: {
+          query: {
+            other: 'xx'
+          }
+        }
+      }
+    }
+  }],
   template: function () {
-    return 'GrandChild'
+    return '<a id="a-grandchildlink2" route="grandchild" query-name="test"></a>'
   }
 });
 
@@ -129,6 +141,12 @@ describe('RouterLink', () => {
     return router.transitionTo('parent').then(function () {
       expect($('#a-childlink').attr('href')).to.be.equal('#parent/child?foo=bar&name=test')
       expect($('#a-rootlink3').attr('href')).to.be.equal('#root/5?tag=A')
+    })
+  })
+
+  it('should allow defaults to be defined as a function', function () {
+    return router.transitionTo('grandchild').then(function () {
+      expect($('#a-grandchildlink2').attr('href')).to.be.equal('#parent/child/grandchild?other=xx&name=test')
     })
   })
 

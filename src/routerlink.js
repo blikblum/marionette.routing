@@ -111,10 +111,12 @@ export default Marionette.Behavior.extend({
   },
   
   getDefaults(routeName, prop, el) {
-    let defaults = this.options.defaults && this.options.defaults[routeName]
-    defaults = (defaults && defaults[prop])
-    if (_.isFunction(defaults)) defaults = defaults.call(this.view, el)
-    return _.clone(defaults) || {}
+    let defaults = this.options.defaults
+    if (_.isFunction(defaults)) defaults = defaults.call(this.view)
+    let routeDefaults = defaults && defaults[routeName]
+    let result = (routeDefaults && routeDefaults[prop])
+    if (_.isFunction(result)) result = result.call(this.view, el)
+    return _.clone(result) || {}
   },
 
   attrObserver: undefined
