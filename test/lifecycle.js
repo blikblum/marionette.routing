@@ -19,8 +19,8 @@ describe('Lifecycle hooks', () => {
       currentTransition = transition
     });
     router.use(middleware);
-    RootRoute = Route.extend({}), ParentRoute = Route.extend({}), ChildRoute = Route.extend({}),
-      GrandChildRoute = Route.extend({}), LeafRoute = Route.extend({}),
+    RootRoute = Route.extend({load() {}}), ParentRoute = Route.extend({load() {}}), ChildRoute = Route.extend({}),
+      GrandChildRoute = Route.extend({load() {}}), LeafRoute = Route.extend({}),
       Child2Route = Route.extend({}), DynParentRoute = Route.extend({}), DynChildRoute = Route.extend({}),
       DynGrandChildRoute = Route.extend({});
 
@@ -198,6 +198,86 @@ describe('Lifecycle hooks', () => {
         expect(parentSpy).to.not.be.called;
         expect(childSpy).to.be.calledOnce;
         expect(grandChildSpy).to.be.calledOnce;
+        done()
+      }).catch(done)
+    });
+  });
+
+  describe('load', () => {
+    it('should be called once with transition when enter route', function (done) {
+      let spy = sinon.spy(ParentRoute.prototype, 'load');
+      router.transitionTo('parent').then(function () {
+        expect(spy).to.be.calledOnce;
+        expect(spy).to.be.calledWith(currentTransition)
+        done()
+      }).catch(done)
+    });
+
+    it('should be called twice when enter route a second time', function (done) {
+      let spy = sinon.spy(RootRoute.prototype, 'load')
+      router.transitionTo('root').then(function () {
+        return router.transitionTo('parent');
+      }).then(function () {
+        return router.transitionTo('root');
+      }).then(function () {
+        expect(spy).to.have.been.calledTwice;
+        done();
+      }).catch(done);
+    })
+
+    it('should be called in order from root to leaf, once', function (done) {
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'load');
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load');
+      router.transitionTo('leaf').then(function () {
+        //once
+        expect(parentSpy).to.have.been.calledOnce;
+        expect(grandChildSpy).to.have.been.calledOnce;
+        //order
+        expect(grandChildSpy).to.have.been.calledAfter(parentSpy);
+        done()
+      }).catch(done)
+    })
+
+    it('should not be called if transition is canceled in a parent route', function (done) {
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
+      let childStub = sinon.stub(ChildRoute.prototype, 'activate', function (transition) {
+        transition.cancel()
+      });
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load');
+      router.transitionTo('leaf').then(function () {
+        done('Transition promise should be rejected')
+      }).catch(function () {
+        expect(parentSpy).to.have.been.calledOnce;
+        expect(childStub).to.have.been.calledOnce;
+        expect(grandChildSpy).to.not.have.been.called;
+        done()
+      })
+    })
+
+    it('should not be called if transition is cancelled in same route', function (done) {
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
+      let childStub = sinon.stub(GrandChildRoute.prototype, 'activate', function (transition) {
+        transition.cancel()
+      });
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load');
+      router.transitionTo('leaf').then(function () {
+        done('Transition promise should be rejected')
+      }).catch(function () {
+        expect(parentSpy).to.have.been.calledOnce;
+        expect(childStub).to.have.been.calledOnce;
+        expect(grandChildSpy).to.not.have.been.called;
+        done()
+      })
+    })
+
+    it('should always be called even if not activating', function (done) {
+      let activateSpy = sinon.spy(ParentRoute.prototype, 'activate');
+      let loadSpy = sinon.spy(ParentRoute.prototype, 'load');
+      router.transitionTo('child').then(function () {
+        return router.transitionTo('child2')
+      }).then(function () {
+        expect(activateSpy).to.be.calledOnce;
+        expect(loadSpy).to.be.calledTwice;
         done()
       }).catch(done)
     });

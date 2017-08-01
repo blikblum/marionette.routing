@@ -128,6 +128,26 @@ function getParentRegion(routes, route) {
   return router.rootRegion
 }
 
+function renderViews (mnRoutes, activated, transition) {
+  //ensure at least the target (last) route is rendered
+  let renderCandidates = activated.length ? activated : mnRoutes.slice(-1)
+
+  let renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
+    if (mnRoute.viewClass) {
+      if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
+        memo.pop()
+      }
+      memo.push(mnRoute)
+    }
+    return memo
+  }, [])
+
+  renderQueue.forEach(function (mnRoute) {
+    let parentRegion = getParentRegion(mnRoutes, mnRoute)
+    mnRoute.renderView(parentRegion, transition)
+  })
+}
+
 export function middleware(transition) {
 
   routerChannel.trigger('before:transition', transition)
@@ -212,24 +232,33 @@ export function middleware(transition) {
   //render views
   return promise.then(function () {
     if (transition.isCancelled) return ;
-    //ensure at least the target (last) route is rendered
-    if (!activated.length && mnRoutes.length) {
-      activated.push(mnRoutes[mnRoutes.length - 1])
-    }
 
-    let renderQueue = activated.reduce(function (memo, mnRoute) {
-      if (mnRoute.viewClass) {
-        if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
-          memo.pop()
+    let loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
+      let nextPromise = prevPromise
+      if (_.isFunction(mnRoute.load)) {
+        if (prevPromise) {
+          return prevPromise.then(function () {
+            return Promise.resolve(mnRoute.load(transition))
+          })
+        } else {
+          return Promise.resolve(mnRoute.load(transition))
         }
-        memo.push(mnRoute)
       }
-      return memo
-    }, [])
+      return nextPromise
+    }, undefined)
 
-    renderQueue.forEach(function (mnRoute) {
-      let parentRegion = getParentRegion(mnRoutes, mnRoute)
-      mnRoute.renderView(parentRegion, transition)
-    })
+    if (loadPromise) {
+      return new Promise(function (resolve) {
+        loadPromise.then(function () {
+          renderViews(mnRoutes, activated, transition)
+          resolve()
+        }).catch(function () {
+          renderViews(mnRoutes, activated, transition)
+          resolve()
+        })
+      })
+    } else {
+      renderViews(mnRoutes, activated, transition)
+    }
   })
 }
