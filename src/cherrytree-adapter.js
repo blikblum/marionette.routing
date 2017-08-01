@@ -148,7 +148,13 @@ function renderViews (mnRoutes, activated, transition) {
   })
 }
 
+function isActivatingRoute (route) {
+  return this.activating && this.activating.indexOf(route) !== -1
+}
+
 export function middleware(transition) {
+
+  transition.isActivating = isActivatingRoute
 
   routerChannel.trigger('before:transition', transition)
 
@@ -204,7 +210,7 @@ export function middleware(transition) {
   let activated
 
   promise = promise.then(function () {
-    activated = mnRoutes.slice(changingIndex)
+    activated = transition.activating = mnRoutes.slice(changingIndex)
     return activated.reduce(function (prevPromise, mnRoute) {
       routerChannel.trigger('before:activate', transition, mnRoute)
       return prevPromise.then(function () {
@@ -223,6 +229,7 @@ export function middleware(transition) {
   transition.then(function () {
     router.state.mnRoutes = mnRoutes
     routerChannel.trigger('transition', transition)
+    transition.activating = []
   }).catch(function (err) {
     if (err.type !== 'TransitionCancelled' && err.type !== 'TransitionRedirected') {
       routerChannel.trigger('transition:error', transition, err)
