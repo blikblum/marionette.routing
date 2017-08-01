@@ -152,9 +152,14 @@ function isActivatingRoute (route) {
   return this.activating && this.activating.indexOf(route) !== -1
 }
 
+function isTargetRoute (route) {
+  return this.mnRoutes && this.mnRoutes.indexOf(route) === this.mnRoutes.length - 1
+}
+
 export function middleware(transition) {
 
   transition.isActivating = isActivatingRoute
+  transition.isTarget = isTargetRoute
 
   routerChannel.trigger('before:transition', transition)
 
