@@ -160,7 +160,38 @@ function getParentRegion(routes, route) {
   return router.rootRegion;
 }
 
+function renderViews(mnRoutes, activated, transition) {
+  //ensure at least the target (last) route is rendered
+  var renderCandidates = activated.length ? activated : mnRoutes.slice(-1);
+
+  var renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
+    if (mnRoute.viewClass) {
+      if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
+        memo.pop();
+      }
+      memo.push(mnRoute);
+    }
+    return memo;
+  }, []);
+
+  renderQueue.forEach(function (mnRoute) {
+    var parentRegion = getParentRegion(mnRoutes, mnRoute);
+    mnRoute.renderView(parentRegion, transition);
+  });
+}
+
+function isActivatingRoute(route) {
+  return this.activating && this.activating.indexOf(route) !== -1;
+}
+
+function isTargetRoute(route) {
+  return this.mnRoutes && this.mnRoutes.indexOf(route) === this.mnRoutes.length - 1;
+}
+
 function middleware(transition) {
+
+  transition.isActivating = isActivatingRoute;
+  transition.isTarget = isTargetRoute;
 
   routerChannel.trigger('before:transition', transition);
 
@@ -218,7 +249,7 @@ function middleware(transition) {
   var activated = void 0;
 
   promise = promise.then(function () {
-    activated = mnRoutes.slice(changingIndex);
+    activated = transition.activating = mnRoutes.slice(changingIndex);
     return activated.reduce(function (prevPromise, mnRoute) {
       routerChannel.trigger('before:activate', transition, mnRoute);
       return prevPromise.then(function () {
@@ -237,6 +268,7 @@ function middleware(transition) {
   transition.then(function () {
     router.state.mnRoutes = mnRoutes;
     routerChannel.trigger('transition', transition);
+    transition.activating = [];
   }).catch(function (err) {
     if (err.type !== 'TransitionCancelled' && err.type !== 'TransitionRedirected') {
       routerChannel.trigger('transition:error', transition, err);
@@ -246,25 +278,36 @@ function middleware(transition) {
   //render views
   return promise.then(function () {
     if (transition.isCancelled) return;
-    //ensure at least the target (last) route is rendered
-    if (!activated.length && mnRoutes.length) {
-      activated.push(mnRoutes[mnRoutes.length - 1]);
-    }
 
-    var renderQueue = activated.reduce(function (memo, mnRoute) {
-      if (mnRoute.viewClass) {
-        if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
-          memo.pop();
+    var loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
+      var nextPromise = prevPromise;
+      if (_.isFunction(mnRoute.load)) {
+        if (prevPromise) {
+          return prevPromise.then(function () {
+            return Promise.resolve(mnRoute.load(transition));
+          }).catch(function () {
+            return Promise.resolve(mnRoute.load(transition));
+          });
+        } else {
+          return Promise.resolve(mnRoute.load(transition));
         }
-        memo.push(mnRoute);
       }
-      return memo;
-    }, []);
+      return nextPromise;
+    }, undefined);
 
-    renderQueue.forEach(function (mnRoute) {
-      var parentRegion = getParentRegion(mnRoutes, mnRoute);
-      mnRoute.renderView(parentRegion, transition);
-    });
+    if (loadPromise) {
+      return new Promise(function (resolve) {
+        loadPromise.then(function () {
+          renderViews(mnRoutes, activated, transition);
+          resolve();
+        }).catch(function () {
+          renderViews(mnRoutes, activated, transition);
+          resolve();
+        });
+      });
+    } else {
+      renderViews(mnRoutes, activated, transition);
+    }
   });
 }
 
@@ -420,8 +463,11 @@ var routerlink = Marionette.Behavior.extend({
       if (!routeName) return;
       var params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this));
       var query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query', this));
-      var isActive = routerChannel.request('isActive', routeName, params, query);
-      $el.toggleClass('active', isActive);
+      var activeClass = this.hasAttribute('active-class') ? $el.attr('active-class') : 'active';
+      if (activeClass) {
+        var isActive = routerChannel.request('isActive', routeName, params, query);
+        $el.toggleClass(activeClass, isActive);
+      }
     });
   },
   onLinkClick: function onLinkClick(e) {
@@ -440,10 +486,12 @@ var routerlink = Marionette.Behavior.extend({
     this.stopListening(routerChannel);
   },
   getDefaults: function getDefaults(routeName, prop, el) {
-    var defaults = this.options.defaults && this.options.defaults[routeName];
-    defaults = defaults && defaults[prop];
-    if (_.isFunction(defaults)) defaults = defaults.call(this.view, el);
-    return _.clone(defaults) || {};
+    var defaults = this.options.defaults;
+    if (_.isFunction(defaults)) defaults = defaults.call(this.view);
+    var routeDefaults = defaults && defaults[routeName];
+    var result = routeDefaults && routeDefaults[prop];
+    if (_.isFunction(result)) result = result.call(this.view, el);
+    return _.clone(result) || {};
   },
 
 

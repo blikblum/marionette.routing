@@ -6,18 +6,31 @@
 
 ### <code>activate(transition) [-> Promise]</code>
 
- Called when route is about to be activated
+ Called when route is currently inactive and about to be activated
 
  The transition argument provides information about the routes being
  transitioned to and methods to manipulate the transition like
  cancel and redirectTo
 
  If a Promise is returned, the route activation is complete only after
- the Promise resolution
+ the Promise is resolved. If the returned Promise is rejected, the transition will be cancelled 
+ and children routes `activate` methods will not be called
+ 
+### <code>load(transition) [-> Promise]</code>
+
+ Called in transition regardless of the route active state 
+
+ The transition argument provides information about the routes being
+ transitioned to and methods to manipulate the transition like
+ cancel and redirectTo
+
+ If a Promise is returned, the route loadind is complete only after the 
+ Promise resolution, being resolved or rejected. The children routes `load` methods
+ will always be called independent of return Promise state.
 
 ### <code>deactivate(transition)</code>
 
- Called when route is about to be deactivated
+ Called when route is active and about to be deactivated
 
  The transition argument provides information about the routes being
  transitioned to and methods to manipulate the transition like
@@ -27,7 +40,7 @@
 
  Returns a route context object.
 
- The context object provides two methods: trigger and requests both with
+ The context object provides two methods: `trigger` and `requests` both with
  the same semantics as the used in Radio. The events and requests will be handled
  by one of the parent routes through
  [`contextEvents`](#contextEvents) and [`contextRequests`](#contextRequests).
