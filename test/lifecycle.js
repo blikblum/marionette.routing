@@ -157,7 +157,7 @@ describe('Lifecycle hooks', () => {
 
     it('should not be called if transition is canceled in a parent route', function (done) {
       let parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
-      let childStub = sinon.stub(ChildRoute.prototype, 'activate', function (transition) {
+      let childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
       });
       let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate');
@@ -240,7 +240,7 @@ describe('Lifecycle hooks', () => {
 
     it('should not be called if transition is canceled in a parent route', function (done) {
       let parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
-      let childStub = sinon.stub(ChildRoute.prototype, 'activate', function (transition) {
+      let childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
       });
       let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load');
@@ -256,7 +256,7 @@ describe('Lifecycle hooks', () => {
 
     it('should not be called if transition is cancelled in same route', function (done) {
       let parentSpy = sinon.spy(ParentRoute.prototype, 'activate');
-      let childStub = sinon.stub(GrandChildRoute.prototype, 'activate', function (transition) {
+      let childStub = sinon.stub(GrandChildRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
       });
       let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load');
@@ -282,7 +282,7 @@ describe('Lifecycle hooks', () => {
     });
 
     it('should not cancel the transition when returned promise is rejected', function () {
-      let parentStub = sinon.stub(ParentRoute.prototype, 'load', function () {
+      let parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
         return Promise.reject()
       });
       return router.transitionTo('child').then(function () {
@@ -291,7 +291,7 @@ describe('Lifecycle hooks', () => {
     });
 
     it('should be called even if a parent load is rejected', function (done) {
-      let parentStub = sinon.stub(ParentRoute.prototype, 'load', function () {
+      let parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
         return Promise.reject()
       });
       let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load');
@@ -355,7 +355,7 @@ describe('Lifecycle hooks', () => {
 
     it('should not be called if transition is canceled in a child route', function (done) {
       let parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate');
-      let childStub = sinon.stub(ChildRoute.prototype, 'deactivate', function (transition) {
+      let childStub = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (transition) {
         transition.cancel()
       });
       let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate');

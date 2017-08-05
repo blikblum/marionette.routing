@@ -248,7 +248,7 @@ describe('Render', () => {
 
     it('should prevent view re render if returns truthy', function () {
       let routeInstance, savedView
-      sinon.stub(ParentRoute.prototype, 'initialize', function () {
+      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
       })
 
@@ -271,7 +271,7 @@ describe('Render', () => {
 
     it('should be set to undefined after is destroyed', function () {
       let routeInstance
-      sinon.stub(ParentRoute.prototype, 'initialize', function () {
+      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
       })
 
@@ -284,7 +284,7 @@ describe('Render', () => {
 
     it('should not be set to undefined after rendering the same route', function () {
       let routeInstance
-      sinon.stub(ParentRoute.prototype, 'initialize', function () {
+      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
       })
 

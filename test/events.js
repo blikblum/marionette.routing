@@ -268,7 +268,7 @@ describe('Events', () => {
       let spy = sinon.spy()
       let promiseSpy = sinon.spy()
       Radio.channel('router').on('activate', spy);
-      let rootSpy = sinon.stub(RootRoute.prototype, 'activate', function () {
+      let rootSpy = sinon.stub(RootRoute.prototype, 'activate').callsFake(function () {
         return new Promise(function (resolve, reject) {
           setTimeout(function () {
             promiseSpy()
@@ -287,7 +287,7 @@ describe('Events', () => {
     it('should not be triggered when transition is cancelled in activate method', function (done) {
       let spy = sinon.spy()
       Radio.channel('router').on('activate', spy);
-      sinon.stub(RootRoute.prototype, 'activate', function (transition) {
+      sinon.stub(RootRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
       });
       router.transitionTo('root').catch(function () {
