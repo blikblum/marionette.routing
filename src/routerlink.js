@@ -87,8 +87,11 @@ export default Marionette.Behavior.extend({
       if (!routeName) return;
       let params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this))
       let query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query', this))
-      let isActive = routerChannel.request('isActive', routeName, params, query)
-      $el.toggleClass('active', isActive)
+      let activeClass = this.hasAttribute('active-class') ? $el.attr('active-class') : 'active'
+      if (activeClass) {
+        let isActive = routerChannel.request('isActive', routeName, params, query)
+        $el.toggleClass(activeClass, isActive)
+      }
     })
   },
 

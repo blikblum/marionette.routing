@@ -38,6 +38,8 @@ let ParentView = Mn.View.extend({
       <a id="a-rootlink3" route="root"></a>
       <div id="scoped">
         <a id="a-parentlink" route="parent"></a>
+        <a id="a-parentlink-customclass" active-class="my-active-class" route="parent"></a>
+        <a id="a-parentlink-noclass" active-class="" route="parent"></a>
         <a id="a-grandchildlink" route="grandchild" query-name="test"></a>
       </div>      
       <a id="a-childlink" route="child" query-name="test"></a>
@@ -201,6 +203,25 @@ describe('RouterLink', () => {
       expect($('#div-rootlink1').hasClass('active')).to.be.false
       expect($('#a-grandchildlink').hasClass('active')).to.be.true
       expect($('#div-grandchildlink').hasClass('active')).to.be.true
+    })
+  })
+
+  it('should allow to customize the class to be set', function () {
+    return router.transitionTo('parent').then(function () {
+      //this handler will be called before middleware one. PostPone actual test
+      return Promise.resolve()
+    }).then(function () {
+      expect($('#a-parentlink-customclass').hasClass('active')).to.be.false
+      expect($('#a-parentlink-customclass').hasClass('my-active-class')).to.be.true
+    })
+  })
+
+  it('should allow to customize the class to be set', function () {
+    return router.transitionTo('parent').then(function () {
+      //this handler will be called before middleware one. PostPone actual test
+      return Promise.resolve()
+    }).then(function () {
+      expect($('#a-parentlink-noclass').hasClass('active')).to.be.false
     })
   })
 
