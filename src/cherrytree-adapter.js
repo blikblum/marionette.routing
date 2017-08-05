@@ -251,6 +251,8 @@ export function middleware(transition) {
         if (prevPromise) {
           return prevPromise.then(function () {
             return Promise.resolve(mnRoute.load(transition))
+          }).catch(function () {
+            return Promise.resolve(mnRoute.load(transition))
           })
         } else {
           return Promise.resolve(mnRoute.load(transition))

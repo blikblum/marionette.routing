@@ -270,7 +270,7 @@ describe('Lifecycle hooks', () => {
       })
     })
 
-    it('should always be called even if not activating', function (done) {
+    it('should always be called even if not activating', function () {
       let activateSpy = sinon.spy(ParentRoute.prototype, 'activate');
       let loadSpy = sinon.spy(ParentRoute.prototype, 'load');
       router.transitionTo('child').then(function () {
@@ -278,6 +278,29 @@ describe('Lifecycle hooks', () => {
       }).then(function () {
         expect(activateSpy).to.be.calledOnce;
         expect(loadSpy).to.be.calledTwice;
+      })
+    });
+
+    it('should not cancel the transition when returned promise is rejected', function () {
+      let parentStub = sinon.stub(ParentRoute.prototype, 'load', function () {
+        return Promise.reject()
+      });
+      return router.transitionTo('child').then(function () {
+        expect(parentStub).to.be.calledOnce;
+      })
+    });
+
+    it('should be called even if a parent load is rejected', function (done) {
+      let parentStub = sinon.stub(ParentRoute.prototype, 'load', function () {
+        return Promise.reject()
+      });
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load');
+      router.transitionTo('leaf').then(function () {
+        //once
+        expect(parentStub).to.have.been.calledOnce;
+        expect(grandChildSpy).to.have.been.calledOnce;
+        //order
+        expect(grandChildSpy).to.have.been.calledAfter(parentStub);
         done()
       }).catch(done)
     });
