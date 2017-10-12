@@ -51,11 +51,11 @@
   },
   "scripts": {
     "lint": "eslint src test tools",
-    "test": "mocha --compilers js:babel-register",
+    "test": "standard \"test/**/*.js\" && mocha --compilers js:babel-register",
     "test:watch": "mocha --compilers js:babel-register --reporter min --watch",
     "test:cover": "babel-node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "build": "node tools/build",
+    "build": "standard \"src/**/*.js\" && node tools/build",
     "prepublish": "npm run build",
     "publish:docs": "easystatic deploy docs --repo blikblum/marionette.routing",
     "start": "easystatic start docs"
