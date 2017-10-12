@@ -94,9 +94,9 @@ describe('RouterLink', () => {
 
     document.body.innerHTML = `<div id="main"></div>
       <div id="prerendered">
-      <a id="a-prerootlink2" route="root" param-id="2"></a>
-      <a id="a-preparentlink" route="parent"></a>
-      <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
+        <a id="a-prerootlink2" route="root" param-id="2"></a>
+        <a id="a-preparentlink" route="parent"></a>
+        <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
       </div>`;
     let RootRegion = Mn.Region.extend({
       el: '#main'
@@ -230,7 +230,7 @@ describe('RouterLink', () => {
     beforeEach(function () {
       PreRenderedView = Mn.View.extend({
         behaviors: [RouterLink],
-        el: $('#prerendered')
+        el: '#prerendered'
       })
 
       ParentRoute.prototype.viewClass = PreRenderedView

@@ -60,7 +60,7 @@ describe('Render', () => {
     router.map(routes);
     router.listen();
 
-    document.body.innerHTML = '<div id="main"></div>';
+    document.body.innerHTML = '<div id="main">Test</div>';
     let RootRegion = Mn.Region.extend({
       el: '#main'
     });
@@ -138,7 +138,7 @@ describe('Render', () => {
 
       it('should not abort transition when no rootRegion is defined and view is prerendered', function () {
         router.rootRegion = null;
-        RootRoute.prototype.viewClass = Mn.View.extend({el: $('#main')})
+        RootRoute.prototype.viewClass = Mn.View.extend({el: '#main'})
         return router.transitionTo('root3').then(function () {
           expect(router.isActive('root3'))
         })
