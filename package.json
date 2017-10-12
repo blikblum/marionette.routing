@@ -17,10 +17,6 @@
       "latest"
     ]
   },
-  "eslintConfig": {
-    "parser": "babel-eslint",
-    "extends": "airbnb-base"
-  },
   "dependencies": {
     "cherrytree": "^2.4.1"
   },
