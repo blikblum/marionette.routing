@@ -15,21 +15,21 @@ export default Marionette.Object.extend(
 
     cidPrefix: 'rou',
 
-    activate() {
+    activate () {
 
     },
 
-    deactivate() {
+    deactivate () {
 
     },
 
-    renderView(region, transition) {
-      //todo: move renderView out of Route class??
+    renderView (region, transition) {
+      // todo: move renderView out of Route class??
       if (!this.viewClass) {
         throw new Error('render: viewClass not defined')
       }
-      if (this.view && this.updateView(transition)) return ;
-      let view = new this.viewClass(_.result(this, 'viewOptions', {}))
+      if (this.view && this.updateView(transition)) return
+      let view = new this.viewClass(_.result(this, 'viewOptions', {})) // eslint-disable-line new-cap
       this.listenToOnce(view, 'destroy', function () {
         this.view = void 0
       })
@@ -47,12 +47,12 @@ export default Marionette.Object.extend(
       }
     },
 
-    updateView() {
+    updateView () {
 
     },
 
-    getContext() {
-      //todo: cache context??
+    getContext () {
+      // todo: cache context??
       let state = this.$router.state
       let mnRoutes = (state.activeTransition || state).mnRoutes
       if (!mnRoutes) {
@@ -61,13 +61,14 @@ export default Marionette.Object.extend(
       return new RouteContext(mnRoutes, this)
     },
 
-    getOutlet() {
+    getOutlet () {
       return this.view.getRegion('outlet')
     },
 
-    _bindContext() {
-      let channel, requests = _.result(this, 'contextRequests'),
-        events = _.result(this, 'contextEvents')
+    _bindContext () {
+      const requests = _.result(this, 'contextRequests')
+      const events = _.result(this, 'contextEvents')
+      let channel
       if (!requests && !events) {
         return
       }

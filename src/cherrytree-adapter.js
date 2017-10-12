@@ -1,3 +1,4 @@
+/* global history */
 /**
  * Marionette Routing
  *
@@ -16,21 +17,22 @@ let mnRouteMap = Object.create(null)
 export const routerChannel = Radio.channel('router')
 let router
 
-export function createRouter(options) {
+export function createRouter (options) {
   if (router) {
     throw new Error('Instance of router already created')
   }
-  return router = Route.prototype.$router = cherrytree(options)
+  router = Route.prototype.$router = cherrytree(options)
+  return router
 }
 
-export function destroyRouter(instance) {
+export function destroyRouter (instance) {
   router = null
   Route.prototype.$router = null
   mnRouteMap = Object.create(null)
   instance.destroy()
 }
 
-export function getMnRoutes(routes) {
+export function getMnRoutes (routes) {
   return routes.map(function (route) {
     return mnRouteMap[route.name]
   })
@@ -49,12 +51,12 @@ routerChannel.reply('generate', function () {
 })
 
 routerChannel.reply('goBack', function () {
-  //in wait of a better implementation
-  history.back();
+  // in wait of a better implementation
+  history.back()
 })
 
-function getChangingIndex(prevRoutes, currentRoutes){
-  var index, prev, current;
+function getChangingIndex (prevRoutes, currentRoutes) {
+  let index, prev, current
   const count = Math.max(prevRoutes.length, currentRoutes.length)
   for (index = 0; index < count; index++) {
     prev = prevRoutes[index]
@@ -66,7 +68,7 @@ function getChangingIndex(prevRoutes, currentRoutes){
   return index
 }
 
-function findRouteConfig(routeName, index, routes) {
+function findRouteConfig (routeName, index, routes) {
   let parentRoutes = routes.slice(0, index).reverse().map(function (route) {
     return mnRouteMap[route.name]
   })
@@ -82,19 +84,19 @@ function findRouteConfig(routeName, index, routes) {
   return config
 }
 
-function createRouteInstance(options, config) {
+function createRouteInstance (options, config) {
   if (options.prototype instanceof Route) {
-    return new options(undefined, config)
+    return new options(undefined, config) // eslint-disable-line new-cap
   }
   let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
-    return new options.routeClass(routeOptions, config)
+    return new options.routeClass(routeOptions, config) // eslint-disable-line new-cap
   } else if (options.viewClass) {
     return new Route(routeOptions, config)
   }
 }
 
-function createMnRoute(route, index, routes) {
+function createMnRoute (route, index, routes) {
   let instanceConfig = {
     name: route.name,
     path: route.path,
@@ -110,8 +112,8 @@ function createMnRoute(route, index, routes) {
   return instance
 }
 
-function getParentRegion(routes, route) {
-  var region, parent
+function getParentRegion (routes, route) {
+  let region, parent
   let routeIndex = routes.indexOf(route) - 1
   while (routeIndex >= 0) {
     parent = routes[routeIndex]
@@ -129,7 +131,7 @@ function getParentRegion(routes, route) {
 }
 
 function renderViews (mnRoutes, activated, transition) {
-  //ensure at least the target (last) route is rendered
+  // ensure at least the target (last) route is rendered
   let renderCandidates = activated.length ? activated : mnRoutes.slice(-1)
 
   let renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
@@ -156,20 +158,20 @@ function isTargetRoute (route) {
   return this.mnRoutes && this.mnRoutes.indexOf(route) === this.mnRoutes.length - 1
 }
 
-export function middleware(transition) {
-
+export function middleware (transition) {
   transition.isActivating = isActivatingRoute
   transition.isTarget = isTargetRoute
 
   routerChannel.trigger('before:transition', transition)
 
-  if (transition.isCancelled) return ;
+  if (transition.isCancelled) return
 
   let prevRoutes = transition.prev.routes
   let changingIndex = getChangingIndex(prevRoutes, transition.routes)
-  var routeIndex, routeInstance, deactivated = []
+  let deactivated = []
+  let routeIndex, routeInstance
 
-  //deactivate previous routes
+  // deactivate previous routes
   for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
     routeInstance = mnRouteMap[prevRoutes[routeIndex].name]
     if (routeInstance) {
@@ -178,17 +180,17 @@ export function middleware(transition) {
   }
 
   if (deactivated.some(function (route) {
-      routerChannel.trigger('before:deactivate', transition, route)
-      return transition.isCancelled
-    })) return
+    routerChannel.trigger('before:deactivate', transition, route)
+    return transition.isCancelled
+  })) return
 
   if (deactivated.some(function (route) {
-      route.deactivate(transition)
-      routerChannel.trigger('deactivate', transition, route)
-      return transition.isCancelled
-    })) return
+    route.deactivate(transition)
+    routerChannel.trigger('deactivate', transition, route)
+    return transition.isCancelled
+  })) return
 
-  //build route tree and creating instances if necessary
+  // build route tree and creating instances if necessary
   let mnRoutes = transition.mnRoutes = []
 
   let promise = transition.routes.reduce(function (acc, route, i, routes) {
@@ -208,10 +210,10 @@ export function middleware(transition) {
           return res
         })
       }
-    });
-  }, Promise.resolve(mnRoutes));
+    })
+  }, Promise.resolve(mnRoutes))
 
-  //activate routes in order
+  // activate routes in order
   let activated
 
   promise = promise.then(function () {
@@ -241,9 +243,9 @@ export function middleware(transition) {
     }
   })
 
-  //render views
+  // render views
   return promise.then(function () {
-    if (transition.isCancelled) return ;
+    if (transition.isCancelled) return
 
     let loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
       let nextPromise = prevPromise

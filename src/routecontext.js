@@ -1,9 +1,9 @@
-function RouteContext(routes, route) {
+function RouteContext (routes, route) {
   let routeIndex = routes.indexOf(route)
   this.parentRoutes = routes.slice(0, routeIndex)
 }
 
-RouteContext.prototype.trigger = function() {
+RouteContext.prototype.trigger = function () {
   let parentRoutes = this.parentRoutes
   for (let i = parentRoutes.length - 1; i >= 0; i--) {
     let channel = parentRoutes[i]._contextChannel
@@ -13,7 +13,7 @@ RouteContext.prototype.trigger = function() {
   }
 }
 
-RouteContext.prototype.request = function(name) {
+RouteContext.prototype.request = function (name) {
   let parentRoutes = this.parentRoutes
   for (let i = parentRoutes.length - 1; i >= 0; i--) {
     let channel = parentRoutes[i]._contextChannel

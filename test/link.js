@@ -1,15 +1,17 @@
-import chai from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import {Route, RouterLink, createRouter, destroyRouter, middleware} from '../src/index';
-import Mn from 'backbone.marionette';
+/* eslint-disable no-unused-expressions */
+/* global describe,beforeEach,afterEach,it,$ */
 
-let expect = chai.expect;
-chai.use(sinonChai);
+import chai from 'chai'
+import sinon from 'sinon'
+import sinonChai from 'sinon-chai'
+import {Route, RouterLink, createRouter, destroyRouter, middleware} from '../src/index'
+import Mn from 'backbone.marionette'
 
+let expect = chai.expect
+chai.use(sinonChai)
 
-let router, routes;
-let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute, PreRenderedView;
+let router, routes
+let RootRoute, ParentRoute, ChildRoute, PreRenderedView
 
 let ParentView = Mn.View.extend({
   behaviors: [{
@@ -21,7 +23,7 @@ let ParentView = Mn.View.extend({
         }
       },
       root: {
-        params: function(){
+        params: function () {
           return {id: this.rootId}
         },
         query: function (el) {
@@ -51,7 +53,7 @@ let ParentView = Mn.View.extend({
     outlet: '.child-view'
   },
   rootId: 5
-});
+})
 
 let GrandChildView = Mn.View.extend({
   tagName: 'h2',
@@ -70,47 +72,46 @@ let GrandChildView = Mn.View.extend({
   template: function () {
     return '<a id="a-grandchildlink2" route="grandchild" query-name="test"></a>'
   }
-});
+})
 
 describe('RouterLink', () => {
-
   beforeEach(() => {
-    router = createRouter();
-    router.use(middleware);
+    router = createRouter()
+    router.use(middleware)
     ParentRoute = Route.extend({
       viewClass: ParentView
-    });
-    RootRoute = Route.extend({}), ChildRoute = Route.extend({}),
-      GrandChildRoute = Route.extend({}), LeafRoute = Route.extend({});
+    })
+    RootRoute = Route.extend({})
+    ChildRoute = Route.extend({})
     routes = function (route) {
       route('parent', {routeClass: ParentRoute}, function () {
         route('child', {routeClass: ChildRoute}, function () {
           route('grandchild', {viewClass: GrandChildView})
         })
-      });
-      route('root', {path: 'root/:id', routeClass: RootRoute, routeOptions: {viewClass: ParentView}});
-    };
-    router.map(routes);
+      })
+      route('root', {path: 'root/:id', routeClass: RootRoute, routeOptions: {viewClass: ParentView}})
+    }
+    router.map(routes)
 
     document.body.innerHTML = `<div id="main"></div>
       <div id="prerendered">
         <a id="a-prerootlink2" route="root" param-id="2"></a>
         <a id="a-preparentlink" route="parent"></a>
         <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
-      </div>`;
+      </div>`
     let RootRegion = Mn.Region.extend({
       el: '#main'
-    });
+    })
     router.rootRegion = new RootRegion()
 
-    router.listen();
-  });
+    router.listen()
+  })
 
   afterEach(() => {
-    destroyRouter(router);
+    destroyRouter(router)
     document.location.pathname = ''
     document.location.hash = ''
-  });
+  })
 
   it('should generate href attributes in anchor tags with route attribute', function () {
     return router.transitionTo('parent').then(function () {
@@ -178,7 +179,7 @@ describe('RouterLink', () => {
 
   it('should set active class in tag with route attribute when respective route is active', function () {
     return router.transitionTo('parent').then(function () {
-      //this handler will be called before middleware one. PostPone actual test
+      // this handler will be called before middleware one. PostPone actual test
       return Promise.resolve()
     }).then(function () {
       expect($('#a-parentlink').hasClass('active')).to.be.true
@@ -208,7 +209,7 @@ describe('RouterLink', () => {
 
   it('should allow to customize the class to be set', function () {
     return router.transitionTo('parent').then(function () {
-      //this handler will be called before middleware one. PostPone actual test
+      // this handler will be called before middleware one. PostPone actual test
       return Promise.resolve()
     }).then(function () {
       expect($('#a-parentlink-customclass').hasClass('active')).to.be.false
@@ -218,7 +219,7 @@ describe('RouterLink', () => {
 
   it('should allow to customize the class to be set', function () {
     return router.transitionTo('parent').then(function () {
-      //this handler will be called before middleware one. PostPone actual test
+      // this handler will be called before middleware one. PostPone actual test
       return Promise.resolve()
     }).then(function () {
       expect($('#a-parentlink-noclass').hasClass('active')).to.be.false
@@ -226,7 +227,6 @@ describe('RouterLink', () => {
   })
 
   describe('in a pre-rendered view', function () {
-
     beforeEach(function () {
       PreRenderedView = Mn.View.extend({
         behaviors: [RouterLink],
@@ -253,11 +253,9 @@ describe('RouterLink', () => {
         expect(spy).to.be.calledWith({x: 1})
       })
     })
-
   })
 
   describe('with rootEl set', function () {
-
     beforeEach(function () {
       ParentView.prototype.behaviors = [{behaviorClass: RouterLink, rootEl: '#scoped'}]
     })
@@ -270,5 +268,4 @@ describe('RouterLink', () => {
       })
     })
   })
-});
-
+})

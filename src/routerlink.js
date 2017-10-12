@@ -3,7 +3,7 @@ import Marionette from 'backbone.marionette'
 import {routerChannel} from './cherrytree-adapter'
 import {$} from 'backbone'
 
-function attrChanged(mutations, observer) {
+function attrChanged (mutations, observer) {
   mutations.forEach(function (mutation) {
     let attr = mutation.attributeName
     if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
@@ -14,7 +14,7 @@ function attrChanged(mutations, observer) {
 
 const attrObserverConfig = {attributes: true}
 
-function getAttributeValues(el, prefix, result) {
+function getAttributeValues (el, prefix, result) {
   let attributes = el.attributes
 
   for (let i = 0; i < attributes.length; i++) {
@@ -27,9 +27,9 @@ function getAttributeValues(el, prefix, result) {
   return result
 }
 
-function updateHref(el, link) {
+function updateHref (el, link) {
   let routeName = el.getAttribute('route')
-  if (!routeName) return;
+  if (!routeName) return
   let params = getAttributeValues(el, 'param-', link.getDefaults(routeName, 'params', el))
   let query = getAttributeValues(el, 'query-', link.getDefaults(routeName, 'query', el))
   let href = routerChannel.request('generate', routeName, params, query)
@@ -43,7 +43,7 @@ function updateHref(el, link) {
   return anchorEl
 }
 
-function createLinks(routerLink) {
+function createLinks (routerLink) {
   let rootEl = routerLink.options.rootEl
   let selector = rootEl ? rootEl + ' [route]' : '[route]'
   let $routes = routerLink.view.$(selector)
@@ -56,7 +56,7 @@ function createLinks(routerLink) {
 }
 
 export default Marionette.Behavior.extend({
-  initialize() {
+  initialize () {
     let view = this.view
     let self = this
     this.listenTo(routerChannel, 'transition', this.onTransition)
@@ -77,14 +77,14 @@ export default Marionette.Behavior.extend({
     'click [route]:not(a)': 'onLinkClick'
   },
 
-  onTransition() {
+  onTransition () {
     let self = this
     let rootEl = self.options.rootEl
     let selector = rootEl ? rootEl + ' [route]' : '[route]'
     self.$(selector).each(function () {
       let $el = $(this)
       let routeName = $el.attr('route')
-      if (!routeName) return;
+      if (!routeName) return
       let params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this))
       let query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query', this))
       let activeClass = this.hasAttribute('active-class') ? $el.attr('active-class') : 'active'
@@ -95,25 +95,25 @@ export default Marionette.Behavior.extend({
     })
   },
 
-  onLinkClick(e) {
+  onLinkClick (e) {
     let el = e.currentTarget
-    if (this.$(el).find('a').length) return ;
+    if (this.$(el).find('a').length) return
     let routeName = el.getAttribute('route')
-    if (!routeName) return;
+    if (!routeName) return
     let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
     let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
     routerChannel.request('transitionTo', routeName, params, query)
   },
 
-  onRender() {
+  onRender () {
     createLinks(this)
   },
 
-  onDestroy() {
+  onDestroy () {
     this.stopListening(routerChannel)
   },
-  
-  getDefaults(routeName, prop, el) {
+
+  getDefaults (routeName, prop, el) {
     let defaults = this.options.defaults
     if (_.isFunction(defaults)) defaults = defaults.call(this.view)
     let routeDefaults = defaults && defaults[routeName]
