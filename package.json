@@ -33,7 +33,6 @@
   "devDependencies": {
     "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
-    "babel-eslint": "^7.0.0",
     "babel-preset-latest": "^6.16.0",
     "babel-register": "^6.16.3",
     "backbone": "^1.3.3",
@@ -42,9 +41,6 @@
     "chai": "^3.5.0",
     "coveralls": "^2.11.14",
     "del": "^2.2.2",
-    "eslint": "^3.8.0",
-    "eslint-config-airbnb-base": "^8.0.0",
-    "eslint-plugin-import": "^1.16.0",
     "istanbul": "^1.1.0-alpha.1",
     "jquery": "^3.1.1",
     "jsdom": "^11.1.0",
@@ -54,6 +50,7 @@
     "rollup-plugin-babel": "^2.6.1",
     "sinon": "^3.0.0",
     "sinon-chai": "^2.12.0",
+    "standard": "^10.0.3",
     "underscore": "^1.8.3"
   },
   "scripts": {
