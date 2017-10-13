@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import Radio from 'backbone.radio'
+import Backbone from 'backbone'
 import Marionette from 'backbone.marionette'
 import RouteContext from './routecontext'
 import {getMnRoutes, routerChannel} from './cherrytree-adapter'
@@ -24,12 +25,17 @@ export default Marionette.Object.extend(
     },
 
     renderView (region, transition) {
-      // todo: move renderView out of Route class??
-      if (!this.viewClass) {
-        throw new Error('render: viewClass not defined')
-      }
       if (this.view && this.updateView(transition)) return
-      let view = new this.viewClass(_.result(this, 'viewOptions', {})) // eslint-disable-line new-cap
+      let ViewClass = this.viewClass
+      if (!(ViewClass.prototype instanceof Backbone.View)) {
+        if (_.isFunction(ViewClass)) {
+          ViewClass = ViewClass.call(this)
+        }
+        if (!(ViewClass.prototype instanceof Backbone.View)) {
+          throw new Error('render: viewClass should be a View class or a function returning one')
+        }
+      }
+      let view = new ViewClass(_.result(this, 'viewOptions', {}))
       this.listenToOnce(view, 'destroy', function () {
         this.view = void 0
       })

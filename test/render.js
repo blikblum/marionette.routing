@@ -84,6 +84,23 @@ describe('Render', () => {
       }).catch(done)
     })
 
+    it('can be defined in the Route class as a function', function (done) {
+      let routeInstance
+      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
+        routeInstance = this
+      })
+      let viewClassSpy = sinon.spy(function () {
+        return ParentView
+      })
+      ParentRoute.prototype.viewClass = viewClassSpy
+      router.transitionTo('parent').then(function () {
+        expect($('#main').html()).to.be.equal('<div><div class="child-view"></div></div>')
+        expect(viewClassSpy).to.be.called.once
+        expect(viewClassSpy).to.be.calledOn(routeInstance)
+        done()
+      }).catch(done)
+    })
+
     it('can be passed through routeOptions.viewClass', function (done) {
       router.transitionTo('root').then(function () {
         expect($('#main').html()).to.be.equal('<div><div class="child-view"></div></div>')
