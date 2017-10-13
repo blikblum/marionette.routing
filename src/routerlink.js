@@ -56,25 +56,17 @@ function createLinks (routerLink) {
 }
 
 export default Marionette.Behavior.extend({
-  initialize () {
-    let view = this.view
-    let self = this
+  events: {
+    'click [route]:not(a)': 'onLinkClick'
+  },
+
+  onInitialize (view) {
     this.listenTo(routerChannel, 'transition', this.onTransition)
-    if (view.el) {
-      view.initialize = _.wrap(view.initialize, function (fn) {
-        let args = _.rest(arguments, 1)
-        fn.apply(view, args)
-        if (view.isRendered()) createLinks(self)
-      })
-    }
     if (window.MutationObserver) {
       this.attrObserver = new window.MutationObserver(attrChanged)
       this.attrObserver.link = this
     }
-  },
-
-  events: {
-    'click [route]:not(a)': 'onLinkClick'
+    if (view.isRendered()) createLinks(this)
   },
 
   onTransition () {
