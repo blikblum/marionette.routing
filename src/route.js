@@ -1,6 +1,5 @@
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import Backbone from 'backbone'
 import { Object as MnObject, bindEvents, View } from 'backbone.marionette'
 import RouteContext from './routecontext'
 import {getMnRoutes, routerChannel} from './cherrytree-adapter'
@@ -28,11 +27,11 @@ export default MnObject.extend(
       if (this.view && this.updateView(transition)) return
       let ViewClass = this.viewClass || View
       let viewOptions = _.result(this, 'viewOptions', {})
-      if (!(ViewClass.prototype instanceof Backbone.View)) {
+      if (!(ViewClass.prototype instanceof View)) {
         if (_.isFunction(ViewClass)) {
           ViewClass = ViewClass.call(this)
         }
-        if (!(ViewClass.prototype instanceof Backbone.View)) {
+        if (!(ViewClass.prototype instanceof View)) {
           viewOptions = _.extend({}, ViewClass, viewOptions)
           ViewClass = View
         }
