@@ -1,16 +1,16 @@
 import _ from 'underscore'
 import Radio from 'backbone.radio'
 import Backbone from 'backbone'
-import Marionette from 'backbone.marionette'
+import { Object as MnObject, bindEvents } from 'backbone.marionette'
 import RouteContext from './routecontext'
 import {getMnRoutes, routerChannel} from './cherrytree-adapter'
 
-export default Marionette.Object.extend(
+export default MnObject.extend(
   {
     constructor (options, config) {
       this.mergeOptions(options, ['viewClass', 'viewOptions'])
       this.$config = config
-      Marionette.Object.call(this, options)
+      MnObject.call(this, options)
       this._bindContext()
     },
 
@@ -49,7 +49,7 @@ export default Marionette.Object.extend(
       this.view = view
       routerChannel.trigger('route:render', this)
       if (this.viewEvents) {
-        Marionette.bindEvents(this, view, this.viewEvents)
+        bindEvents(this, view, this.viewEvents)
       }
     },
 

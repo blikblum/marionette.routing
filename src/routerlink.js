@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import Marionette from 'backbone.marionette'
+import { Behavior } from 'backbone.marionette'
 import {routerChannel} from './cherrytree-adapter'
 import {$} from 'backbone'
 
@@ -55,7 +55,7 @@ function createLinks (routerLink) {
   })
 }
 
-export default Marionette.Behavior.extend({
+export default Behavior.extend({
   events: {
     'click [route]:not(a)': 'onLinkClick'
   },
