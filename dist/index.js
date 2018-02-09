@@ -1,14 +1,13 @@
-'use strict';
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('underscore'), require('backbone.radio'), require('backbone'), require('backbone.marionette'), require('cherrytree')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'underscore', 'backbone.radio', 'backbone', 'backbone.marionette', 'cherrytree'], factory) :
+  (factory((global.Marionette = global.Marionette || {}, global.Marionette.Routing = global.Marionette.Routing || {}),global._,global.Backbone.Radio,global.Backbone,global.Backbone.Marionette,global.cherrytree));
+}(this, (function (exports,_,Radio,Backbone,backbone_marionette,cherrytree) { 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var _ = _interopDefault(require('underscore'));
-var Radio = _interopDefault(require('backbone.radio'));
-var Marionette = _interopDefault(require('backbone.marionette'));
-var cherrytree = _interopDefault(require('cherrytree'));
-var backbone = require('backbone');
+_ = 'default' in _ ? _['default'] : _;
+Radio = 'default' in Radio ? Radio['default'] : Radio;
+var Backbone__default = 'default' in Backbone ? Backbone['default'] : Backbone;
+cherrytree = 'default' in cherrytree ? cherrytree['default'] : cherrytree;
 
 function RouteContext(routes, route) {
   var routeIndex = routes.indexOf(route);
@@ -35,6 +34,7 @@ RouteContext.prototype.request = function (name) {
   }
 };
 
+/* global history */
 /**
  * Marionette Routing
  *
@@ -52,7 +52,8 @@ function createRouter(options) {
   if (router) {
     throw new Error('Instance of router already created');
   }
-  return router = Route.prototype.$router = cherrytree(options);
+  router = Route.prototype.$router = cherrytree(options);
+  return router;
 }
 
 function destroyRouter(instance) {
@@ -81,12 +82,14 @@ routerChannel.reply('generate', function () {
 });
 
 routerChannel.reply('goBack', function () {
-  //in wait of a better implementation
+  // in wait of a better implementation
   history.back();
 });
 
 function getChangingIndex(prevRoutes, currentRoutes) {
-  var index, prev, current;
+  var index = void 0,
+      prev = void 0,
+      current = void 0;
   var count = Math.max(prevRoutes.length, currentRoutes.length);
   for (index = 0; index < count; index++) {
     prev = prevRoutes[index];
@@ -116,11 +119,11 @@ function findRouteConfig(routeName, index, routes) {
 
 function createRouteInstance(options, config) {
   if (options.prototype instanceof Route) {
-    return new options(undefined, config);
+    return new options(undefined, config); // eslint-disable-line new-cap
   }
   var routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']));
   if (options.routeClass) {
-    return new options.routeClass(routeOptions, config);
+    return new options.routeClass(routeOptions, config); // eslint-disable-line new-cap
   } else if (options.viewClass) {
     return new Route(routeOptions, config);
   }
@@ -143,7 +146,8 @@ function createMnRoute(route, index, routes) {
 }
 
 function getParentRegion(routes, route) {
-  var region, parent;
+  var region = void 0,
+      parent = void 0;
   var routeIndex = routes.indexOf(route) - 1;
   while (routeIndex >= 0) {
     parent = routes[routeIndex];
@@ -161,7 +165,7 @@ function getParentRegion(routes, route) {
 }
 
 function renderViews(mnRoutes, activated, transition) {
-  //ensure at least the target (last) route is rendered
+  // ensure at least the target (last) route is rendered
   var renderCandidates = activated.length ? activated : mnRoutes.slice(-1);
 
   var renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
@@ -189,7 +193,6 @@ function isTargetRoute(route) {
 }
 
 function middleware(transition) {
-
   transition.isActivating = isActivatingRoute;
   transition.isTarget = isTargetRoute;
 
@@ -199,11 +202,11 @@ function middleware(transition) {
 
   var prevRoutes = transition.prev.routes;
   var changingIndex = getChangingIndex(prevRoutes, transition.routes);
-  var routeIndex,
-      routeInstance,
-      deactivated = [];
+  var deactivated = [];
+  var routeIndex = void 0,
+      routeInstance = void 0;
 
-  //deactivate previous routes
+  // deactivate previous routes
   for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
     routeInstance = mnRouteMap[prevRoutes[routeIndex].name];
     if (routeInstance) {
@@ -222,7 +225,7 @@ function middleware(transition) {
     return transition.isCancelled;
   })) return;
 
-  //build route tree and creating instances if necessary
+  // build route tree and creating instances if necessary
   var mnRoutes = transition.mnRoutes = [];
 
   var promise = transition.routes.reduce(function (acc, route, i, routes) {
@@ -245,7 +248,7 @@ function middleware(transition) {
     });
   }, Promise.resolve(mnRoutes));
 
-  //activate routes in order
+  // activate routes in order
   var activated = void 0;
 
   promise = promise.then(function () {
@@ -275,7 +278,7 @@ function middleware(transition) {
     }
   });
 
-  //render views
+  // render views
   return promise.then(function () {
     if (transition.isCancelled) return;
 
@@ -311,11 +314,11 @@ function middleware(transition) {
   });
 }
 
-var Route = Marionette.Object.extend({
+var Route = backbone_marionette.Object.extend({
   constructor: function constructor(options, config) {
     this.mergeOptions(options, ['viewClass', 'viewOptions']);
     this.$config = config;
-    Marionette.Object.call(this, options);
+    backbone_marionette.Object.call(this, options);
     this._bindContext();
   },
 
@@ -325,12 +328,19 @@ var Route = Marionette.Object.extend({
   activate: function activate() {},
   deactivate: function deactivate() {},
   renderView: function renderView(region, transition) {
-    //todo: move renderView out of Route class??
-    if (!this.viewClass) {
-      throw new Error('render: viewClass not defined');
-    }
     if (this.view && this.updateView(transition)) return;
-    var view = new this.viewClass(_.result(this, 'viewOptions', {}));
+    var ViewClass = this.viewClass || backbone_marionette.View;
+    var viewOptions = _.result(this, 'viewOptions', {});
+    if (!(ViewClass.prototype instanceof Backbone__default.View)) {
+      if (_.isFunction(ViewClass)) {
+        ViewClass = ViewClass.call(this);
+      }
+      if (!(ViewClass.prototype instanceof Backbone__default.View)) {
+        viewOptions = _.extend({}, ViewClass, viewOptions);
+        ViewClass = backbone_marionette.View;
+      }
+    }
+    var view = new ViewClass(viewOptions);
     this.listenToOnce(view, 'destroy', function () {
       this.view = void 0;
     });
@@ -344,12 +354,12 @@ var Route = Marionette.Object.extend({
     this.view = view;
     routerChannel.trigger('route:render', this);
     if (this.viewEvents) {
-      Marionette.bindEvents(this, view, this.viewEvents);
+      backbone_marionette.bindEvents(this, view, this.viewEvents);
     }
   },
   updateView: function updateView() {},
   getContext: function getContext() {
-    //todo: cache context??
+    // todo: cache context??
     var state = this.$router.state;
     var mnRoutes = (state.activeTransition || state).mnRoutes;
     if (!mnRoutes) {
@@ -361,9 +371,9 @@ var Route = Marionette.Object.extend({
     return this.view.getRegion('outlet');
   },
   _bindContext: function _bindContext() {
-    var channel = void 0,
-        requests = _.result(this, 'contextRequests'),
-        events = _.result(this, 'contextEvents');
+    var requests = _.result(this, 'contextRequests');
+    var events = _.result(this, 'contextEvents');
+    var channel = void 0;
     if (!requests && !events) {
       return;
     }
@@ -412,7 +422,7 @@ function updateHref(el, link) {
   if (el.tagName === 'A') {
     anchorEl = el;
   } else {
-    anchorEl = backbone.$(el).find('a').eq(0)[0];
+    anchorEl = Backbone.$(el).find('a').eq(0)[0];
   }
   if (anchorEl) anchorEl.setAttribute('href', href);
   return anchorEl;
@@ -430,35 +440,25 @@ function createLinks(routerLink) {
   });
 }
 
-var routerlink = Marionette.Behavior.extend({
-  initialize: function initialize() {
-    var view = this.view;
-    var self = this;
-    this.listenTo(routerChannel, 'transition', this.onTransition);
-    if (view.el) {
-      view.initialize = _.wrap(view.initialize, function (fn) {
-        var args = _.rest(arguments, 1);
-        fn.apply(view, args);
-        if (view.isRendered()) createLinks(self);
-      });
-    }
-    if (window.MutationObserver) {
-      this.attrObserver = new window.MutationObserver(attrChanged);
-      this.attrObserver.link = this;
-    }
-  },
-
-
+var routerlink = backbone_marionette.Behavior.extend({
   events: {
     'click [route]:not(a)': 'onLinkClick'
   },
 
+  onInitialize: function onInitialize(view) {
+    this.listenTo(routerChannel, 'transition', this.onTransition);
+    if (window.MutationObserver) {
+      this.attrObserver = new window.MutationObserver(attrChanged);
+      this.attrObserver.link = this;
+    }
+    if (view.isRendered()) createLinks(this);
+  },
   onTransition: function onTransition() {
     var self = this;
     var rootEl = self.options.rootEl;
     var selector = rootEl ? rootEl + ' [route]' : '[route]';
     self.$(selector).each(function () {
-      var $el = backbone.$(this);
+      var $el = Backbone.$(this);
       var routeName = $el.attr('route');
       if (!routeName) return;
       var params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this));
@@ -512,4 +512,8 @@ exports.RouterLink = routerlink;
 exports.middleware = middleware;
 exports.createRouter = createRouter;
 exports.destroyRouter = destroyRouter;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
 //# sourceMappingURL=index.js.map

@@ -1,12 +1,3 @@
-/**
- * Babel Starter Kit (https://www.kriasoft.com/babel-starter-kit)
- *
- * Copyright © 2015-2016 Kriasoft, LLC. All rights reserved.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE.txt file in the root directory of this source tree.
- */
-
 'use strict';
 
 const fs = require('fs');
@@ -21,7 +12,7 @@ let promise = Promise.resolve();
 promise = promise.then(() => del(['dist/*']));
 
 // Compile source code into a distributable format with Babel
-for (const format of ['cjs', 'umd']) {
+for (const format of ['es', 'umd']) {
   promise = promise.then(() => rollup.rollup({
     entry: 'src/index.js',
     external: Object.keys(pkg.dependencies),
@@ -31,10 +22,10 @@ for (const format of ['cjs', 'umd']) {
       presets: pkg.babel.presets.map(x => (x === 'latest' ? ['latest', { es2015: { modules: false } }] : x)),
     }))],
   }).then(bundle => bundle.write({
-    dest: `dist/${format === 'cjs' ? 'index' : `index.${format}`}.js`,
+    dest: `dist/${format === 'umd' ? 'index' : 'index.esm'}.js`,
     format,
     sourceMap: true,
-    moduleName: format === 'umd' ? 'Backbone.Marionette.Routing' : undefined,
+    moduleName: format === 'umd' ? 'Marionette.Routing' : undefined,
     globals: {
       backbone: 'Backbone',
       underscore: '_',

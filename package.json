@@ -12,6 +12,8 @@
   "license": "MIT",
   "keywords": [],
   "main": "index.js",
+  "jsnext:main": "index.esm.js",
+  "module": "index.esm.js",
   "babel": {
     "presets": [
       "latest"
