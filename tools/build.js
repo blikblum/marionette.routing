@@ -45,6 +45,7 @@ promise = promise.then(() => {
   fs.writeFileSync('dist/package.json', JSON.stringify(pkg, null, '  '), 'utf-8');
   fs.writeFileSync('dist/LICENSE.txt', fs.readFileSync('LICENSE.txt', 'utf-8'), 'utf-8');
   fs.writeFileSync('dist/README.md', fs.readFileSync('README.md', 'utf-8'), 'utf-8');
+  fs.writeFileSync('dist/CHANGELOG.md', fs.readFileSync('CHANGELOG.md', 'utf-8'), 'utf-8');
 });
 
 promise.catch(err => console.error(err.stack)); // eslint-disable-line no-console

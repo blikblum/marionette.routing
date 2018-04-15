@@ -1,13 +1,12 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('underscore'), require('backbone.radio'), require('backbone'), require('backbone.marionette'), require('cherrytree')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'underscore', 'backbone.radio', 'backbone', 'backbone.marionette', 'cherrytree'], factory) :
-  (factory((global.Marionette = global.Marionette || {}, global.Marionette.Routing = global.Marionette.Routing || {}),global._,global.Backbone.Radio,global.Backbone,global.Backbone.Marionette,global.cherrytree));
-}(this, (function (exports,_,Radio,Backbone,backbone_marionette,cherrytree) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('underscore'), require('backbone.radio'), require('backbone.marionette'), require('cherrytreex'), require('backbone')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'underscore', 'backbone.radio', 'backbone.marionette', 'cherrytreex', 'backbone'], factory) :
+  (factory((global.Marionette = global.Marionette || {}, global.Marionette.Routing = global.Marionette.Routing || {}),global._,global.Backbone.Radio,global.Backbone.Marionette,global.Cherrytree,global.Backbone));
+}(this, (function (exports,_,Radio,backbone_marionette,Cherrytree,backbone) { 'use strict';
 
 _ = 'default' in _ ? _['default'] : _;
 Radio = 'default' in Radio ? Radio['default'] : Radio;
-var Backbone__default = 'default' in Backbone ? Backbone['default'] : Backbone;
-cherrytree = 'default' in cherrytree ? cherrytree['default'] : cherrytree;
+Cherrytree = 'default' in Cherrytree ? Cherrytree['default'] : Cherrytree;
 
 function RouteContext(routes, route) {
   var routeIndex = routes.indexOf(route);
@@ -52,7 +51,7 @@ function createRouter(options) {
   if (router) {
     throw new Error('Instance of router already created');
   }
-  router = Route.prototype.$router = cherrytree(options);
+  router = Route.prototype.$router = new Cherrytree(options);
   return router;
 }
 
@@ -192,127 +191,137 @@ function isTargetRoute(route) {
   return this.mnRoutes && this.mnRoutes.indexOf(route) === this.mnRoutes.length - 1;
 }
 
-function middleware(transition) {
-  transition.isActivating = isActivatingRoute;
-  transition.isTarget = isTargetRoute;
+var middleware = {
+  next: function routeResolver(transition) {
+    transition.isActivating = isActivatingRoute;
+    transition.isTarget = isTargetRoute;
 
-  routerChannel.trigger('before:transition', transition);
+    routerChannel.trigger('before:transition', transition);
 
-  if (transition.isCancelled) return;
+    if (transition.isCancelled) return;
 
-  var prevRoutes = transition.prev.routes;
-  var changingIndex = getChangingIndex(prevRoutes, transition.routes);
-  var deactivated = [];
-  var routeIndex = void 0,
-      routeInstance = void 0;
+    var prevRoutes = transition.prev.routes;
+    var changingIndex = getChangingIndex(prevRoutes, transition.routes);
+    var deactivated = [];
+    var routeIndex = void 0,
+        routeInstance = void 0;
 
-  // deactivate previous routes
-  for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
-    routeInstance = mnRouteMap[prevRoutes[routeIndex].name];
-    if (routeInstance) {
-      deactivated.push(routeInstance);
-    }
-  }
-
-  if (deactivated.some(function (route) {
-    routerChannel.trigger('before:deactivate', transition, route);
-    return transition.isCancelled;
-  })) return;
-
-  if (deactivated.some(function (route) {
-    route.deactivate(transition);
-    routerChannel.trigger('deactivate', transition, route);
-    return transition.isCancelled;
-  })) return;
-
-  // build route tree and creating instances if necessary
-  var mnRoutes = transition.mnRoutes = [];
-
-  var promise = transition.routes.reduce(function (acc, route, i, routes) {
-    return acc.then(function (res) {
-      var instance = mnRouteMap[route.name];
-      if (instance) {
-        res.push(instance);
-        return res;
-      } else {
-        instance = createMnRoute(route, i, routes);
-        return Promise.resolve(instance).then(function (mnRoute) {
-          if (!mnRoute) {
-            throw new Error('Unable to create route ' + route.name + ': routeClass or viewClass must be defined');
-          }
-          mnRouteMap[route.name] = mnRoute;
-          res.push(mnRoute);
-          return res;
-        });
+    // deactivate previous routes
+    for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
+      routeInstance = mnRouteMap[prevRoutes[routeIndex].name];
+      if (routeInstance) {
+        deactivated.push(routeInstance);
       }
-    });
-  }, Promise.resolve(mnRoutes));
+    }
 
-  // activate routes in order
-  var activated = void 0;
+    if (deactivated.some(function (route) {
+      routerChannel.trigger('before:deactivate', transition, route);
+      return transition.isCancelled;
+    })) return;
 
-  promise = promise.then(function () {
-    activated = transition.activating = mnRoutes.slice(changingIndex);
-    return activated.reduce(function (prevPromise, mnRoute) {
-      routerChannel.trigger('before:activate', transition, mnRoute);
-      return prevPromise.then(function () {
-        if (!transition.isCancelled) {
-          return Promise.resolve(mnRoute.activate(transition)).then(function () {
-            if (!transition.isCancelled) {
-              routerChannel.trigger('activate', transition, mnRoute);
+    if (deactivated.some(function (route) {
+      route.deactivate(transition);
+      routerChannel.trigger('deactivate', transition, route);
+      return transition.isCancelled;
+    })) return;
+
+    // build route tree and creating instances if necessary
+    var mnRoutes = transition.mnRoutes = [];
+
+    var promise = transition.routes.reduce(function (acc, route, i, routes) {
+      return acc.then(function (res) {
+        var instance = mnRouteMap[route.name];
+        if (instance) {
+          res.push(instance);
+          return res;
+        } else {
+          instance = createMnRoute(route, i, routes);
+          return Promise.resolve(instance).then(function (mnRoute) {
+            if (!mnRoute) {
+              throw new Error('Unable to create route ' + route.name + ': routeClass or viewClass must be defined');
             }
+            mnRouteMap[route.name] = mnRoute;
+            res.push(mnRoute);
+            return res;
           });
         }
-        return Promise.resolve();
       });
-    }, Promise.resolve());
-  });
+    }, Promise.resolve(mnRoutes));
 
-  transition.then(function () {
-    router.state.mnRoutes = mnRoutes;
+    // activate routes in order
+    var activated = void 0;
+
+    promise = promise.then(function () {
+      activated = transition.activating = mnRoutes.slice(changingIndex);
+      return activated.reduce(function (prevPromise, mnRoute) {
+        routerChannel.trigger('before:activate', transition, mnRoute);
+        return prevPromise.then(function () {
+          if (!transition.isCancelled) {
+            return Promise.resolve(mnRoute.activate(transition)).then(function () {
+              if (!transition.isCancelled) {
+                routerChannel.trigger('activate', transition, mnRoute);
+              }
+            });
+          }
+          return Promise.resolve();
+        });
+      }, Promise.resolve());
+    });
+
+    promise.catch(function () {
+      // catch errors occurred inside routing classes / methods
+      // Should be handled in error event or in a transition.catch method
+    });
+
+    // render views
+    return promise.then(function () {
+      if (transition.isCancelled) return;
+
+      var loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
+        var nextPromise = prevPromise;
+        if (_.isFunction(mnRoute.load)) {
+          if (prevPromise) {
+            return prevPromise.then(function () {
+              return Promise.resolve(mnRoute.load(transition));
+            }).catch(function () {
+              return Promise.resolve(mnRoute.load(transition));
+            });
+          } else {
+            return Promise.resolve(mnRoute.load(transition));
+          }
+        }
+        return nextPromise;
+      }, undefined);
+
+      if (loadPromise) {
+        return new Promise(function (resolve) {
+          loadPromise.then(function () {
+            renderViews(mnRoutes, activated, transition);
+            resolve();
+          }).catch(function () {
+            renderViews(mnRoutes, activated, transition);
+            resolve();
+          });
+        });
+      } else {
+        renderViews(mnRoutes, activated, transition);
+      }
+    });
+  },
+
+  done: function done(transition) {
+    router.state.mnRoutes = transition.mnRoutes;
     routerChannel.trigger('transition', transition);
     transition.activating = [];
-  }).catch(function (err) {
+  },
+
+  error: function error(transition, err) {
+    transition.activating = [];
     if (err.type !== 'TransitionCancelled' && err.type !== 'TransitionRedirected') {
       routerChannel.trigger('transition:error', transition, err);
     }
-  });
-
-  // render views
-  return promise.then(function () {
-    if (transition.isCancelled) return;
-
-    var loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
-      var nextPromise = prevPromise;
-      if (_.isFunction(mnRoute.load)) {
-        if (prevPromise) {
-          return prevPromise.then(function () {
-            return Promise.resolve(mnRoute.load(transition));
-          }).catch(function () {
-            return Promise.resolve(mnRoute.load(transition));
-          });
-        } else {
-          return Promise.resolve(mnRoute.load(transition));
-        }
-      }
-      return nextPromise;
-    }, undefined);
-
-    if (loadPromise) {
-      return new Promise(function (resolve) {
-        loadPromise.then(function () {
-          renderViews(mnRoutes, activated, transition);
-          resolve();
-        }).catch(function () {
-          renderViews(mnRoutes, activated, transition);
-          resolve();
-        });
-      });
-    } else {
-      renderViews(mnRoutes, activated, transition);
-    }
-  });
-}
+  }
+};
 
 var Route = backbone_marionette.Object.extend({
   constructor: function constructor(options, config) {
@@ -331,11 +340,11 @@ var Route = backbone_marionette.Object.extend({
     if (this.view && this.updateView(transition)) return;
     var ViewClass = this.viewClass || backbone_marionette.View;
     var viewOptions = _.result(this, 'viewOptions', {});
-    if (!(ViewClass.prototype instanceof Backbone__default.View)) {
+    if (!(ViewClass.prototype instanceof backbone_marionette.View)) {
       if (_.isFunction(ViewClass)) {
         ViewClass = ViewClass.call(this);
       }
-      if (!(ViewClass.prototype instanceof Backbone__default.View)) {
+      if (!(ViewClass.prototype instanceof backbone_marionette.View)) {
         viewOptions = _.extend({}, ViewClass, viewOptions);
         ViewClass = backbone_marionette.View;
       }
@@ -422,7 +431,7 @@ function updateHref(el, link) {
   if (el.tagName === 'A') {
     anchorEl = el;
   } else {
-    anchorEl = Backbone.$(el).find('a').eq(0)[0];
+    anchorEl = backbone.$(el).find('a').eq(0)[0];
   }
   if (anchorEl) anchorEl.setAttribute('href', href);
   return anchorEl;
@@ -458,7 +467,7 @@ var routerlink = backbone_marionette.Behavior.extend({
     var rootEl = self.options.rootEl;
     var selector = rootEl ? rootEl + ' [route]' : '[route]';
     self.$(selector).each(function () {
-      var $el = Backbone.$(this);
+      var $el = backbone.$(this);
       var routeName = $el.attr('route');
       if (!routeName) return;
       var params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this));
