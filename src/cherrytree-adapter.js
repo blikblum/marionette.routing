@@ -10,7 +10,7 @@
 
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import cherrytree from 'cherrytree'
+import Cherrytree from 'cherrytreex'
 import Route from './route'
 
 let mnRouteMap = Object.create(null)
@@ -21,7 +21,7 @@ export function createRouter (options) {
   if (router) {
     throw new Error('Instance of router already created')
   }
-  router = Route.prototype.$router = cherrytree(options)
+  router = Route.prototype.$router = new Cherrytree(options)
   return router
 }
 

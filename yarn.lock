@@ -1024,12 +1024,11 @@ chalk@^1.0.0, chalk@^1.1.0, chalk@^1.1.1, chalk@^1.1.3:
     strip-ansi "^3.0.0"
     supports-color "^2.0.0"
 
-cherrytree@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/cherrytree/-/cherrytree-2.4.1.tgz#b578ec745941db8d81a02f91cb886f47824cadfc"
+cherrytreex@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.0.2.tgz#a174c4fb9ab34953212979efb4c26ddbd7fcdc1a"
   dependencies:
-    location-bar "^2.0.0"
-    path-to-regexp "^1.0.3"
+    path-to-regexp "^2.1.0"
 
 chokidar@^1.6.1:
   version "1.7.0"
@@ -2428,10 +2427,6 @@ locate-path@^2.0.0:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
 
-location-bar@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/location-bar/-/location-bar-2.1.0.tgz#5a248375930a236b7d2879862ba7a87d3ac9b11f"
-
 lodash._baseassign@^3.0.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/lodash._baseassign/-/lodash._baseassign-3.2.0.tgz#8c38a099500f215ad09e59f1722fd0c52bfe0a4e"
@@ -2826,11 +2821,15 @@ path-parse@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.5.tgz#3c1adf871ea9cd6c9431b6ea2bd74a0ff055c4c1"
 
-path-to-regexp@^1.0.3, path-to-regexp@^1.7.0:
+path-to-regexp@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.7.0.tgz#59fde0f435badacba103a84e9d3bc64e96b9937d"
   dependencies:
     isarray "0.0.1"
+
+path-to-regexp@^2.1.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-2.2.0.tgz#80f0ff45c1e0e641da74df313644eaf115050972"
 
 performance-now@^2.1.0:
   version "2.1.0"

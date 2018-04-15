@@ -20,7 +20,7 @@
     ]
   },
   "dependencies": {
-    "cherrytree": "^2.4.1"
+    "cherrytreex": "^3.0.2"
   },
   "peerDependencies": {
     "backbone": "^1.3.3",
