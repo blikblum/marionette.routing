@@ -179,9 +179,6 @@ describe('RouterLink', () => {
 
   it('should set active class in tag with route attribute when respective route is active', function () {
     return router.transitionTo('parent').then(function () {
-      // this handler will be called before middleware one. PostPone actual test
-      return Promise.resolve()
-    }).then(function () {
       expect($('#a-parentlink').hasClass('active')).to.be.true
       expect($('#div-parentlink').hasClass('active')).to.be.true
       expect($('#a-rootlink2').hasClass('active')).to.be.false
@@ -209,9 +206,6 @@ describe('RouterLink', () => {
 
   it('should allow to customize the class to be set', function () {
     return router.transitionTo('parent').then(function () {
-      // this handler will be called before middleware one. PostPone actual test
-      return Promise.resolve()
-    }).then(function () {
       expect($('#a-parentlink-customclass').hasClass('active')).to.be.false
       expect($('#a-parentlink-customclass').hasClass('my-active-class')).to.be.true
     })
@@ -219,9 +213,6 @@ describe('RouterLink', () => {
 
   it('should allow to customize the class to be set', function () {
     return router.transitionTo('parent').then(function () {
-      // this handler will be called before middleware one. PostPone actual test
-      return Promise.resolve()
-    }).then(function () {
       expect($('#a-parentlink-noclass').hasClass('active')).to.be.false
     })
   })

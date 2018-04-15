@@ -158,123 +158,133 @@ function isTargetRoute (route) {
   return this.mnRoutes && this.mnRoutes.indexOf(route) === this.mnRoutes.length - 1
 }
 
-export function middleware (transition) {
-  transition.isActivating = isActivatingRoute
-  transition.isTarget = isTargetRoute
+export const middleware = {
+  next: function routeResolver (transition) {
+    transition.isActivating = isActivatingRoute
+    transition.isTarget = isTargetRoute
 
-  routerChannel.trigger('before:transition', transition)
+    routerChannel.trigger('before:transition', transition)
 
-  if (transition.isCancelled) return
+    if (transition.isCancelled) return
 
-  let prevRoutes = transition.prev.routes
-  let changingIndex = getChangingIndex(prevRoutes, transition.routes)
-  let deactivated = []
-  let routeIndex, routeInstance
+    let prevRoutes = transition.prev.routes
+    let changingIndex = getChangingIndex(prevRoutes, transition.routes)
+    let deactivated = []
+    let routeIndex, routeInstance
 
-  // deactivate previous routes
-  for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
-    routeInstance = mnRouteMap[prevRoutes[routeIndex].name]
-    if (routeInstance) {
-      deactivated.push(routeInstance)
-    }
-  }
-
-  if (deactivated.some(function (route) {
-    routerChannel.trigger('before:deactivate', transition, route)
-    return transition.isCancelled
-  })) return
-
-  if (deactivated.some(function (route) {
-    route.deactivate(transition)
-    routerChannel.trigger('deactivate', transition, route)
-    return transition.isCancelled
-  })) return
-
-  // build route tree and creating instances if necessary
-  let mnRoutes = transition.mnRoutes = []
-
-  let promise = transition.routes.reduce(function (acc, route, i, routes) {
-    return acc.then(function (res) {
-      let instance = mnRouteMap[route.name]
-      if (instance) {
-        res.push(instance)
-        return res
-      } else {
-        instance = createMnRoute(route, i, routes)
-        return Promise.resolve(instance).then(function (mnRoute) {
-          if (!mnRoute) {
-            throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
-          }
-          mnRouteMap[route.name] = mnRoute
-          res.push(mnRoute)
-          return res
-        })
+    // deactivate previous routes
+    for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
+      routeInstance = mnRouteMap[prevRoutes[routeIndex].name]
+      if (routeInstance) {
+        deactivated.push(routeInstance)
       }
-    })
-  }, Promise.resolve(mnRoutes))
+    }
 
-  // activate routes in order
-  let activated
+    if (deactivated.some(function (route) {
+      routerChannel.trigger('before:deactivate', transition, route)
+      return transition.isCancelled
+    })) return
 
-  promise = promise.then(function () {
-    activated = transition.activating = mnRoutes.slice(changingIndex)
-    return activated.reduce(function (prevPromise, mnRoute) {
-      routerChannel.trigger('before:activate', transition, mnRoute)
-      return prevPromise.then(function () {
-        if (!transition.isCancelled) {
-          return Promise.resolve(mnRoute.activate(transition)).then(function () {
-            if (!transition.isCancelled) {
-              routerChannel.trigger('activate', transition, mnRoute)
+    if (deactivated.some(function (route) {
+      route.deactivate(transition)
+      routerChannel.trigger('deactivate', transition, route)
+      return transition.isCancelled
+    })) return
+
+    // build route tree and creating instances if necessary
+    let mnRoutes = transition.mnRoutes = []
+
+    let promise = transition.routes.reduce(function (acc, route, i, routes) {
+      return acc.then(function (res) {
+        let instance = mnRouteMap[route.name]
+        if (instance) {
+          res.push(instance)
+          return res
+        } else {
+          instance = createMnRoute(route, i, routes)
+          return Promise.resolve(instance).then(function (mnRoute) {
+            if (!mnRoute) {
+              throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
             }
+            mnRouteMap[route.name] = mnRoute
+            res.push(mnRoute)
+            return res
           })
         }
-        return Promise.resolve()
       })
-    }, Promise.resolve())
-  })
+    }, Promise.resolve(mnRoutes))
 
-  transition.then(function () {
-    router.state.mnRoutes = mnRoutes
+    // activate routes in order
+    let activated
+
+    promise = promise.then(function () {
+      activated = transition.activating = mnRoutes.slice(changingIndex)
+      return activated.reduce(function (prevPromise, mnRoute) {
+        routerChannel.trigger('before:activate', transition, mnRoute)
+        return prevPromise.then(function () {
+          if (!transition.isCancelled) {
+            return Promise.resolve(mnRoute.activate(transition)).then(function () {
+              if (!transition.isCancelled) {
+                routerChannel.trigger('activate', transition, mnRoute)
+              }
+            })
+          }
+          return Promise.resolve()
+        })
+      }, Promise.resolve())
+    })
+
+    promise.catch(() => {
+      // catch errors occurred inside routing classes / methods
+      // Should be handled in error event or in a transition.catch method
+    })
+
+    // render views
+    return promise.then(function () {
+      if (transition.isCancelled) return
+
+      let loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
+        let nextPromise = prevPromise
+        if (_.isFunction(mnRoute.load)) {
+          if (prevPromise) {
+            return prevPromise.then(function () {
+              return Promise.resolve(mnRoute.load(transition))
+            }).catch(function () {
+              return Promise.resolve(mnRoute.load(transition))
+            })
+          } else {
+            return Promise.resolve(mnRoute.load(transition))
+          }
+        }
+        return nextPromise
+      }, undefined)
+
+      if (loadPromise) {
+        return new Promise(function (resolve) {
+          loadPromise.then(function () {
+            renderViews(mnRoutes, activated, transition)
+            resolve()
+          }).catch(function () {
+            renderViews(mnRoutes, activated, transition)
+            resolve()
+          })
+        })
+      } else {
+        renderViews(mnRoutes, activated, transition)
+      }
+    })
+  },
+
+  done: function (transition) {
+    router.state.mnRoutes = transition.mnRoutes
     routerChannel.trigger('transition', transition)
     transition.activating = []
-  }).catch(function (err) {
+  },
+
+  error: function (transition, err) {
+    transition.activating = []
     if (err.type !== 'TransitionCancelled' && err.type !== 'TransitionRedirected') {
       routerChannel.trigger('transition:error', transition, err)
     }
-  })
-
-  // render views
-  return promise.then(function () {
-    if (transition.isCancelled) return
-
-    let loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
-      let nextPromise = prevPromise
-      if (_.isFunction(mnRoute.load)) {
-        if (prevPromise) {
-          return prevPromise.then(function () {
-            return Promise.resolve(mnRoute.load(transition))
-          }).catch(function () {
-            return Promise.resolve(mnRoute.load(transition))
-          })
-        } else {
-          return Promise.resolve(mnRoute.load(transition))
-        }
-      }
-      return nextPromise
-    }, undefined)
-
-    if (loadPromise) {
-      return new Promise(function (resolve) {
-        loadPromise.then(function () {
-          renderViews(mnRoutes, activated, transition)
-          resolve()
-        }).catch(function () {
-          renderViews(mnRoutes, activated, transition)
-          resolve()
-        })
-      })
-    } else {
-      renderViews(mnRoutes, activated, transition)
-    }
-  })
+  }
 }
