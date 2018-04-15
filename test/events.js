@@ -132,7 +132,7 @@ describe('Events', () => {
       }
 
       return router.transitionTo('root').catch(function () {
-        Promise.resolve().then(function () {
+        return Promise.resolve().then(function () {
           expect(spy).to.be.calledOnce
         })
       })
@@ -152,7 +152,7 @@ describe('Events', () => {
       router.transitionTo('root')
     })
 
-    it('should not be called when transaction is redirected', function (done) {
+    it('should not be called when transaction is redirected', function () {
       let spy = sinon.spy()
 
       Radio.channel('router').on('transition:error', spy)
@@ -161,10 +161,9 @@ describe('Events', () => {
         transition.redirectTo('parent')
       }
 
-      router.transitionTo('root').catch(function () {
-        Promise.resolve().then(function () {
+      return router.transitionTo('root').catch(function () {
+        return Promise.resolve().then(function () {
           expect(spy).to.not.be.called
-          done()
         })
       })
     })
@@ -179,7 +178,7 @@ describe('Events', () => {
       }
 
       return router.transitionTo('root').catch(function () {
-        Promise.resolve().then(function () {
+        return Promise.resolve().then(function () {
           expect(spy).to.not.be.called
         })
       })
@@ -187,31 +186,29 @@ describe('Events', () => {
   })
 
   describe('before:activate', () => {
-    it('should be called with transition and route as arguments', function (done) {
+    it('should be called with transition and route as arguments', function () {
       let spy = sinon.spy()
       Radio.channel('router').on('before:activate', function (transition, route) {
         spy()
         expect(transition).to.be.equal(currentTransition)
         expect(route).to.be.instanceof(RootRoute)
       })
-      router.transitionTo('root').then(function () {
+      return router.transitionTo('root').then(function () {
         expect(spy).to.be.calledOnce
-        done()
-      }).catch(done)
+      })
     })
 
-    it('should be triggered before activate of same route', function (done) {
+    it('should be triggered before activate of same route', function () {
       let spy = sinon.spy()
       Radio.channel('router').on('before:activate', spy)
       let rootSpy = sinon.spy(RootRoute.prototype, 'activate')
-      router.transitionTo('root').then(function () {
+      return router.transitionTo('root').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledBefore(rootSpy)
-        done()
-      }).catch(done)
+      })
     })
 
-    it('should be triggered before activate of parent route', function (done) {
+    it('should be triggered before activate of parent route', function () {
       let spy = sinon.spy()
       Radio.channel('router').on('before:activate', function (transition, route) {
         if (route instanceof GrandChildRoute) {
@@ -219,11 +216,10 @@ describe('Events', () => {
         }
       })
       let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      router.transitionTo('grandchild').then(function () {
+      return router.transitionTo('grandchild').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledBefore(parentSpy)
-        done()
-      }).catch(done)
+      })
     })
 
     it('should allow to cancel the transition', function (done) {
