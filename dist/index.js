@@ -117,6 +117,7 @@ function findRouteConfig(routeName, index, routes) {
 }
 
 function createRouteInstance(options, config) {
+  if (options.__esModule) options = options.default;
   if (options.prototype instanceof Route) {
     return new options(undefined, config); // eslint-disable-line new-cap
   }
