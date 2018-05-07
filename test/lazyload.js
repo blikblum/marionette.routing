@@ -39,20 +39,41 @@ describe('Route configuration', () => {
     destroyRouter(router)
   })
 
-  it('can be defined in a parent route class', function () {
-    ChildRoute.prototype.childRoutes = function () {
-      return {
-        grandchild: GrandChildRoute,
-        leaf: function () {
-          return LeafRoute
+  describe('can be defined in a parent route class', function () {
+    it('directly', function () {
+      ChildRoute.prototype.childRoutes = function () {
+        return {
+          grandchild: GrandChildRoute,
+          leaf: function () {
+            return LeafRoute
+          }
         }
       }
-    }
-    let spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
-    let spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
-    return router.transitionTo('leaf').then(function () {
-      expect(spy).to.be.calledOnce
-      expect(spy2).to.be.calledOnce
+      let spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
+      let spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
+      return router.transitionTo('leaf').then(function () {
+        expect(spy).to.be.calledOnce
+        expect(spy2).to.be.calledOnce
+      })
+    })
+
+    it('wrapped in an ES module', function () {
+      const GrandChildModule = {__esModule: true, default: GrandChildRoute}
+      const LeafModule = {__esModule: true, default: LeafRoute}
+      ChildRoute.prototype.childRoutes = function () {
+        return {
+          grandchild: GrandChildModule,
+          leaf: function () {
+            return LeafModule
+          }
+        }
+      }
+      let spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
+      let spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
+      return router.transitionTo('leaf').then(function () {
+        expect(spy).to.be.calledOnce
+        expect(spy2).to.be.calledOnce
+      })
     })
   })
 
