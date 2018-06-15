@@ -6,7 +6,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import {Route, createRouter, destroyRouter, middleware} from '../src/index'
 import Radio from 'backbone.radio'
-import Mn from 'backbone.marionette'
+import * as Mn from 'backbone.marionette'
 
 let expect = chai.expect
 chai.use(sinonChai)

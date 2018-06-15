@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import { Object as MnObject, bindEvents, View } from 'backbone.marionette'
+import { MnObject, bindEvents, View } from 'backbone.marionette'
 import RouteContext from './routecontext'
 import {getMnRoutes, routerChannel} from './cherrytree-adapter'
 
