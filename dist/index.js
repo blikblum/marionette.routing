@@ -324,11 +324,11 @@ var middleware = {
   }
 };
 
-var Route = backbone_marionette.Object.extend({
+var Route = backbone_marionette.MnObject.extend({
   constructor: function constructor(options, config) {
     this.mergeOptions(options, ['viewClass', 'viewOptions']);
     this.$config = config;
-    backbone_marionette.Object.call(this, options);
+    backbone_marionette.MnObject.call(this, options);
     this._bindContext();
   },
 
