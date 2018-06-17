@@ -30,7 +30,6 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
     "babel-preset-latest": "^6.16.0",
     "babel-register": "^6.16.3",
@@ -38,7 +37,6 @@
     "backbone.marionette": "^4.0.0-alpha.1",
     "backbone.radio": "^2.0.0",
     "chai": "^3.5.0",
-    "coveralls": "^2.11.14",
     "del": "^2.2.2",
     "istanbul": "^1.1.0-alpha.1",
     "jquery": "^3.1.1",
@@ -57,10 +55,7 @@
     "test": "standard \"test/**/*.js\" && mocha --compilers js:babel-register",
     "test:watch": "mocha --compilers js:babel-register --reporter min --watch",
     "test:cover": "babel-node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
-    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "build": "standard \"src/**/*.js\" && node tools/build",
-    "prepublish": "npm run build",
-    "publish:docs": "easystatic deploy docs --repo blikblum/marionette.routing",
-    "start": "easystatic start docs"
+    "prepublish": "npm run build"
   }
 }
