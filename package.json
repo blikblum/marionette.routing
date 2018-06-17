@@ -56,6 +56,6 @@
     "test:watch": "mocha --compilers js:babel-register --reporter min --watch",
     "test:cover": "babel-node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
     "build": "standard \"src/**/*.js\" && node tools/build",
-    "prepublish": "npm run build"
+    "prepublish": "node tools/checkcwd dist && npm run build"
   }
 }
