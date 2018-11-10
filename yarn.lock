@@ -964,9 +964,9 @@ check-error@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
 
-cherrytreex@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.0.4.tgz#4b0d3c4e21c2534a34f53828f4f7963cb2fa583a"
+cherrytreex@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.1.0.tgz#c184cb52fa2fd9253edc115a6f03255da3c86d0c"
   dependencies:
     path-to-regexp "^2.1.0"
 

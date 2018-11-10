@@ -1,6 +1,13 @@
 /* global before,after */
-import _ from 'underscore'
-import Backbone from 'backbone'
+const _ = require('underscore')
+const Backbone = require('backbone')
+
+require('babel-core/register')({
+  // This will override `node_modules` ignoring
+  ignore: function (filepath) {
+    return filepath.indexOf('node_modules') !== -1 && filepath.indexOf('cherrytree') === -1
+  }
+})
 
 global._ = _
 global.Backbone = Backbone
