@@ -16,11 +16,11 @@ for (const format of ['es', 'umd']) {
   promise = promise.then(() => rollup.rollup({
     entry: 'src/index.js',
     external: Object.keys(pkg.dependencies),
-    plugins: [babel(Object.assign(pkg.babel, {
+    plugins: [babel({
       babelrc: false,
       exclude: 'node_modules/**',
-      presets: pkg.babel.presets.map(x => (x === 'latest' ? ['latest', { es2015: { modules: false } }] : x))
-    }))]
+      presets: [['env', {targets: {ie: '11'}, modules: false}]]
+    })]
   }).then(bundle => bundle.write({
     dest: `dist/${format === 'umd' ? 'marionette.routing' : 'marionette.routing.esm'}.js`,
     format,
