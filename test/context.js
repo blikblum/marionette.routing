@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import {Route, createRouter, destroyRouter, middleware} from '../src/index'
+import { Route, createRouter, destroyRouter, middleware } from '../src/index'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -14,7 +14,7 @@ let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
 
 describe('Route context', () => {
   beforeEach(() => {
-    router = createRouter({location: 'memory'})
+    router = createRouter({ location: 'memory' })
     router.use(middleware)
     RootRoute = Route.extend({})
     ParentRoute = Route.extend({})
@@ -22,14 +22,14 @@ describe('Route context', () => {
     GrandChildRoute = Route.extend({})
     LeafRoute = Route.extend({})
     routes = function (route) {
-      route('parent', {routeClass: ParentRoute, routeOptions: {x: 1}}, function () {
-        route('child', {routeClass: ChildRoute}, function () {
-          route('grandchild', {routeClass: GrandChildRoute}, function () {
-            route('leaf', {routeClass: LeafRoute})
+      route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 } }, function () {
+        route('child', { routeClass: ChildRoute }, function () {
+          route('grandchild', { routeClass: GrandChildRoute }, function () {
+            route('leaf', { routeClass: LeafRoute })
           })
         })
       })
-      route('root', {routeClass: RootRoute})
+      route('root', { routeClass: RootRoute })
     }
     router.map(routes)
     router.listen()

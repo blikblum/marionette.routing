@@ -6,7 +6,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import {Route, createRouter, destroyRouter, middleware} from '../src/index'
+import { Route, createRouter, destroyRouter, middleware } from '../src/index'
 
 let expect = chai.expect
 let assert = chai.assert
@@ -18,7 +18,7 @@ let currentTransition
 
 describe('Events', () => {
   beforeEach(() => {
-    router = createRouter({location: 'memory'})
+    router = createRouter({ location: 'memory' })
     router.use(function (transition) {
       currentTransition = transition
     })
@@ -29,14 +29,14 @@ describe('Events', () => {
     GrandChildRoute = Route.extend({})
     LeafRoute = Route.extend({})
     routes = function (route) {
-      route('parent', {routeClass: ParentRoute, routeOptions: {x: 1}}, function () {
-        route('child', {routeClass: ChildRoute}, function () {
-          route('grandchild', {routeClass: GrandChildRoute}, function () {
-            route('leaf', {routeClass: LeafRoute})
+      route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 } }, function () {
+        route('child', { routeClass: ChildRoute }, function () {
+          route('grandchild', { routeClass: GrandChildRoute }, function () {
+            route('leaf', { routeClass: LeafRoute })
           })
         })
       })
-      route('root', {routeClass: RootRoute})
+      route('root', { routeClass: RootRoute })
     }
     router.map(routes)
     router.listen()

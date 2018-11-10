@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import { Behavior } from 'backbone.marionette'
-import {routerChannel} from './cherrytree-adapter'
-import {$} from 'backbone'
+import { routerChannel } from './cherrytree-adapter'
+import { $ } from 'backbone'
 
 function attrChanged (mutations, observer) {
   mutations.forEach(function (mutation) {
@@ -12,7 +12,7 @@ function attrChanged (mutations, observer) {
   })
 }
 
-const attrObserverConfig = {attributes: true}
+const attrObserverConfig = { attributes: true }
 
 function getAttributeValues (el, prefix, result) {
   let attributes = el.attributes

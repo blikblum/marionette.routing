@@ -7,8 +7,8 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-export {default as Route} from './route'
+export { default as Route } from './route'
 
-export {default as RouterLink} from './routerlink'
+export { default as RouterLink } from './routerlink'
 
-export {middleware, createRouter, destroyRouter} from './cherrytree-adapter'
+export { middleware, createRouter, destroyRouter } from './cherrytree-adapter'

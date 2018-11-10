@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import {Route, createRouter, destroyRouter, middleware} from '../src/index'
+import { Route, createRouter, destroyRouter, middleware } from '../src/index'
 import Radio from 'backbone.radio'
 import * as Mn from 'backbone.marionette'
 
@@ -38,7 +38,7 @@ let LeafView = Mn.View.extend({
 
 describe('Render', () => {
   beforeEach(() => {
-    router = createRouter({location: 'memory'})
+    router = createRouter({ location: 'memory' })
     router.use(middleware)
     ParentRoute = Route.extend({
       viewClass: ParentView
@@ -47,18 +47,18 @@ describe('Render', () => {
     ChildRoute = Route.extend({})
     LeafRoute = Route.extend({})
     routes = function (route) {
-      route('parent', {routeClass: ParentRoute}, function () {
-        route('child', {routeClass: ChildRoute}, function () {
-          route('grandchild', {viewClass: GrandChildView}, function () {
-            route('leaf', {routeClass: LeafRoute, viewClass: LeafView})
+      route('parent', { routeClass: ParentRoute }, function () {
+        route('child', { routeClass: ChildRoute }, function () {
+          route('grandchild', { viewClass: GrandChildView }, function () {
+            route('leaf', { routeClass: LeafRoute, viewClass: LeafView })
           })
         })
       })
-      route('root', {routeClass: RootRoute, routeOptions: {viewClass: ParentView}})
-      route('root2', {viewClass: ParentView, outlet: false}, function () {
-        route('leaf2', {routeClass: LeafRoute, viewClass: LeafView})
+      route('root', { routeClass: RootRoute, routeOptions: { viewClass: ParentView } })
+      route('root2', { viewClass: ParentView, outlet: false }, function () {
+        route('leaf2', { routeClass: LeafRoute, viewClass: LeafView })
       })
-      route('root3', {routeClass: RootRoute})
+      route('root3', { routeClass: RootRoute })
     }
     router.map(routes)
     router.listen()
@@ -95,7 +95,7 @@ describe('Render', () => {
       ParentRoute.prototype.viewClass = viewClassSpy
       router.transitionTo('parent').then(function () {
         expect($('#main').html()).to.be.equal('<div><div class="child-view"></div></div>')
-        expect(viewClassSpy).to.be.called.once
+        expect(viewClassSpy).to.be.calledOnce
         expect(viewClassSpy).to.be.calledOn(routeInstance)
         done()
       }).catch(done)
@@ -155,7 +155,7 @@ describe('Render', () => {
 
       it('should not abort transition when no rootRegion is defined and view is prerendered', function () {
         router.rootRegion = null
-        RootRoute.prototype.viewClass = Mn.View.extend({el: '#main'})
+        RootRoute.prototype.viewClass = Mn.View.extend({ el: '#main' })
         return router.transitionTo('root3').then(function () {
           expect(router.isActive('root3'))
         })
@@ -251,7 +251,7 @@ describe('Render', () => {
       return router.transitionTo('parent').then(function () {
         expect(spy).not.to.be.called
         // force a new render
-        transition = router.transitionTo('parent', {}, {id: 1})
+        transition = router.transitionTo('parent', {}, { id: 1 })
         return transition
       }).then(function () {
         expect(spy).to.be.calledOnce.and.calledWith(transition)
@@ -271,7 +271,7 @@ describe('Render', () => {
       return router.transitionTo('parent').then(function () {
         savedView = routeInstance.view
         // force a new render
-        return router.transitionTo('parent', {}, {id: 1})
+        return router.transitionTo('parent', {}, { id: 1 })
       }).then(function () {
         expect(savedView).to.be.equal(routeInstance.view)
       })
@@ -299,7 +299,7 @@ describe('Render', () => {
       })
 
       return router.transitionTo('parent').then(function () {
-        return router.transitionTo('parent', {}, {page: 1})
+        return router.transitionTo('parent', {}, { page: 1 })
       }).then(function () {
         expect(routeInstance.view).to.exist
       })

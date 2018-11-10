@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import {Route, RouterLink, createRouter, destroyRouter, middleware} from '../src/index'
+import { Route, RouterLink, createRouter, destroyRouter, middleware } from '../src/index'
 import * as Mn from 'backbone.marionette'
 
 let expect = chai.expect
@@ -24,10 +24,10 @@ let ParentView = Mn.View.extend({
       },
       root: {
         params: function () {
-          return {id: this.rootId}
+          return { id: this.rootId }
         },
         query: function (el) {
-          if (el.id === 'a-rootlink3') return {tag: el.tagName}
+          if (el.id === 'a-rootlink3') return { tag: el.tagName }
         }
       }
     }
@@ -84,12 +84,12 @@ describe('RouterLink', () => {
     RootRoute = Route.extend({})
     ChildRoute = Route.extend({})
     routes = function (route) {
-      route('parent', {routeClass: ParentRoute}, function () {
-        route('child', {routeClass: ChildRoute}, function () {
-          route('grandchild', {viewClass: GrandChildView})
+      route('parent', { routeClass: ParentRoute }, function () {
+        route('child', { routeClass: ChildRoute }, function () {
+          route('grandchild', { viewClass: GrandChildView })
         })
       })
-      route('root', {path: 'root/:id', routeClass: RootRoute, routeOptions: {viewClass: ParentView}})
+      route('root', { path: 'root/:id', routeClass: RootRoute, routeOptions: { viewClass: ParentView } })
     }
     router.map(routes)
 
@@ -157,13 +157,13 @@ describe('RouterLink', () => {
     return router.transitionTo('parent').then(function () {
       let spy = sinon.spy(router, 'transitionTo')
       $('#div-rootlink1').click()
-      expect(spy).to.be.calledOnce.and.calledWithExactly('root', {'id': '1'}, {})
+      expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
 
-      spy.reset()
+      spy.resetHistory()
       $('#div-grandchildlink').click()
-      expect(spy).to.be.calledOnce.and.calledWithExactly('grandchild', {}, {name: 'test'})
+      expect(spy).to.be.calledOnce.and.calledWithExactly('grandchild', {}, { name: 'test' })
 
-      spy.reset()
+      spy.resetHistory()
       $('#innerparent').click()
       expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
     })
@@ -185,7 +185,7 @@ describe('RouterLink', () => {
       expect($('#div-rootlink1').hasClass('active')).to.be.false
       expect($('#a-grandchildlink').hasClass('active')).to.be.false
       expect($('#div-grandchildlink').hasClass('active')).to.be.false
-      return router.transitionTo('root', {id: '1'})
+      return router.transitionTo('root', { id: '1' })
     }).then(function () {
       expect($('#a-parentlink').hasClass('active')).to.be.false
       expect($('#div-parentlink').hasClass('active')).to.be.false
@@ -193,7 +193,7 @@ describe('RouterLink', () => {
       expect($('#div-rootlink1').hasClass('active')).to.be.true
       expect($('#a-grandchildlink').hasClass('active')).to.be.false
       expect($('#div-grandchildlink').hasClass('active')).to.be.false
-      return router.transitionTo('grandchild', null, {name: 'test'})
+      return router.transitionTo('grandchild', null, { name: 'test' })
     }).then(function () {
       expect($('#a-parentlink').hasClass('active')).to.be.true
       expect($('#div-parentlink').hasClass('active')).to.be.true
@@ -226,7 +226,7 @@ describe('RouterLink', () => {
 
       ParentRoute.prototype.viewClass = PreRenderedView
 
-      ParentRoute.prototype.viewOptions = {x: 1}
+      ParentRoute.prototype.viewOptions = { x: 1 }
     })
 
     it('should generate href attributes in anchor tags with route attribute', function () {
@@ -241,14 +241,14 @@ describe('RouterLink', () => {
       let spy = PreRenderedView.prototype.initialize = sinon.spy()
       return router.transitionTo('parent').then(function () {
         expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledWith({x: 1})
+        expect(spy).to.be.calledWith({ x: 1 })
       })
     })
   })
 
   describe('with rootEl set', function () {
     beforeEach(function () {
-      ParentView.prototype.behaviors = [{behaviorClass: RouterLink, rootEl: '#scoped'}]
+      ParentView.prototype.behaviors = [{ behaviorClass: RouterLink, rootEl: '#scoped' }]
     })
 
     it('should generate href attributes only in children of rootEl', function () {

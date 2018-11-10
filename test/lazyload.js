@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import {Route, createRouter, destroyRouter, middleware} from '../src/index'
+import { Route, createRouter, destroyRouter, middleware } from '../src/index'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -14,7 +14,7 @@ let ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
 
 describe('Route configuration', () => {
   beforeEach(() => {
-    router = createRouter({location: 'memory'})
+    router = createRouter({ location: 'memory' })
 
     router.use(middleware)
     ParentRoute = Route.extend({})
@@ -23,8 +23,8 @@ describe('Route configuration', () => {
     LeafRoute = Route.extend({})
 
     routes = function (route) {
-      route('parent', {routeClass: ParentRoute, routeOptions: {x: 1}}, function () {
-        route('child', {routeClass: ChildRoute}, function () {
+      route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 } }, function () {
+        route('child', { routeClass: ChildRoute }, function () {
           route('grandchild', {}, function () {
             route('leaf', {})
           })
@@ -58,8 +58,8 @@ describe('Route configuration', () => {
     })
 
     it('wrapped in an ES module', function () {
-      const GrandChildModule = {__esModule: true, default: GrandChildRoute}
-      const LeafModule = {__esModule: true, default: LeafRoute}
+      const GrandChildModule = { __esModule: true, default: GrandChildRoute }
+      const LeafModule = { __esModule: true, default: LeafRoute }
       ChildRoute.prototype.childRoutes = function () {
         return {
           grandchild: GrandChildModule,

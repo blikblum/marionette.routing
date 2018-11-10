@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import {Route, createRouter, destroyRouter, middleware} from '../src/index'
+import { Route, createRouter, destroyRouter, middleware } from '../src/index'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -16,15 +16,15 @@ let currentTransition
 
 describe('Lifecycle hooks', () => {
   beforeEach(() => {
-    router = createRouter({location: 'memory'})
+    router = createRouter({ location: 'memory' })
     router.use(function (transition) {
       currentTransition = transition
     })
     router.use(middleware)
-    RootRoute = Route.extend({load () {}})
-    ParentRoute = Route.extend({load () {}})
+    RootRoute = Route.extend({ load () {} })
+    ParentRoute = Route.extend({ load () {} })
     ChildRoute = Route.extend({})
-    GrandChildRoute = Route.extend({load () {}})
+    GrandChildRoute = Route.extend({ load () {} })
     LeafRoute = Route.extend({})
     Child2Route = Route.extend({})
     DynParentRoute = Route.extend({})
@@ -32,18 +32,18 @@ describe('Lifecycle hooks', () => {
     DynGrandChildRoute = Route.extend({})
 
     routes = function (route) {
-      route('parent', {routeClass: ParentRoute, routeOptions: {x: 1}, arbitrary: 3}, function () {
-        route('child', {routeClass: ChildRoute}, function () {
-          route('grandchild', {routeClass: GrandChildRoute}, function () {
-            route('leaf', {routeClass: LeafRoute})
+      route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 }, arbitrary: 3 }, function () {
+        route('child', { routeClass: ChildRoute }, function () {
+          route('grandchild', { routeClass: GrandChildRoute }, function () {
+            route('leaf', { routeClass: LeafRoute })
           })
         })
-        route('child2', {routeClass: Child2Route})
+        route('child2', { routeClass: Child2Route })
       })
-      route('root', {routeClass: RootRoute})
-      route('dynparent', {routeClass: DynParentRoute}, function () {
-        route('dynchild', {path: ':id', routeClass: DynChildRoute}, function () {
-          route('dyngrandchild', {routeClass: DynGrandChildRoute})
+      route('root', { routeClass: RootRoute })
+      route('dynparent', { routeClass: DynParentRoute }, function () {
+        route('dynchild', { path: ':id', routeClass: DynChildRoute }, function () {
+          route('dyngrandchild', { routeClass: DynGrandChildRoute })
         })
       })
     }
@@ -67,7 +67,7 @@ describe('Lifecycle hooks', () => {
       let spy = sinon.spy(ParentRoute.prototype, 'initialize')
       router.transitionTo('parent').then(function () {
         expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledWith({x: 1})
+        expect(spy).to.be.calledWith({ x: 1 })
         done()
       }).catch(done)
     })
@@ -109,10 +109,10 @@ describe('Lifecycle hooks', () => {
 
     it('should allow to access $config property', function () {
       ParentRoute.prototype.initialize = function () {
-        expect(this.$config).to.be.defined
+        expect(this.$config).to.not.be.undefined
         expect(this.$config.name).to.be.equal('parent')
         expect(this.$config.path).to.be.equal('parent')
-        expect(this.$config.options).to.be.defined
+        expect(this.$config.options).to.not.be.undefined
         expect(this.$config.options.arbitrary).to.be.equal(3)
       }
       return router.transitionTo('parent')
@@ -194,11 +194,11 @@ describe('Lifecycle hooks', () => {
 
     it('should be called when a route param changes', function (done) {
       let parentSpy, childSpy, grandChildSpy
-      router.transitionTo('dyngrandchild', {id: 1}).then(function () {
+      router.transitionTo('dyngrandchild', { id: 1 }).then(function () {
         parentSpy = sinon.spy(DynParentRoute.prototype, 'activate')
         childSpy = sinon.spy(DynChildRoute.prototype, 'activate')
         grandChildSpy = sinon.spy(DynGrandChildRoute.prototype, 'activate')
-        return router.transitionTo('dyngrandchild', {id: 2})
+        return router.transitionTo('dyngrandchild', { id: 2 })
       }).then(function () {
         expect(parentSpy).to.not.be.called
         expect(childSpy).to.be.calledOnce
@@ -288,7 +288,7 @@ describe('Lifecycle hooks', () => {
 
     it('should not cancel the transition when returned promise is rejected', function () {
       let parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
-// eslint-disable-next-line prefer-promise-reject-errors
+        // eslint-disable-next-line prefer-promise-reject-errors
         return Promise.reject()
       })
       return router.transitionTo('child').then(function () {
@@ -298,7 +298,7 @@ describe('Lifecycle hooks', () => {
 
     it('should be called even if a parent load is rejected', function (done) {
       let parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
-// eslint-disable-next-line prefer-promise-reject-errors
+        // eslint-disable-next-line prefer-promise-reject-errors
         return Promise.reject()
       })
       let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
@@ -396,11 +396,11 @@ describe('Lifecycle hooks', () => {
 
     it('should be called when a route param changes', function (done) {
       let parentSpy, childSpy, grandChildSpy
-      router.transitionTo('dyngrandchild', {id: 1}).then(function () {
+      router.transitionTo('dyngrandchild', { id: 1 }).then(function () {
         parentSpy = sinon.spy(DynParentRoute.prototype, 'deactivate')
         childSpy = sinon.spy(DynChildRoute.prototype, 'deactivate')
         grandChildSpy = sinon.spy(DynGrandChildRoute.prototype, 'deactivate')
-        return router.transitionTo('dyngrandchild', {id: 2})
+        return router.transitionTo('dyngrandchild', { id: 2 })
       }).then(function () {
         expect(parentSpy).to.not.be.called
         expect(childSpy).to.be.calledOnce
