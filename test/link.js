@@ -6,6 +6,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Route, RouterLink, createRouter, destroyRouter, middleware } from '../src/index'
 import * as Mn from 'backbone.marionette'
+import $ from 'jquery'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -109,8 +110,6 @@ describe('RouterLink', () => {
 
   afterEach(() => {
     destroyRouter(router)
-    document.location.pathname = ''
-    document.location.hash = ''
   })
 
   it('should generate href attributes in anchor tags with route attribute', function () {
@@ -121,14 +120,16 @@ describe('RouterLink', () => {
     })
   })
 
-  it.skip('should update href attributes in anchor tags when attribute is changed', function () {
+  it('should update href attributes in anchor tags when attribute is changed', function () {
     return router.transitionTo('parent').then(function () {
       let rootLink = $('#a-rootlink2')
       let grandChildLink = $('#a-grandchildlink')
       rootLink.attr('param-id', '3')
       grandChildLink.attr('query-other', 'boo')
-      expect(rootLink.attr('href')).to.be.equal('#root/3')
-      expect(grandChildLink.attr('href')).to.be.equal('#parent/child/grandchild?name=test&other=boo')
+      return Promise.resolve().then(() => {
+        expect(rootLink.attr('href')).to.be.equal('#root/3')
+        expect(grandChildLink.attr('href')).to.be.equal('#parent/child/grandchild?name=test&other=boo')
+      })
     })
   })
 

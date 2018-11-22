@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import { Behavior } from 'backbone.marionette'
 import { routerChannel } from './cherrytree-adapter'
-import { $ } from 'backbone'
+import $ from 'jquery'
 
 function attrChanged (mutations, observer) {
   mutations.forEach(function (mutation) {

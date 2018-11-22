@@ -7,6 +7,8 @@ import sinonChai from 'sinon-chai'
 import { Route, createRouter, destroyRouter, middleware } from '../src/index'
 import Radio from 'backbone.radio'
 import * as Mn from 'backbone.marionette'
+import _ from 'underscore'
+import $ from 'jquery'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -72,8 +74,6 @@ describe('Render', () => {
 
   afterEach(() => {
     destroyRouter(router)
-    document.location.pathname = ''
-    document.location.hash = ''
   })
 
   describe('viewClass', function () {
