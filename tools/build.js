@@ -8,24 +8,26 @@ const pkg = require('../package.json')
 
 let promise = Promise.resolve()
 
+let dependencies = Object.assign({}, pkg.dependencies || {}, pkg.peerDependencies || {})
+
 // Clean up the output directory
 promise = promise.then(() => del(['dist/*']))
 
 // Compile source code into a distributable format with Babel
 for (const format of ['es', 'umd']) {
   promise = promise.then(() => rollup.rollup({
-    entry: 'src/index.js',
-    external: Object.keys(pkg.dependencies),
+    input: 'src/index.js',
+    external: Object.keys(dependencies),
     plugins: [babel({
       babelrc: false,
       exclude: 'node_modules/**',
-      presets: [['env', {targets: {ie: '11'}, modules: false}]]
+      presets: [['env', { targets: { ie: '11' }, modules: false }]]
     })]
   }).then(bundle => bundle.write({
-    dest: `dist/${format === 'umd' ? 'marionette.routing' : 'marionette.routing.esm'}.js`,
+    file: `dist/${format === 'umd' ? 'marionette.routing' : 'marionette.routing.esm'}.js`,
     format,
-    sourceMap: true,
-    moduleName: format === 'umd' ? 'Marionette.Routing' : undefined,
+    sourcemap: true,
+    name: format === 'umd' ? 'Marionette.Routing' : undefined,
     globals: {
       backbone: 'Backbone',
       underscore: '_',
