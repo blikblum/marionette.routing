@@ -151,6 +151,8 @@ function renderViews (mnRoutes, activated, transition) {
   })
 }
 
+const resolved = Promise.resolve()
+
 function runAsyncMethod (transition, routes, method) {
   return routes.reduce(function (prevPromise, mnRoute) {
     routerChannel.trigger(`before:${method}`, transition, mnRoute)
@@ -162,9 +164,8 @@ function runAsyncMethod (transition, routes, method) {
           }
         })
       }
-      return Promise.resolve()
     })
-  }, Promise.resolve())
+  }, resolved)
 }
 
 function isActivatingRoute (route) {
