@@ -181,39 +181,44 @@ export const middleware = {
       }
     }
 
-    if (deactivated.some(function (route) {
-      routerChannel.trigger('before:deactivate', transition, route)
-      return transition.isCancelled
-    })) return
-
-    if (deactivated.some(function (route) {
-      route.deactivate(transition)
-      routerChannel.trigger('deactivate', transition, route)
-      return transition.isCancelled
-    })) return
+    let promise = deactivated.reduce(function (prevPromise, mnRoute) {
+      routerChannel.trigger('before:deactivate', transition, mnRoute)
+      return prevPromise.then(function () {
+        if (!transition.isCancelled) {
+          return Promise.resolve(mnRoute.deactivate(transition)).then(function () {
+            if (!transition.isCancelled) {
+              routerChannel.trigger('deactivate', transition, mnRoute)
+            }
+          })
+        }
+        return Promise.resolve()
+      })
+    }, Promise.resolve())
 
     // build route tree and creating instances if necessary
     let mnRoutes = transition.mnRoutes = []
 
-    let promise = transition.routes.reduce(function (acc, route, i, routes) {
-      return acc.then(function (res) {
-        let instance = mnRouteMap[route.name]
-        if (instance) {
-          res.push(instance)
-          return res
-        } else {
-          instance = createMnRoute(route, i, routes)
-          return Promise.resolve(instance).then(function (mnRoute) {
-            if (!mnRoute) {
-              throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
-            }
-            mnRouteMap[route.name] = mnRoute
-            res.push(mnRoute)
+    promise = promise.then(() => {
+      return transition.routes.reduce(function (acc, route, i, routes) {
+        return acc.then(function (res) {
+          let instance = mnRouteMap[route.name]
+          if (instance) {
+            res.push(instance)
             return res
-          })
-        }
-      })
-    }, Promise.resolve(mnRoutes))
+          } else {
+            instance = createMnRoute(route, i, routes)
+            return Promise.resolve(instance).then(function (mnRoute) {
+              if (!mnRoute) {
+                throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
+              }
+              mnRouteMap[route.name] = mnRoute
+              res.push(mnRoute)
+              return res
+            })
+          }
+        })
+      }, Promise.resolve(mnRoutes))
+    })
 
     // activate routes in order
     let activated
