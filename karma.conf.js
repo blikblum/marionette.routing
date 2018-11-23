@@ -19,7 +19,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test/*.js'
+      'test/index.js'
     ],
 
     exclude: [
@@ -28,12 +28,12 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'test/*.js': ['rollup']
+      'test/index.js': ['rollup']
     },
 
     rollupPreprocessor: {
       plugins: [babel({
-        exclude: 'node_modules/**'
+        exclude: ['node_modules/**', 'test/**']
       }), commonjs(), nodeResolve()],
 
       output: {
@@ -47,6 +47,13 @@ module.exports = function (config) {
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress'],
+
+    client: {
+      mocha: {
+        // change Karma's debug.html to the mocha web reporter
+        // reporter: 'html'
+      }
+    },
 
     // web server port
     port: 9876,
@@ -63,7 +70,14 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
+
+    customLaunchers: {
+      ChromeDebugging: {
+        base: 'Chrome',
+        flags: ['--remote-debugging-port=9333']
+      }
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
