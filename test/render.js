@@ -217,9 +217,7 @@ describe('Render', () => {
       let activateSpy = sinon.spy()
       ParentRoute.prototype.activate = function () {
         return new Promise(function (resolve) {
-          setTimeout(function () {
-            resolve()
-          }, 100)
+          setTimeout(resolve, 100)
         })
       }
       Radio.channel('router').on('activate', activateSpy)

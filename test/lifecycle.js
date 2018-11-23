@@ -160,6 +160,37 @@ describe('Lifecycle hooks', () => {
       }).catch(done)
     })
 
+    it('should be called after parent async activate methods are resolved', function (done) {
+      const parentPromiseSpy = sinon.spy()
+      const parentSpy = sinon.stub(ParentRoute.prototype, 'activate').callsFake(function (transition) {
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(parentPromiseSpy)
+      })
+      const childPromiseSpy = sinon.spy()
+      const childSpy = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
+        return new Promise((resolve) => setTimeout(resolve, 50)).then(childPromiseSpy)
+      })
+      const grandChildPromiseSpy = sinon.spy()
+      const grandChildSpy = sinon.stub(GrandChildRoute.prototype, 'activate').callsFake(function () {
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(grandChildPromiseSpy)
+      })
+      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      router.transitionTo('leaf').then(function () {
+        // once
+        expect(parentSpy).to.have.been.calledOnce
+        expect(childSpy).to.have.been.calledOnce
+        expect(grandChildSpy).to.have.been.calledOnce
+        expect(leafSpy).to.have.been.calledOnce
+        // order
+        expect(childSpy).to.have.been.calledAfter(parentSpy)
+        expect(childSpy).to.have.been.calledAfter(parentPromiseSpy)
+        expect(grandChildSpy).to.have.been.calledAfter(childSpy)
+        expect(grandChildSpy).to.have.been.calledAfter(childPromiseSpy)
+        expect(leafSpy).to.have.been.calledAfter(grandChildSpy)
+        expect(leafSpy).to.have.been.calledAfter(grandChildPromiseSpy)
+        done()
+      }).catch(done)
+    })
+
     it('should not be called if transition is canceled in a parent route', function (done) {
       let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
       let childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
@@ -356,6 +387,40 @@ describe('Lifecycle hooks', () => {
         expect(grandChildSpy).to.have.been.calledAfter(leafSpy)
         expect(childSpy).to.have.been.calledAfter(grandChildSpy)
         expect(parentSpy).to.have.been.calledAfter(childSpy)
+        done()
+      }).catch(done)
+    })
+
+    it('should be called after child async activate methods are resolved', function (done) {
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
+
+      const childPromiseSpy = sinon.spy()
+      let childSpy = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (transition) {
+        return new Promise((resolve) => setTimeout(resolve, 50)).then(childPromiseSpy)
+      })
+      const grandChildPromiseSpy = sinon.spy()
+      let grandChildSpy = sinon.stub(GrandChildRoute.prototype, 'deactivate').callsFake(function (transition) {
+        return new Promise((resolve) => setTimeout(resolve, 50)).then(grandChildPromiseSpy)
+      })
+      const leafPromiseSpy = sinon.spy()
+      let leafSpy = sinon.stub(LeafRoute.prototype, 'deactivate').callsFake(function (transition) {
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(leafPromiseSpy)
+      })
+      router.transitionTo('leaf').then(function () {
+        return router.transitionTo('root')
+      }).then(function () {
+        // once
+        expect(parentSpy).to.have.been.calledOnce
+        expect(childSpy).to.have.been.calledOnce
+        expect(grandChildSpy).to.have.been.calledOnce
+        expect(leafSpy).to.have.been.calledOnce
+        // order
+        expect(grandChildSpy).to.have.been.calledAfter(leafSpy)
+        expect(grandChildSpy).to.have.been.calledAfter(leafPromiseSpy)
+        expect(childSpy).to.have.been.calledAfter(grandChildSpy)
+        expect(childSpy).to.have.been.calledAfter(grandChildPromiseSpy)
+        expect(parentSpy).to.have.been.calledAfter(childSpy)
+        expect(parentSpy).to.have.been.calledAfter(childPromiseSpy)
         done()
       }).catch(done)
     })

@@ -254,20 +254,16 @@ describe('Events', () => {
       }).catch(done)
     })
 
-    it('should be triggered after activate is resolved', function (done) {
+    it('should be triggered after activate method is resolved', function (done) {
       let spy = sinon.spy()
       let promiseSpy = sinon.spy()
       Radio.channel('router').on('activate', spy)
       let rootSpy = sinon.stub(RootRoute.prototype, 'activate').callsFake(function () {
-        return new Promise(function (resolve, reject) {
-          setTimeout(function () {
-            promiseSpy()
-            resolve()
-          })
-        }, 100)
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
       })
       router.transitionTo('root').then(function () {
         expect(spy).to.be.calledOnce
+        expect(promiseSpy).to.be.calledOnce
         expect(spy).to.be.calledAfter(rootSpy)
         expect(spy).to.be.calledAfter(promiseSpy)
         done()
@@ -389,15 +385,19 @@ describe('Events', () => {
       }).catch(done)
     })
 
-    it('should be triggered after deactivate', function (done) {
-      let spy = sinon.spy()
+    it('should be triggered after deactivate method is resolved', function (done) {
+      const spy = sinon.spy()
+      const promiseSpy = sinon.spy()
       Radio.channel('router').on('deactivate', spy)
-      let rootSpy = sinon.spy(RootRoute.prototype, 'deactivate')
+      let rootSpy = sinon.stub(RootRoute.prototype, 'deactivate').callsFake(function () {
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
+      })
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledAfter(rootSpy)
+        expect(spy).to.be.calledAfter(promiseSpy)
         done()
       }).catch(done)
     })
