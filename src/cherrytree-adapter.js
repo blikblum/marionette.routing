@@ -151,6 +151,22 @@ function renderViews (mnRoutes, activated, transition) {
   })
 }
 
+function runAsyncMethod (transition, routes, method) {
+  return routes.reduce(function (prevPromise, mnRoute) {
+    routerChannel.trigger(`before:${method}`, transition, mnRoute)
+    return prevPromise.then(function () {
+      if (!transition.isCancelled) {
+        return Promise.resolve(mnRoute[method](transition)).then(function () {
+          if (!transition.isCancelled) {
+            routerChannel.trigger(method, transition, mnRoute)
+          }
+        })
+      }
+      return Promise.resolve()
+    })
+  }, Promise.resolve())
+}
+
 function isActivatingRoute (route) {
   return this.activating && this.activating.indexOf(route) !== -1
 }
@@ -181,19 +197,7 @@ export const middleware = {
       }
     }
 
-    let promise = deactivated.reduce(function (prevPromise, mnRoute) {
-      routerChannel.trigger('before:deactivate', transition, mnRoute)
-      return prevPromise.then(function () {
-        if (!transition.isCancelled) {
-          return Promise.resolve(mnRoute.deactivate(transition)).then(function () {
-            if (!transition.isCancelled) {
-              routerChannel.trigger('deactivate', transition, mnRoute)
-            }
-          })
-        }
-        return Promise.resolve()
-      })
-    }, Promise.resolve())
+    let promise = runAsyncMethod(transition, deactivated, 'deactivate')
 
     // build route tree and creating instances if necessary
     let mnRoutes = transition.mnRoutes = []
@@ -225,19 +229,7 @@ export const middleware = {
 
     promise = promise.then(function () {
       activated = transition.activating = mnRoutes.slice(changingIndex)
-      return activated.reduce(function (prevPromise, mnRoute) {
-        routerChannel.trigger('before:activate', transition, mnRoute)
-        return prevPromise.then(function () {
-          if (!transition.isCancelled) {
-            return Promise.resolve(mnRoute.activate(transition)).then(function () {
-              if (!transition.isCancelled) {
-                routerChannel.trigger('activate', transition, mnRoute)
-              }
-            })
-          }
-          return Promise.resolve()
-        })
-      }, Promise.resolve())
+      return runAsyncMethod(transition, activated, 'activate')
     })
 
     promise.catch(() => {
