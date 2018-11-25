@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it,$ */
+/* global describe,beforeEach,afterEach,it */
 
 import chai from 'chai'
 import sinon from 'sinon'
