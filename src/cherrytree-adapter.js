@@ -277,7 +277,6 @@ export const middleware = {
   done: function (transition) {
     router.state.mnRoutes = transition.mnRoutes
     routerChannel.trigger('transition', transition)
-    transition.activating = []
   },
 
   cancel: function (transition, err) {
@@ -287,7 +286,6 @@ export const middleware = {
   },
 
   error: function (transition, err) {
-    transition.activating = []
     routerChannel.trigger('transition:abort', transition, err)
     routerChannel.trigger('transition:error', transition, err)
   }
