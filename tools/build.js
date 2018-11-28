@@ -21,6 +21,7 @@ for (const format of ['es', 'umd']) {
     plugins: [babel({
       babelrc: false,
       exclude: 'node_modules/**',
+      sourceMaps: true,
       presets: [['env', { targets: { ie: '11' }, modules: false }]]
     })]
   }).then(bundle => bundle.write({
