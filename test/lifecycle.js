@@ -56,9 +56,15 @@ describe('Lifecycle hooks', () => {
   })
 
   describe('router instance', () => {
-    it('should be accessible in Route classes as $router', function () {
-      let route = new Route()
-      expect(route.$router).to.be.equal(router)
+    it('should be accessible in Route classes as $router', function (done) {
+      let routeInstance
+      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
+        routeInstance = this
+      })
+      router.transitionTo('parent').then(function () {
+        expect(routeInstance.$router).to.be.equal(router)
+        done()
+      }).catch(done)
     })
   })
 

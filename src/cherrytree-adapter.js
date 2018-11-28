@@ -21,13 +21,12 @@ export function createRouter (options) {
   if (router) {
     throw new Error('Instance of router already created')
   }
-  router = Route.prototype.$router = new Cherrytree(options)
+  router = new Cherrytree(options)
   return router
 }
 
 export function destroyRouter (instance) {
   router = null
-  Route.prototype.$router = null
   mnRouteMap = Object.create(null)
   instance.destroy()
 }
@@ -87,13 +86,13 @@ function findRouteConfig (routeName, index, routes) {
 function createRouteInstance (options, config) {
   if (options.__esModule) options = options.default
   if (options.prototype instanceof Route) {
-    return new options(undefined, config) // eslint-disable-line new-cap
+    return new options(undefined, router, config) // eslint-disable-line new-cap
   }
   let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
   if (options.routeClass) {
-    return new options.routeClass(routeOptions, config) // eslint-disable-line new-cap
+    return new options.routeClass(routeOptions, router, config) // eslint-disable-line new-cap
   } else if (options.viewClass) {
-    return new Route(routeOptions, config)
+    return new Route(routeOptions, router, config)
   }
 }
 

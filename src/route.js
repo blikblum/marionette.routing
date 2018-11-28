@@ -6,8 +6,9 @@ import { getMnRoutes, routerChannel } from './cherrytree-adapter'
 
 export default MnObject.extend(
   {
-    constructor (options, config) {
+    constructor (options, router, config) {
       this.mergeOptions(options, ['viewClass', 'viewOptions'])
+      this.$router = router
       this.$config = config
       MnObject.call(this, options)
       this._bindContext()
@@ -84,8 +85,6 @@ export default MnObject.extend(
 
       this.bindRequests(channel, requests)
       this.bindEvents(channel, events)
-    },
-
-    $router: null
+    }
   }
 )
