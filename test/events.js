@@ -185,6 +185,70 @@ describe('Events', () => {
     })
   })
 
+  describe('transition:abort', () => {
+    it('should be called when an error occurs in middle of transaction', function () {
+      let spy = sinon.spy()
+
+      Radio.channel('router').on('transition:abort', spy)
+
+      RootRoute.prototype.activate = function () {
+        throw new Error('xx')
+      }
+
+      return router.transitionTo('root').catch(function () {
+        return Promise.resolve().then(function () {
+          expect(spy).to.be.calledOnce
+        })
+      })
+    })
+
+    it('should be called with transition and error as arguments', function (done) {
+      Radio.channel('router').on('transition:abort', function (transition, e) {
+        expect(transition).to.be.equal(currentTransition)
+        expect(e).to.be.a('error')
+        done()
+      })
+
+      RootRoute.prototype.activate = function () {
+        throw new Error('xx')
+      }
+
+      router.transitionTo('root')
+    })
+
+    it('should not be called when transaction is redirected', function () {
+      let spy = sinon.spy()
+
+      Radio.channel('router').on('transition:abort', spy)
+
+      RootRoute.prototype.activate = function (transition) {
+        transition.redirectTo('parent')
+      }
+
+      return router.transitionTo('root').catch(function () {
+        return Promise.resolve().then(function () {
+          expect(spy).to.not.be.called
+        })
+      })
+    })
+
+    it('should be called when transaction is cancelled', function () {
+      let spy = sinon.spy()
+
+      Radio.channel('router').on('transition:abort', spy)
+
+      RootRoute.prototype.activate = function (transition) {
+        transition.cancel()
+      }
+
+      return router.transitionTo('root').catch(function () {
+        return Promise.resolve().then(function () {
+          expect(spy).to.be.called
+        })
+      })
+    })
+  })
+
   describe('before:activate', () => {
     it('should be called with transition and route as arguments', function () {
       let spy = sinon.spy()

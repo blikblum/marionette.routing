@@ -22,6 +22,12 @@ by the event handlers
  
  Emitted when a transition fails 
   
+###<code>'transition:abort' </code>
+ 
+ Arguments: transition, error
+ 
+ Emitted when a transition is aborted due to an error or cancelation
+
 ###<code>'before:activate' </code>
   
   Arguments: transition, route

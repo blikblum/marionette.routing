@@ -280,10 +280,15 @@ export const middleware = {
     transition.activating = []
   },
 
+  cancel: function (transition, err) {
+    if (err.type !== 'TransitionRedirected') {
+      routerChannel.trigger('transition:abort', transition, err)
+    }
+  },
+
   error: function (transition, err) {
     transition.activating = []
-    if (err.type !== 'TransitionCancelled' && err.type !== 'TransitionRedirected') {
-      routerChannel.trigger('transition:error', transition, err)
-    }
+    routerChannel.trigger('transition:abort', transition, err)
+    routerChannel.trigger('transition:error', transition, err)
   }
 }
