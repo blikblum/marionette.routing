@@ -12,6 +12,14 @@ chai.use(sinonChai)
 let router, routes
 let ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
 
+function AsyncChildRoute () {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      resolve(ChildRoute)
+    }, 200)
+  })
+}
+
 describe('Route configuration', () => {
   beforeEach(() => {
     router = createRouter({ location: 'memory' })
@@ -27,6 +35,7 @@ describe('Route configuration', () => {
             route('leaf', {})
           })
         })
+        route('child2', { routeClass: AsyncChildRoute })
       })
     }
     router.map(routes)
@@ -89,7 +98,7 @@ describe('Route configuration', () => {
     })
   })
 
-  it('can be loaded asynchronously', function () {
+  it('can be loaded asynchronously from childRoutes', function () {
     ChildRoute.prototype.childRoutes = function () {
       return {
         grandchild: GrandChildRoute,
@@ -104,6 +113,13 @@ describe('Route configuration', () => {
     }
     let spy = sinon.spy(LeafRoute.prototype, 'initialize')
     return router.transitionTo('leaf').then(function () {
+      expect(spy).to.be.calledOnce
+    })
+  })
+
+  it('can be loaded asynchronously from routeClass', function () {
+    let spy = sinon.spy(ChildRoute.prototype, 'initialize')
+    return router.transitionTo('child2').then(function () {
       expect(spy).to.be.calledOnce
     })
   })

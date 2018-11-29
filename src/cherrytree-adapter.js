@@ -79,32 +79,30 @@ function getChangingIndex (prevRoutes, currentRoutes) {
   return index
 }
 
-function findRouteConfig (routeName, index, routes) {
-  let parentRoutes = routes.slice(0, index).reverse().map(function (route) {
-    return mnRouteMap[route.name]
-  })
-  let config
-  parentRoutes.some(function (route) {
-    let childRoutes = _.result(route, 'childRoutes')
-    config = childRoutes && childRoutes[routeName]
-    if (_.isFunction(config) && !(config.prototype instanceof Route)) {
-      config = config.call(route)
-    }
-    return config
-  })
-  return config
+function findRouteClass (options, routeName, index, routes) {
+  let result = options.routeClass
+  // look in parent routes
+  if (!result) {
+    const parentRoutes = routes.slice(0, index).reverse().map(function (route) {
+      return mnRouteMap[route.name]
+    })
+    parentRoutes.some(function (route) {
+      let childRoutes = _.result(route, 'childRoutes')
+      result = childRoutes && childRoutes[routeName]
+      return result
+    })
+  }
+  return result
 }
 
-function createRouteInstance (options, config) {
-  if (options.__esModule) options = options.default
-  if (options.prototype instanceof Route) {
-    return new options(undefined, router, config) // eslint-disable-line new-cap
-  }
+function createRouteInstance (RouteClass, options, config) {
   let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
-  if (options.routeClass) {
-    return new options.routeClass(routeOptions, router, config) // eslint-disable-line new-cap
-  } else if (options.viewClass) {
-    return new Route(routeOptions, router, config)
+  if (!RouteClass && routeOptions.viewClass) {
+    RouteClass = Route
+  }
+  if (RouteClass) {
+    if (RouteClass.__esModule) RouteClass = RouteClass.default
+    return new RouteClass(routeOptions, router, config)
   }
 }
 
@@ -114,14 +112,15 @@ function createMnRoute (route, index, routes) {
     path: route.path,
     options: _.clone(route.options)
   }
-  let instance = createRouteInstance(route.options, instanceConfig)
-  if (!instance) {
-    let routeConfig = findRouteConfig(route.name, index, routes)
-    return Promise.resolve(routeConfig).then(function (options) {
-      return options && createRouteInstance(options, instanceConfig)
+  let RouteClass = findRouteClass(route.options, route.name, index, routes)
+  if (_.isFunction(RouteClass) && !(RouteClass.prototype instanceof Route)) {
+    // possible async route definition
+    RouteClass = RouteClass.call(route)
+    return Promise.resolve(RouteClass).then(function (result) {
+      return result && createRouteInstance(result, route.options, instanceConfig)
     })
   }
-  return instance
+  return createRouteInstance(RouteClass, route.options, instanceConfig)
 }
 
 function getParentRegion (routes, route) {
