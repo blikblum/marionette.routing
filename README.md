@@ -58,7 +58,7 @@ export default Route.extend({
 Configure and start the router
 
 ```js
-import { createRouter, middleware} from 'marionette.routing';
+import { createRouter } from 'marionette.routing';
 import ContactsRoute from './contacts/route';
 import LoginView from './login/view';
 import Mn from 'backbone.marionette';
@@ -77,9 +77,6 @@ router.map(function (route) {
 
 //define a root region
 router.rootRegion = new Mn.Region({el: '#app'});
-
-//connect the middleware
-router.use(middleware);
 
 //start listening to URL changes
 router.listen();

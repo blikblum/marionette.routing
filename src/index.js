@@ -11,4 +11,4 @@ export { default as Route } from './route'
 
 export { default as RouterLink } from './routerlink'
 
-export { middleware, createRouter, destroyRouter } from './cherrytree-adapter'
+export { createRouter, destroyRouter } from './cherrytree-adapter'

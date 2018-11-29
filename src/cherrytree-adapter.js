@@ -17,11 +17,23 @@ let mnRouteMap = Object.create(null)
 export const routerChannel = Radio.channel('router')
 let router
 
+function patchedUse (customMiddleware, options = {}) {
+  const m = typeof customMiddleware === 'function' ? { next: customMiddleware } : customMiddleware
+  if (options.before) {
+    this.middleware.splice(this.middleware.indexOf(middleware), 0, m)
+  } else {
+    this.middleware.push(m)
+  }
+  return this
+}
+
 export function createRouter (options) {
   if (router) {
     throw new Error('Instance of router already created')
   }
   router = new Cherrytree(options)
+  router.middleware.push(middleware)
+  router.use = patchedUse
   return router
 }
 
@@ -175,7 +187,7 @@ function isTargetRoute (route) {
   return this.mnRoutes && this.mnRoutes.indexOf(route) === this.mnRoutes.length - 1
 }
 
-export const middleware = {
+const middleware = {
   next: function routeResolver (transition) {
     transition.isActivating = isActivatingRoute
     transition.isTarget = isTargetRoute

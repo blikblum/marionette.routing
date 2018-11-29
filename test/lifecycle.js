@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, createRouter, destroyRouter, middleware } from '../src/index'
+import { Route, createRouter, destroyRouter } from '../src/index'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -19,8 +19,7 @@ describe('Lifecycle hooks', () => {
     router = createRouter({ location: 'memory' })
     router.use(function (transition) {
       currentTransition = transition
-    })
-    router.use(middleware)
+    }, { before: true })
     RootRoute = Route.extend({ load () {} })
     ParentRoute = Route.extend({ load () {} })
     ChildRoute = Route.extend({})

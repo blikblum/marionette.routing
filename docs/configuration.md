@@ -52,10 +52,6 @@ For more information about route mapping refer to cherrytree documentation
 
  Property that defines the region where the top level views will be rendered
 
-## `middleware`
-
-  A cherrytree middleware to be used by the route. May be removed from public interface in the future.
-
 ## `destroyRouter(routerInstance)`
 
   Cleanup a router. This is mostly used for testing.

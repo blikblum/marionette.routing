@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, createRouter, destroyRouter, middleware } from '../src/index'
+import { Route, createRouter, destroyRouter } from '../src/index'
 import Radio from 'backbone.radio'
 import * as Mn from 'backbone.marionette'
 import _ from 'underscore'
@@ -41,7 +41,6 @@ let LeafView = Mn.View.extend({
 describe('Render', () => {
   beforeEach(() => {
     router = createRouter({ location: 'memory' })
-    router.use(middleware)
     ParentRoute = Route.extend({
       viewClass: ParentView
     })

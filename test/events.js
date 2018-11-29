@@ -6,7 +6,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import { Route, createRouter, destroyRouter, middleware } from '../src/index'
+import { Route, createRouter, destroyRouter } from '../src/index'
 
 let expect = chai.expect
 let assert = chai.assert
@@ -21,8 +21,7 @@ describe('Events', () => {
     router = createRouter({ location: 'memory' })
     router.use(function (transition) {
       currentTransition = transition
-    })
-    router.use(middleware)
+    }, { before: true })
     RootRoute = Route.extend({})
     ParentRoute = Route.extend({})
     ChildRoute = Route.extend({})

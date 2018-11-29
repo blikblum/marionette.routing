@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, RouterLink, createRouter, destroyRouter, middleware } from '../src/index'
+import { Route, RouterLink, createRouter, destroyRouter } from '../src/index'
 import * as Mn from 'backbone.marionette'
 import $ from 'jquery'
 
@@ -78,7 +78,6 @@ let GrandChildView = Mn.View.extend({
 describe('RouterLink', () => {
   beforeEach(() => {
     router = createRouter()
-    router.use(middleware)
     ParentRoute = Route.extend({
       viewClass: ParentView
     })
