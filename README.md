@@ -12,7 +12,7 @@
 
 &nbsp; &nbsp; ✓ Nested routes / states / rendering<br>
 &nbsp; &nbsp; ✓ Handle asynchronous operations<br>
-&nbsp; &nbsp; ✓ Lazy loading of routes through code splitting<br>
+&nbsp; &nbsp; ✓ Lazy loading of routes with code splitting<br>
 &nbsp; &nbsp; ✓ Expose route events through [Radio](https://github.com/marionettejs/backbone.radio)<br>
 &nbsp; &nbsp; ✓ Implement route context for scoped messaging<br>
 &nbsp; &nbsp; ✓ API interface semantics similar to MarionetteJS one<br>
@@ -23,7 +23,7 @@
 
     $ npm install --save marionette.routing
 
-Requires MarionetteJS v3+, Radio v2+, underscore v1.8+ as peer dependencies
+Requires MarionetteJS v4+, Radio v2+, underscore v1.8+ as peer dependencies
 
 Requires a ES6 Promise implementation attached in window (native or polyfill)
 
@@ -38,7 +38,7 @@ import ContactsView from './view';
 
 export default Route.extend({
   activate(){
-    let contactsPromise = Radio.channel('api').request('getContactList');
+    const contactsPromise = Radio.channel('api').request('getContactList');
     return contactsPromise.then(contactsData => {
       this.contacts = new Contacts(contactsData)
     });
@@ -58,14 +58,14 @@ export default Route.extend({
 Configure and start the router
 
 ```js
-import { createRouter } from 'marionette.routing';
+import { Router } from 'marionette.routing';
 import ContactsRoute from './contacts/route';
 import LoginView from './login/view';
 import Mn from 'backbone.marionette';
 import Radio from 'backbone.radio';
 
 //create the router
-let router = createRouter({log: true, logError: true});
+let router = new Router({log: true, logError: true});
 
 //define the routes
 router.map(function (route) {
@@ -89,8 +89,6 @@ Radio.channel('router').on('before:activate', function(transition, route) {
   }
 })
 ```
-
-Warning: the router configuration interface will likely change in future becoming simpler
 
 ### Documentation
 

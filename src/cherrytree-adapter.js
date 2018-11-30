@@ -17,7 +17,19 @@ let mnRouteMap = Object.create(null)
 export const routerChannel = Radio.channel('router')
 let router
 
-function patchedUse (customMiddleware, options = {}) {
+export function Router (options) {
+  if (router) {
+    throw new Error('Instance of router already created')
+  }
+  Cherrytree.call(this, options)
+  this.middleware.push(middleware)
+  router = this
+}
+
+Router.prototype = Object.create(Cherrytree.prototype)
+Router.prototype.constructor = Router
+
+Router.prototype.use = function (customMiddleware, options = {}) {
   const m = typeof customMiddleware === 'function' ? { next: customMiddleware } : customMiddleware
   if (options.before) {
     this.middleware.splice(this.middleware.indexOf(middleware), 0, m)
@@ -27,20 +39,10 @@ function patchedUse (customMiddleware, options = {}) {
   return this
 }
 
-export function createRouter (options) {
-  if (router) {
-    throw new Error('Instance of router already created')
-  }
-  router = new Cherrytree(options)
-  router.middleware.push(middleware)
-  router.use = patchedUse
-  return router
-}
-
-export function destroyRouter (instance) {
+Router.prototype.destroy = function () {
   router = null
   mnRouteMap = Object.create(null)
-  instance.destroy()
+  Cherrytree.prototype.destroy.call(this)
 }
 
 export function getMnRoutes (routes) {

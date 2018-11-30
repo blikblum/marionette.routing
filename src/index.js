@@ -11,4 +11,4 @@ export { default as Route } from './route'
 
 export { default as RouterLink } from './routerlink'
 
-export { createRouter, destroyRouter } from './cherrytree-adapter'
+export { Router } from './cherrytree-adapter'

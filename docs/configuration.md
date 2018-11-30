@@ -1,8 +1,8 @@
 # Router Configuration
 
-## `createRouter(options)`
-
- Returns a router instance. Accepts an options hash as argument:
+## `Router` class
+  
+ Descends from Cherrytree class. Accepts an options hash as argument:
 
 | Option | Default | Description |
 |--------|---------|-------------|
@@ -15,9 +15,13 @@
 | `promise` | `window.Promise` | The Promises implementation to use for transitions |
 
 
+```js
+const router = new Router({log: true});
+```
+
 ## `router.map(fn)`
 
-Configure the router with a route map. e.g.
+Configures the route map. e.g.
 
 ```js
 router.map(function (route) {
@@ -52,6 +56,6 @@ For more information about route mapping refer to cherrytree documentation
 
  Property that defines the region where the top level views will be rendered
 
-## `destroyRouter(routerInstance)`
+## `router.destroy`
 
   Cleanup a router. This is mostly used for testing.

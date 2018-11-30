@@ -6,7 +6,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import { Route, createRouter, destroyRouter } from '../src/index'
+import { Route, Router } from '../src/index'
 
 let expect = chai.expect
 let assert = chai.assert
@@ -18,7 +18,7 @@ let currentTransition
 
 describe('Events', () => {
   beforeEach(() => {
-    router = createRouter({ location: 'memory' })
+    router = new Router({ location: 'memory' })
     router.use(function (transition) {
       currentTransition = transition
     }, { before: true })
@@ -43,7 +43,7 @@ describe('Events', () => {
 
   afterEach(() => {
     Radio.channel('router').off()
-    destroyRouter(router)
+    router.destroy()
   })
 
   describe('before:transition', () => {

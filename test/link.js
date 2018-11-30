@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, RouterLink, createRouter, destroyRouter } from '../src/index'
+import { Route, RouterLink, Router } from '../src/index'
 import * as Mn from 'backbone.marionette'
 import $ from 'jquery'
 
@@ -77,7 +77,7 @@ let GrandChildView = Mn.View.extend({
 
 describe('RouterLink', () => {
   beforeEach(() => {
-    router = createRouter()
+    router = new Router()
     ParentRoute = Route.extend({
       viewClass: ParentView
     })
@@ -108,7 +108,7 @@ describe('RouterLink', () => {
   })
 
   afterEach(() => {
-    destroyRouter(router)
+    router.destroy()
   })
 
   it('should generate href attributes in anchor tags with route attribute', function () {

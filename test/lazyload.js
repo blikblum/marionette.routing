@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, createRouter, destroyRouter } from '../src/index'
+import { Route, Router } from '../src/index'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -22,7 +22,7 @@ function AsyncChildRoute () {
 
 describe('Route configuration', () => {
   beforeEach(() => {
-    router = createRouter({ location: 'memory' })
+    router = new Router({ location: 'memory' })
     ParentRoute = Route.extend({})
     ChildRoute = Route.extend({})
     GrandChildRoute = Route.extend({})
@@ -43,7 +43,7 @@ describe('Route configuration', () => {
   })
 
   afterEach(() => {
-    destroyRouter(router)
+    router.destroy()
   })
 
   describe('can be defined in a parent route class', function () {

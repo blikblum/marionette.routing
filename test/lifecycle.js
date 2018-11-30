@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, createRouter, destroyRouter } from '../src/index'
+import { Route, Router } from '../src/index'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -16,7 +16,7 @@ let currentTransition
 
 describe('Lifecycle hooks', () => {
   beforeEach(() => {
-    router = createRouter({ location: 'memory' })
+    router = new Router({ location: 'memory' })
     router.use(function (transition) {
       currentTransition = transition
     }, { before: true })
@@ -51,7 +51,7 @@ describe('Lifecycle hooks', () => {
   })
 
   afterEach(() => {
-    destroyRouter(router)
+    router.destroy()
   })
 
   describe('router instance', () => {
