@@ -3087,6 +3087,18 @@ negotiator@0.6.1:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
   integrity sha1-KzJxhOiZIQEXeyhWP7XnECrNDKk=
 
+nextbone-radio@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/nextbone-radio/-/nextbone-radio-0.1.0.tgz#16139809cf28621664f9bb7e0089730d8e6ac7f4"
+  integrity sha512-k7kOHz3xsug610oGpIyYVchUvfeNWMRMnqmgR2olNzGQ+3LtQb+IcGr1qmEg/oLXIZF1xkn9xj5y78/lk4x6GA==
+
+nextbone@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/nextbone/-/nextbone-0.5.0.tgz#67154a6bab0f6430e85dc5091fae594a062f2e7f"
+  integrity sha512-jnjeLpXc0rnIzCnhJGESizgNYOeGwfn+8RqvP91sGXaPX4Nj9xA75gmrOKP2CXoZOfs7kuLLqS+KYJSw0/3fWw==
+  dependencies:
+    underscore ">=1.8.3"
+
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"

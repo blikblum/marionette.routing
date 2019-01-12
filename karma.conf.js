@@ -19,6 +19,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'node_modules/underscore/underscore.js',
       'test/index.js'
     ],
 
@@ -34,7 +35,9 @@ module.exports = function (config) {
     rollupPreprocessor: {
       plugins: [babel({
         exclude: ['node_modules/**', 'test/**']
-      }), commonjs(), nodeResolve()],
+      }), commonjs(), nodeResolve({
+        only: [/^(?!.*?underscore).*/]
+      })],
 
       output: {
         format: 'iife', // Helps prevent naming collisions.

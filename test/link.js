@@ -78,11 +78,11 @@ let GrandChildView = Mn.View.extend({
 describe('RouterLink', () => {
   beforeEach(() => {
     router = new Router()
-    ParentRoute = Route.extend({
-      viewClass: ParentView
-    })
-    RootRoute = Route.extend({})
-    ChildRoute = Route.extend({})
+    ParentRoute = class extends Route {
+      viewClass () { return ParentView }
+    }
+    RootRoute = class extends Route {}
+    ChildRoute = class extends Route {}
     routes = function (route) {
       route('parent', { routeClass: ParentRoute }, function () {
         route('child', { routeClass: ChildRoute }, function () {

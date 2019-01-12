@@ -9,7 +9,7 @@
  */
 
 import _ from 'underscore'
-import Radio from 'backbone.radio'
+import { Radio } from 'nextbone-radio'
 import Cherrytree from 'cherrytreex'
 import Route from './route'
 

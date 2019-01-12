@@ -5,7 +5,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import _ from 'underscore'
-import Radio from 'backbone.radio'
+import { Radio } from 'nextbone-radio'
 import { Route, Router } from '../src/index'
 
 let expect = chai.expect
@@ -22,11 +22,11 @@ describe('Events', () => {
     router.use(function (transition) {
       currentTransition = transition
     }, { before: true })
-    RootRoute = Route.extend({})
-    ParentRoute = Route.extend({})
-    ChildRoute = Route.extend({})
-    GrandChildRoute = Route.extend({})
-    LeafRoute = Route.extend({})
+    RootRoute = class extends Route {}
+    ParentRoute = class extends Route {}
+    ChildRoute = class extends Route {}
+    GrandChildRoute = class extends Route {}
+    LeafRoute = class extends Route {}
     routes = function (route) {
       route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 } }, function () {
         route('child', { routeClass: ChildRoute }, function () {

@@ -20,15 +20,15 @@ describe('Lifecycle hooks', () => {
     router.use(function (transition) {
       currentTransition = transition
     }, { before: true })
-    RootRoute = Route.extend({ load () {} })
-    ParentRoute = Route.extend({ load () {} })
-    ChildRoute = Route.extend({})
-    GrandChildRoute = Route.extend({ load () {} })
-    LeafRoute = Route.extend({})
-    Child2Route = Route.extend({})
-    DynParentRoute = Route.extend({})
-    DynChildRoute = Route.extend({})
-    DynGrandChildRoute = Route.extend({})
+    RootRoute = class extends Route { load () {} }
+    ParentRoute = class extends Route { load () {} }
+    ChildRoute = class extends Route {}
+    GrandChildRoute = class extends Route { load () {} }
+    LeafRoute = class extends Route {}
+    Child2Route = class extends Route {}
+    DynParentRoute = class extends Route {}
+    DynChildRoute = class extends Route {}
+    DynGrandChildRoute = class extends Route {}
 
     routes = function (route) {
       route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 }, arbitrary: 3 }, function () {

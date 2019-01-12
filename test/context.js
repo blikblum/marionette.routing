@@ -15,11 +15,11 @@ let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
 describe('Route context', () => {
   beforeEach(() => {
     router = new Router({ location: 'memory' })
-    RootRoute = Route.extend({})
-    ParentRoute = Route.extend({})
-    ChildRoute = Route.extend({})
-    GrandChildRoute = Route.extend({})
-    LeafRoute = Route.extend({})
+    RootRoute = class extends Route {}
+    ParentRoute = class extends Route {}
+    ChildRoute = class extends Route {}
+    GrandChildRoute = class extends Route {}
+    LeafRoute = class extends Route {}
     routes = function (route) {
       route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 } }, function () {
         route('child', { routeClass: ChildRoute }, function () {
