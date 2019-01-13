@@ -92,7 +92,7 @@ describe('Render', () => {
       })
       route('root', { class: RootRoute, routeOptions: { component: ParentView } })
       route('root2', { component: ParentView, outlet: false }, function () {
-        route('leaf2', { class: LeafRoute, component: LeafView })
+        route('leaf2', { class: LeafRoute, component: leafTag })
       })
       route('root3', { class: RootRoute })
     }
