@@ -57,8 +57,7 @@ export default class Route extends Events {
       region.show(view)
     } else {
       // if region is undefined means no rootRegion is defined
-      // accept a pre-rendered view in those situations throwing otherwise
-      // if (!view.isRendered()) throw new Error('No root outlet region defined')
+      throw new Error('No root outlet region defined')
     }
     this.view = view
     routerChannel.trigger('route:render', this)
@@ -85,7 +84,10 @@ export default class Route extends Events {
     if (!this.outletRegion) {
       const root = this.view.shadowRoot ? this.view.shadowRoot : this.view
       const selector = this.constructor.outletSelector || 'router-outlet'
-      this.outletRegion = new Region(root.querySelector(selector))
+      const el = root.querySelector(selector)
+      if (el) {
+        this.outletRegion = new Region(el)
+      }
     }
     return this.outletRegion
   }

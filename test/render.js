@@ -144,7 +144,7 @@ describe('Render', () => {
         }).catch(done)
       })
 
-      it.skip('should abort transition when no rootRegion is defined', function (done) {
+      it('should abort transition when no rootRegion is defined', function (done) {
         router.rootRegion = null
         router.transitionTo('parent').then(function () {
           done('transition resolved')
@@ -172,7 +172,7 @@ describe('Render', () => {
         }).catch(done)
       })
 
-      it.skip('should abort transition if no outlet region is defined in the nearest route with a view', function (done) {
+      it('should abort transition if no outlet region is defined in the nearest route with a view', function (done) {
         router.transitionTo('leaf').then(function () {
           done('transition resolved')
         }).catch(function (error) {
