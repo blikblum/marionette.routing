@@ -110,7 +110,6 @@ Radio.channel('router').on('before:activate', function(transition, route) {
 ### Related Projects
 
 * [Cherrytree](https://github.com/QubitProducts/cherrytree) — The router library used by Marionette Routing under the hood 
-* [Babel Starter Kit](https://github.com/kriasoft/babel-starter-kit) — Template used to bootstrap this project
 
 
 ### License
