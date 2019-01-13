@@ -5,6 +5,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Route, Router, Region } from '../src/index'
+import { withEvents } from 'nextbone'
 import { Radio } from 'nextbone-radio'
 import _ from 'underscore'
 import $ from 'jquery'
@@ -16,7 +17,7 @@ chai.use(sinonChai)
 let router, routes
 let RootRoute, ParentRoute, ChildRoute, LeafRoute
 
-class ParentView extends HTMLElement {
+class ParentView extends withEvents(HTMLElement) {
   connectedCallback () {
     this.innerHTML = '<div class="child-view"></div>'
   }
@@ -116,7 +117,7 @@ describe('Render', () => {
       }).catch(done)
     })
 
-    it.skip('will propagate events defined in viewEvents to Route ', function (done) {
+    it('will propagate events defined in viewEvents to Route ', function (done) {
       let spy1 = sinon.spy()
       let spy2 = sinon.spy()
       RootRoute.prototype.viewEvents = {
@@ -128,7 +129,7 @@ describe('Render', () => {
         }
       }
       router.transitionTo('root').then(function () {
-        router.rootRegion.currentView.trigger('my:event')
+        router.rootRegion.currentEl.trigger('my:event')
         expect(spy1).to.be.calledOnce
         expect(spy2).to.not.be.called
         done()

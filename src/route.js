@@ -62,9 +62,9 @@ export default class Route extends Events {
     }
     this.view = view
     routerChannel.trigger('route:render', this)
-    // if (this.viewEvents) {
-    //  bindEvents.call(this, view, this.viewEvents)
-    // }
+    if (this.viewEvents && _.isFunction(view.on)) {
+      bindEvents.call(this, view, this.viewEvents)
+    }
   }
 
   updateView () {
