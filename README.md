@@ -65,7 +65,10 @@ import Mn from 'backbone.marionette';
 import Radio from 'backbone.radio';
 
 //create the router
-let router = new Router({log: true, logError: true});
+let router = new Router(
+  { log: true, logError: true }, // options passed to Cherrytree
+  '#main' // the element / Marionette Region where the root routes will be rendered
+);
 
 //define the routes
 router.map(function (route) {
@@ -74,9 +77,6 @@ router.map(function (route) {
     route('login', {viewClass: LoginView})
   })
 });
-
-//define a root region
-router.rootRegion = new Mn.Region({el: '#app'});
 
 //start listening to URL changes
 router.listen();

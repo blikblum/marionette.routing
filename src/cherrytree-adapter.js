@@ -12,17 +12,25 @@ import _ from 'underscore'
 import Radio from 'backbone.radio'
 import Cherrytree from 'cherrytreex'
 import Route from './route'
+import { Region } from 'backbone.marionette'
 
 let mnRouteMap = Object.create(null)
 export const routerChannel = Radio.channel('router')
 let router
 
-export function Router (options) {
+export function Router (options, renderRoot) {
   if (router) {
     throw new Error('Instance of router already created')
   }
   Cherrytree.call(this, options)
   this.middleware.push(middleware)
+  if (renderRoot) {
+    if (renderRoot instanceof Region) {
+      this.rootRegion = renderRoot
+    } else {
+      this.rootRegion = new Region({ el: renderRoot })
+    }
+  }
   router = this
 }
 

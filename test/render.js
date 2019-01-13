@@ -38,9 +38,34 @@ let LeafView = Mn.View.extend({
   }
 })
 
+describe('rootRegion', () => {
+  afterEach(() => {
+    router.destroy()
+  })
+
+  it('can be defined as a Region instance', () => {
+    const region = new Mn.Region({ el: '#main' })
+    router = new Router({}, region)
+    expect(router.rootRegion).to.be.equal(region)
+  })
+
+  it('can be defined as a HTML element', () => {
+    const el = document.getElementById('main')
+    router = new Router({}, el)
+    expect(router.rootRegion).to.be.instanceOf(Mn.Region)
+    expect(router.rootRegion.$el[0]).to.be.equal(el)
+  })
+
+  it('can be defined as a CSS selector', () => {
+    router = new Router({}, '#main')
+    expect(router.rootRegion).to.be.instanceOf(Mn.Region)
+    expect(router.rootRegion.$el[0]).to.be.equal(document.getElementById('main'))
+  })
+})
+
 describe('Render', () => {
   beforeEach(() => {
-    router = new Router({ location: 'memory' })
+    router = new Router({ location: 'memory' }, '#main')
     ParentRoute = Route.extend({
       viewClass: ParentView
     })
@@ -65,10 +90,6 @@ describe('Render', () => {
     router.listen()
 
     document.body.innerHTML = '<div id="main">Test</div>'
-    let RootRegion = Mn.Region.extend({
-      el: '#main'
-    })
-    router.rootRegion = new RootRegion()
   })
 
   afterEach(() => {
