@@ -50,9 +50,6 @@ export default class Route extends Events {
       throw new Error(`${this.constructor.name}: viewClass has invalid value ${ViewClass}. Expected a string or HTMLElement`)
     }
     Object.assign(view, viewOptions)
-    // this.listenToOnce(view, 'destroy', function () {
-    //  this.view = void 0
-    // })
     if (region) {
       region.show(view)
     } else {

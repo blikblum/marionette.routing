@@ -279,7 +279,7 @@ describe('Render', () => {
   })
 
   describe('view', function () {
-    it.skip('should be set to undefined after is destroyed', function () {
+    it('should be set to undefined after is destroyed', function () {
       let routeInstance
       sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this

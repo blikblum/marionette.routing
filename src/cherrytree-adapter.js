@@ -270,6 +270,8 @@ const middleware = {
         return nextPromise
       }, undefined)
 
+      deactivated.forEach(route => { route.view = undefined })
+
       if (loadPromise) {
         return new Promise(function (resolve) {
           loadPromise.then(function () {
