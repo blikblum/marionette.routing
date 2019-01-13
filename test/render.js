@@ -135,25 +135,6 @@ describe('Render', () => {
       }).catch(done)
     })
 
-    it('will propagate events defined in viewEvents to Route ', function (done) {
-      let spy1 = sinon.spy()
-      let spy2 = sinon.spy()
-      RootRoute.prototype.viewEvents = {
-        'my:event': function () {
-          spy1()
-        },
-        'other:event': function () {
-          spy1()
-        }
-      }
-      router.transitionTo('root').then(function () {
-        router.rootRegion.currentView.trigger('my:event')
-        expect(spy1).to.be.calledOnce
-        expect(spy2).to.not.be.called
-        done()
-      }).catch(done)
-    })
-
     describe('of a root route', function () {
       it('should be rendered in rootRegion', function (done) {
         router.transitionTo('parent').then(function () {
@@ -220,6 +201,40 @@ describe('Render', () => {
           expect($('#main').html()).to.be.equal('<div><div class="child-view"></div></div>')
         })
       })
+    })
+  })
+
+  describe('viewEvents', function () {
+    let spy1, spy2
+    beforeEach(() => {
+      spy1 = sinon.spy()
+      spy2 = sinon.spy()
+      RootRoute.prototype.viewEvents = {
+        'my:event': spy1,
+        'other:event': spy2
+      }
+    })
+
+    it('will listen to view events and call registered handlers', function (done) {
+      router.transitionTo('root').then(function () {
+        router.rootRegion.currentView.trigger('my:event')
+        expect(spy1).to.be.calledOnce
+        expect(spy2).to.not.be.called
+        done()
+      }).catch(done)
+    })
+
+    it('will stop listening to view events when deactivated', function (done) {
+      let rootView
+      router.transitionTo('root').then(function () {
+        rootView = router.rootRegion.currentView
+        return router.transitionTo('parent')
+      }).then(function () {
+        rootView.trigger('my:event')
+        expect(spy1).to.not.be.called
+        expect(spy2).to.not.be.called
+        done()
+      }).catch(done)
     })
   })
 

@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import { MnObject, bindEvents, View } from 'backbone.marionette'
+import { MnObject, View, bindEvents, unbindEvents } from 'backbone.marionette'
 import RouteContext from './routecontext'
 import { getMnRoutes, routerChannel } from './cherrytree-adapter'
 
@@ -39,6 +39,9 @@ export default MnObject.extend(
       }
       let view = new ViewClass(viewOptions)
       this.listenToOnce(view, 'destroy', function () {
+        if (this.viewEvents) {
+          unbindEvents(this, this.view)
+        }
         this.view = void 0
       })
       if (region) {
