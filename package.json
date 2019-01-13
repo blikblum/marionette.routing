@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "marionette.routing",
-  "version": "0.12.0",
+  "version": "1.0.0",
   "description": "A state based router for MarionetteJS applications",
   "homepage": "https://github.com/blikblum/marionette.routing",
   "repository": "blikblum/marionette.routing",
