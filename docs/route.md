@@ -47,7 +47,7 @@
 
 ```js
 const NoteEditRoute = Route.extend({
-  viewClass: NoteEditView,
+  component: NoteEditView,
 
   viewOptions() {
     return {
@@ -66,13 +66,13 @@ a truthy value will prevent the default behavior (render a new view)
 
 ## Properties
 
-### <code>viewClass</code>
+### <code>component</code>
 
  Defines the Marionette.View that will be rendered when the route is activated
 
 ```js
 const NoteRoute = Route.extend({
-  viewClass: NoteLayoutView
+  component: NoteLayoutView
 });
 ```
 
@@ -82,7 +82,7 @@ const NoteRoute = Route.extend({
 
 ```js
 const NoteListRoute = Route.extend({
-  viewClass: NoteListView,
+  component: NoteListView,
 
   activate() {  // See activate below
     this.collection = new NoteCollection();
@@ -103,7 +103,7 @@ const NoteListRoute = Route.extend({
 
 ```js
 const NoteCreateRoute = Route.extend({
-  viewClass: NoteCreateView,
+  component: NoteCreateView,
 
   viewEvents: {
     'note:created': 'addNoteToCollection'

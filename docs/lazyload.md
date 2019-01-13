@@ -21,7 +21,7 @@ router.map(function (route) {
       route('colors.edit', {path: ':colorid/edit'});
     });
     route('books', {path: 'books', routeClass: BooksRoute}, function () {
-      route('books.index', {path: 'index', viewClass: BooksIndexView});
+      route('books.index', {path: 'index', component: BooksIndexView});
       route('books.show', {path: ':bookid', routeClass: BooksShowRoute});
     });
   })

@@ -111,8 +111,8 @@ function findRouteClass (options, routeName, index, routes) {
 }
 
 function createRouteInstance (RouteClass, options, config) {
-  let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['viewClass', 'viewOptions']))
-  if (!RouteClass && routeOptions.viewClass) {
+  let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['component', 'viewOptions']))
+  if (!RouteClass && routeOptions.component) {
     RouteClass = Route
   }
   if (RouteClass) {
@@ -161,7 +161,7 @@ function renderViews (mnRoutes, activated, transition) {
   let renderCandidates = activated.length ? activated : mnRoutes.slice(-1)
 
   let renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
-    if (mnRoute.viewClass) {
+    if (mnRoute.component) {
       if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
         memo.pop()
       }
@@ -239,7 +239,7 @@ const middleware = {
             instance = createMnRoute(route, i, routes)
             return Promise.resolve(instance).then(function (mnRoute) {
               if (!mnRoute) {
-                throw new Error(`Unable to create route ${route.name}: routeClass or viewClass must be defined`)
+                throw new Error(`Unable to create route ${route.name}: routeClass or component must be defined`)
               }
               mnRouteMap[route.name] = mnRoute
               res.push(mnRoute)

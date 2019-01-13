@@ -26,9 +26,9 @@ Configures the route map. e.g.
 ```js
 router.map(function (route) {
   route('app', {path: '/', abstract: true}, function () {
-    route('about', {viewClass: AboutView, viewOptions: {version: '1.0'}})
+    route('about', {component: AboutView, viewOptions: {version: '1.0'}})
     route('post', {path: ':postId', routeClass: PostRoute}, function () {
-      route('edit', {routeClass: PostRoute, viewClass: EditPostView})
+      route('edit', {routeClass: PostRoute, component: EditPostView})
     })
   })
 })
@@ -38,13 +38,13 @@ Each route can be configure with the following options:
 
  * `routeClass`: a [`Route`](./route.md) class
  * `routeOptions`: options passed to the Route constructor
- * `viewClass`: a `Marionette.View` class. Can be used alone or with `routeClass`
+ * `component`: a `Marionette.View` class. Can be used alone or with `routeClass`
  * `viewOptions`: options passed to the Marionette.View constructor
  * `path`: the route path
  * `abstract`: pass true to define an abstract route
- * `outlet`: pass true to allow a viewClass without an `outlet` region
+ * `outlet`: pass true to allow a component without an `outlet` region
 
-**All routes must have at least viewClass or routeClass defined.**
+**All routes must have at least component or routeClass defined.**
 
 For more information about route mapping refer to cherrytree documentation
 

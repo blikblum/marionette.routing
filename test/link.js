@@ -79,17 +79,17 @@ describe.skip('RouterLink', () => {
   beforeEach(() => {
     router = new Router()
     ParentRoute = class extends Route {
-      viewClass () { return ParentView }
+      component () { return ParentView }
     }
     RootRoute = class extends Route {}
     ChildRoute = class extends Route {}
     routes = function (route) {
       route('parent', { routeClass: ParentRoute }, function () {
         route('child', { routeClass: ChildRoute }, function () {
-          route('grandchild', { viewClass: GrandChildView })
+          route('grandchild', { component: GrandChildView })
         })
       })
-      route('root', { path: 'root/:id', routeClass: RootRoute, routeOptions: { viewClass: ParentView } })
+      route('root', { path: 'root/:id', routeClass: RootRoute, routeOptions: { component: ParentView } })
     }
     router.map(routes)
 
@@ -224,7 +224,7 @@ describe.skip('RouterLink', () => {
         el: '#prerendered'
       })
 
-      ParentRoute.prototype.viewClass = PreRenderedView
+      ParentRoute.prototype.component = PreRenderedView
 
       ParentRoute.prototype.viewOptions = { x: 1 }
     })

@@ -93,7 +93,7 @@ describe('Route configuration', () => {
     router.transitionTo('leaf').then(function () {
       done('transition should fail')
     }).catch(function (err) {
-      expect(err.message).to.be.equal('Unable to create route leaf: routeClass or viewClass must be defined')
+      expect(err.message).to.be.equal('Unable to create route leaf: routeClass or component must be defined')
       done()
     })
   })

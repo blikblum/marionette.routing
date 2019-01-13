@@ -33,7 +33,7 @@ router.map(function (route) {
   // Since this top-level route checks authentication, nothing below it needs to
   route('application', {path: '/', routeClass: IndexRoute}, function () {
     route('contacts', {routeClass: ContactsRoute})
-    route('login', {viewClass: LoginView})
+    route('login', {component: LoginView})
   })
 });
 ```

@@ -44,7 +44,7 @@ export default Route.extend({
     });
   },
 
-  viewClass: ContactsView,
+  component: ContactsView,
 
   viewOptions() {
     return {
@@ -71,7 +71,7 @@ let router = new Router({log: true, logError: true});
 router.map(function (route) {
   route('application', {path: '/', abstract: true}, function () {
     route('contacts', {routeClass: ContactsRoute})
-    route('login', {viewClass: LoginView})
+    route('login', {component: LoginView})
   })
 });
 

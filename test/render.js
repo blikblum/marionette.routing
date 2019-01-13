@@ -77,7 +77,7 @@ describe('Render', () => {
       static get outletSelector () {
         return '.child-view'
       }
-      viewClass () { return ParentView }
+      component () { return ParentView }
     }
     RootRoute = class extends Route {}
     ChildRoute = class extends Route {}
@@ -85,14 +85,14 @@ describe('Render', () => {
     routes = function (route) {
       route('parent', { routeClass: ParentRoute }, function () {
         route('child', { routeClass: ChildRoute }, function () {
-          route('grandchild', { viewClass: GrandChildView }, function () {
-            route('leaf', { routeClass: LeafRoute, viewClass: LeafView })
+          route('grandchild', { component: GrandChildView }, function () {
+            route('leaf', { routeClass: LeafRoute, component: LeafView })
           })
         })
       })
-      route('root', { routeClass: RootRoute, routeOptions: { viewClass: ParentView } })
-      route('root2', { viewClass: ParentView, outlet: false }, function () {
-        route('leaf2', { routeClass: LeafRoute, viewClass: LeafView })
+      route('root', { routeClass: RootRoute, routeOptions: { component: ParentView } })
+      route('root2', { component: ParentView, outlet: false }, function () {
+        route('leaf2', { routeClass: LeafRoute, component: LeafView })
       })
       route('root3', { routeClass: RootRoute })
     }
@@ -107,7 +107,7 @@ describe('Render', () => {
     router.destroy()
   })
 
-  describe('viewClass', function () {
+  describe('component', function () {
     it('can be defined in the Route class', function (done) {
       router.transitionTo('parent').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
@@ -123,7 +123,7 @@ describe('Render', () => {
       let viewClassSpy = sinon.spy(function () {
         return ParentView
       })
-      ParentRoute.prototype.viewClass = viewClassSpy
+      ParentRoute.prototype.component = viewClassSpy
       router.transitionTo('parent').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
         expect(viewClassSpy).to.be.calledOnce
@@ -132,14 +132,14 @@ describe('Render', () => {
       }).catch(done)
     })
 
-    it('can be passed through routeOptions.viewClass', function (done) {
+    it('can be passed through routeOptions.component', function (done) {
       router.transitionTo('root').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
         done()
       }).catch(done)
     })
 
-    it('can be passed through viewClass, without a routeClass', function (done) {
+    it('can be passed through component, without a routeClass', function (done) {
       router.transitionTo('root2').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
         done()
@@ -167,7 +167,7 @@ describe('Render', () => {
 
       it('should not abort transition when no rootRegion is defined and view is prerendered', function () {
         router.rootRegion = null
-        // RootRoute.prototype.viewClass = Mn.View.extend({ el: '#main' })
+        // RootRoute.prototype.component = Mn.View.extend({ el: '#main' })
         return router.transitionTo('root3').then(function () {
           expect(router.isActive('root3'))
         })
