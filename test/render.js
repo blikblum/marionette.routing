@@ -41,6 +41,35 @@ class LeafView extends HTMLElement {
 
 const leafTag = defineCE(LeafView)
 
+describe('rootRegion', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="main"></div>'
+  })
+
+  afterEach(() => {
+    router.destroy()
+  })
+
+  it('can be defined as a Region instance', () => {
+    const region = new Region(document.getElementById('main'))
+    router = new Router({}, region)
+    expect(router.rootRegion).to.be.equal(region)
+  })
+
+  it('can be defined as a HTML element', () => {
+    const el = document.getElementById('main')
+    router = new Router({}, el)
+    expect(router.rootRegion).to.be.instanceOf(Region)
+    expect(router.rootRegion.targetEl).to.be.equal(el)
+  })
+
+  it('can be defined as a CSS selector', () => {
+    router = new Router({}, '#main')
+    expect(router.rootRegion).to.be.instanceOf(Region)
+    expect(router.rootRegion.targetEl).to.be.equal(document.getElementById('main'))
+  })
+})
+
 describe('Render', () => {
   beforeEach(() => {
     router = new Router({ location: 'memory' })

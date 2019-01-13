@@ -12,17 +12,30 @@ import _ from 'underscore'
 import { Radio } from 'nextbone-radio'
 import Cherrytree from 'cherrytreex'
 import Route from './route'
+import { Region } from './utils/region'
 
 let mnRouteMap = Object.create(null)
 export const routerChannel = Radio.channel('router')
 let router
 
-export function Router (options) {
+export function Router (options, renderRoot) {
   if (router) {
     throw new Error('Instance of router already created')
   }
   Cherrytree.call(this, options)
   this.middleware.push(middleware)
+  if (renderRoot) {
+    if (typeof renderRoot === 'string') {
+      renderRoot = document.querySelector(renderRoot)
+    }
+    if (renderRoot instanceof HTMLElement) {
+      this.rootRegion = new Region(renderRoot)
+    } else if (renderRoot instanceof Region) {
+      this.rootRegion = renderRoot
+    } else {
+      throw new Error(`Invalid renderRoot argument: ${renderRoot}`)
+    }
+  }
   router = this
 }
 
