@@ -111,7 +111,7 @@ function findRouteClass (options, routeName, index, routes) {
 }
 
 function createRouteInstance (RouteClass, options, config) {
-  let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['component', 'viewOptions']))
+  let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['component', 'elOptions']))
   if (!RouteClass && routeOptions.component) {
     RouteClass = Route
   }

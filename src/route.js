@@ -22,7 +22,7 @@ const createElement = (route, Definition) => {
 export default class Route extends Events {
   constructor (options, router, config) {
     super()
-    mergeOptions.call(this, options, ['component', 'viewOptions'])
+    mergeOptions.call(this, options, ['component', 'elOptions'])
     this.$router = router
     this.$config = config
     this._bindContext()
@@ -44,12 +44,12 @@ export default class Route extends Events {
   renderView (region, transition) {
     if (this.el && this.updateEl(transition)) return
     let ViewClass = this.component
-    let viewOptions = _.result(this, 'viewOptions', {})
+    let elOptions = _.result(this, 'elOptions', {})
     let el = createElement(this, ViewClass)
     if (!el) {
       throw new Error(`${this.constructor.name}: component has invalid value ${ViewClass}. Expected a string or HTMLElement`)
     }
-    Object.assign(el, viewOptions)
+    Object.assign(el, elOptions)
     if (region) {
       region.show(el)
     } else {
