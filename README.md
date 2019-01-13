@@ -70,7 +70,7 @@ let router = new Router({log: true, logError: true});
 //define the routes
 router.map(function (route) {
   route('application', {path: '/', abstract: true}, function () {
-    route('contacts', {routeClass: ContactsRoute})
+    route('contacts', {class: ContactsRoute})
     route('login', {component: LoginView})
   })
 });

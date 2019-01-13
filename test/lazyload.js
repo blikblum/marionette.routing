@@ -29,13 +29,13 @@ describe('Route configuration', () => {
     LeafRoute = class extends Route {}
 
     routes = function (route) {
-      route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 } }, function () {
-        route('child', { routeClass: ChildRoute }, function () {
+      route('parent', { class: ParentRoute, routeOptions: { x: 1 } }, function () {
+        route('child', { class: ChildRoute }, function () {
           route('grandchild', {}, function () {
             route('leaf', {})
           })
         })
-        route('child2', { routeClass: AsyncChildRoute })
+        route('child2', { class: AsyncChildRoute })
       })
     }
     router.map(routes)
@@ -93,7 +93,7 @@ describe('Route configuration', () => {
     router.transitionTo('leaf').then(function () {
       done('transition should fail')
     }).catch(function (err) {
-      expect(err.message).to.be.equal('Unable to create route leaf: routeClass or component must be defined')
+      expect(err.message).to.be.equal('Unable to create route leaf: class or component must be defined')
       done()
     })
   })
@@ -117,7 +117,7 @@ describe('Route configuration', () => {
     })
   })
 
-  it('can be loaded asynchronously from routeClass', function () {
+  it('can be loaded asynchronously from class', function () {
     let spy = sinon.spy(ChildRoute.prototype, 'initialize')
     return router.transitionTo('child2').then(function () {
       expect(spy).to.be.calledOnce

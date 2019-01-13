@@ -95,7 +95,7 @@ function getChangingIndex (prevRoutes, currentRoutes) {
 }
 
 function findRouteClass (options, routeName, index, routes) {
-  let result = options.routeClass
+  let result = options.class
   // look in parent routes
   if (!result) {
     const parentRoutes = routes.slice(0, index).reverse().map(function (route) {
@@ -239,7 +239,7 @@ const middleware = {
             instance = createMnRoute(route, i, routes)
             return Promise.resolve(instance).then(function (mnRoute) {
               if (!mnRoute) {
-                throw new Error(`Unable to create route ${route.name}: routeClass or component must be defined`)
+                throw new Error(`Unable to create route ${route.name}: class or component must be defined`)
               }
               mnRouteMap[route.name] = mnRoute
               res.push(mnRoute)

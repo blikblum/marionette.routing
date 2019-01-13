@@ -3,7 +3,7 @@
 The route definitions can be loaded dynamically allowing the bundler to do "code splitting"
 
 It can be accomplished with a function that returns a ES promise which resolves to a Route class.
-This function must be assigned to routeClass option or to a childRoutes key in a parent route
+This function must be assigned to class option or to a childRoutes key in a parent route
 
 Example extracted from [Marionette Wires Revisited](https://github.com/blikblum/marionette-wires-revisited):
 
@@ -13,16 +13,16 @@ function AsyncColorsRoute () {
   return import('../colors/route');
 }
 router.map(function (route) {
-  route('app', {path: '/', routeClass: ApplicationRoute, abstract: true}, function () {   
-    route('colors', {path: 'colors', routeClass: AsyncColorsRoute}, function () {
+  route('app', {path: '/', class: ApplicationRoute, abstract: true}, function () {   
+    route('colors', {path: 'colors', class: AsyncColorsRoute}, function () {
       route('colors.index', {path: 'index'});
       route('colors.create', {path: 'new'});
       route('colors.show', {path: ':colorid'});
       route('colors.edit', {path: ':colorid/edit'});
     });
-    route('books', {path: 'books', routeClass: BooksRoute}, function () {
+    route('books', {path: 'books', class: BooksRoute}, function () {
       route('books.index', {path: 'index', component: BooksIndexView});
-      route('books.show', {path: ':bookid', routeClass: BooksShowRoute});
+      route('books.show', {path: ':bookid', class: BooksShowRoute});
     });
   })
 });

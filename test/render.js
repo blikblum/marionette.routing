@@ -83,18 +83,18 @@ describe('Render', () => {
     ChildRoute = class extends Route {}
     LeafRoute = class extends Route {}
     routes = function (route) {
-      route('parent', { routeClass: ParentRoute }, function () {
-        route('child', { routeClass: ChildRoute }, function () {
+      route('parent', { class: ParentRoute }, function () {
+        route('child', { class: ChildRoute }, function () {
           route('grandchild', { component: GrandChildView }, function () {
-            route('leaf', { routeClass: LeafRoute, component: LeafView })
+            route('leaf', { class: LeafRoute, component: LeafView })
           })
         })
       })
-      route('root', { routeClass: RootRoute, routeOptions: { component: ParentView } })
+      route('root', { class: RootRoute, routeOptions: { component: ParentView } })
       route('root2', { component: ParentView, outlet: false }, function () {
-        route('leaf2', { routeClass: LeafRoute, component: LeafView })
+        route('leaf2', { class: LeafRoute, component: LeafView })
       })
-      route('root3', { routeClass: RootRoute })
+      route('root3', { class: RootRoute })
     }
     router.map(routes)
     router.listen()
@@ -139,7 +139,7 @@ describe('Render', () => {
       }).catch(done)
     })
 
-    it('can be passed through component, without a routeClass', function (done) {
+    it('can be passed through component, without a class', function (done) {
       router.transitionTo('root2').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
         done()

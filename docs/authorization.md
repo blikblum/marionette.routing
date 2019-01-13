@@ -31,8 +31,8 @@ import {IndexRoute} from './my-route';
 
 router.map(function (route) {
   // Since this top-level route checks authentication, nothing below it needs to
-  route('application', {path: '/', routeClass: IndexRoute}, function () {
-    route('contacts', {routeClass: ContactsRoute})
+  route('application', {path: '/', class: IndexRoute}, function () {
+    route('contacts', {class: ContactsRoute})
     route('login', {component: LoginView})
   })
 });

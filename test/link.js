@@ -84,12 +84,12 @@ describe.skip('RouterLink', () => {
     RootRoute = class extends Route {}
     ChildRoute = class extends Route {}
     routes = function (route) {
-      route('parent', { routeClass: ParentRoute }, function () {
-        route('child', { routeClass: ChildRoute }, function () {
+      route('parent', { class: ParentRoute }, function () {
+        route('child', { class: ChildRoute }, function () {
           route('grandchild', { component: GrandChildView })
         })
       })
-      route('root', { path: 'root/:id', routeClass: RootRoute, routeOptions: { component: ParentView } })
+      route('root', { path: 'root/:id', class: RootRoute, routeOptions: { component: ParentView } })
     }
     router.map(routes)
 

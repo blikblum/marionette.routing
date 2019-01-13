@@ -31,18 +31,18 @@ describe('Lifecycle hooks', () => {
     DynGrandChildRoute = class extends Route {}
 
     routes = function (route) {
-      route('parent', { routeClass: ParentRoute, routeOptions: { x: 1 }, arbitrary: 3 }, function () {
-        route('child', { routeClass: ChildRoute }, function () {
-          route('grandchild', { routeClass: GrandChildRoute }, function () {
-            route('leaf', { routeClass: LeafRoute })
+      route('parent', { class: ParentRoute, routeOptions: { x: 1 }, arbitrary: 3 }, function () {
+        route('child', { class: ChildRoute }, function () {
+          route('grandchild', { class: GrandChildRoute }, function () {
+            route('leaf', { class: LeafRoute })
           })
         })
-        route('child2', { routeClass: Child2Route })
+        route('child2', { class: Child2Route })
       })
-      route('root', { routeClass: RootRoute })
-      route('dynparent', { routeClass: DynParentRoute }, function () {
-        route('dynchild', { path: ':id', routeClass: DynChildRoute }, function () {
-          route('dyngrandchild', { routeClass: DynGrandChildRoute })
+      route('root', { class: RootRoute })
+      route('dynparent', { class: DynParentRoute }, function () {
+        route('dynchild', { path: ':id', class: DynChildRoute }, function () {
+          route('dyngrandchild', { class: DynGrandChildRoute })
         })
       })
     }
