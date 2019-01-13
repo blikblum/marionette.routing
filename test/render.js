@@ -204,7 +204,7 @@ describe('Render', () => {
 
     describe('of a target route', function () {
       it('should be rendered even if already activated', function () {
-        let spy = sinon.spy(ParentRoute.prototype, 'renderView')
+        let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
         return router.transitionTo('grandchild').then(function () {
           return router.transitionTo('parent')
         }).then(function () {
@@ -215,9 +215,9 @@ describe('Render', () => {
     })
   })
 
-  describe('renderView', function () {
+  describe('renderEl', function () {
     it('should be called with region and transition objects', function () {
-      let spy = sinon.spy(ParentRoute.prototype, 'renderView')
+      let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       let transition = router.transitionTo('parent')
       return transition.then(function () {
         expect(spy).to.be.calledOnce.and.calledWith(router.rootRegion, transition)
@@ -225,7 +225,7 @@ describe('Render', () => {
     })
 
     it('should be called after activate is resolved', function () {
-      let spy = sinon.spy(ParentRoute.prototype, 'renderView')
+      let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       let activateSpy = sinon.spy()
       ParentRoute.prototype.activate = function () {
         return new Promise(function (resolve) {
@@ -240,7 +240,7 @@ describe('Render', () => {
     })
 
     it('should be not be called when transition is cancelled', function (done) {
-      let spy = sinon.spy(ParentRoute.prototype, 'renderView')
+      let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       ParentRoute.prototype.activate = function (transition) {
         transition.cancel()
       }

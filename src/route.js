@@ -41,13 +41,12 @@ export default class Route extends Events {
 
   }
 
-  renderView (region, transition) {
+  renderEl (region, transition) {
     if (this.el && this.updateEl(transition)) return
-    let ViewClass = this.component
-    let elOptions = _.result(this, 'elOptions', {})
-    let el = createElement(this, ViewClass)
+    const elOptions = _.result(this, 'elOptions', {})
+    const el = createElement(this, this.component)
     if (!el) {
-      throw new Error(`${this.constructor.name}: component has invalid value ${ViewClass}. Expected a string or HTMLElement`)
+      throw new Error(`${this.constructor.name}: component has invalid value ${this.component}. Expected a string or HTMLElement`)
     }
     Object.assign(el, elOptions)
     if (region) {

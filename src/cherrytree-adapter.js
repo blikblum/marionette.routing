@@ -156,7 +156,7 @@ function getParentRegion (routes, route) {
   return router.rootRegion
 }
 
-function renderViews (mnRoutes, activated, transition) {
+function renderElements (mnRoutes, activated, transition) {
   // ensure at least the target (last) route is rendered
   let renderCandidates = activated.length ? activated : mnRoutes.slice(-1)
 
@@ -172,7 +172,7 @@ function renderViews (mnRoutes, activated, transition) {
 
   renderQueue.forEach(function (mnRoute) {
     let parentRegion = getParentRegion(mnRoutes, mnRoute)
-    mnRoute.renderView(parentRegion, transition)
+    mnRoute.renderEl(parentRegion, transition)
   })
 }
 
@@ -263,7 +263,7 @@ const middleware = {
       // Should be handled in error event or in a transition.catch method
     })
 
-    // render views
+    // render components
     return promise.then(function () {
       if (transition.isCancelled) return
 
@@ -288,15 +288,15 @@ const middleware = {
       if (loadPromise) {
         return new Promise(function (resolve) {
           loadPromise.then(function () {
-            renderViews(mnRoutes, activated, transition)
+            renderElements(mnRoutes, activated, transition)
             resolve()
           }).catch(function () {
-            renderViews(mnRoutes, activated, transition)
+            renderElements(mnRoutes, activated, transition)
             resolve()
           })
         })
       } else {
-        renderViews(mnRoutes, activated, transition)
+        renderElements(mnRoutes, activated, transition)
       }
     })
   },
