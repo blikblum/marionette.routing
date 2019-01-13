@@ -143,7 +143,7 @@ function getParentRegion (routes, route) {
   let routeIndex = routes.indexOf(route) - 1
   while (routeIndex >= 0) {
     parent = routes[routeIndex]
-    if (parent.view && parent.$config.options.outlet !== false) {
+    if (parent.el && parent.$config.options.outlet !== false) {
       region = parent.getOutlet()
       if (region) {
         return region
@@ -283,7 +283,7 @@ const middleware = {
         return nextPromise
       }, undefined)
 
-      deactivated.forEach(route => { route.view = undefined })
+      deactivated.forEach(route => { route.el = undefined })
 
       if (loadPromise) {
         return new Promise(function (resolve) {

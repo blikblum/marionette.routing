@@ -19,7 +19,7 @@ let RootRoute, ParentRoute, ChildRoute, LeafRoute
 
 class ParentView extends withEvents(HTMLElement) {
   connectedCallback () {
-    this.innerHTML = '<div class="child-view"></div>'
+    this.innerHTML = '<div class="child-el"></div>'
   }
 }
 
@@ -75,7 +75,7 @@ describe('Render', () => {
     router = new Router({ location: 'memory' })
     ParentRoute = class extends Route {
       static get outletSelector () {
-        return '.child-view'
+        return '.child-el'
       }
       component () { return ParentView }
     }
@@ -110,7 +110,7 @@ describe('Render', () => {
   describe('component', function () {
     it('can be defined in the Route class', function (done) {
       router.transitionTo('parent').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
+        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
         done()
       }).catch(done)
     })
@@ -125,7 +125,7 @@ describe('Render', () => {
       })
       ParentRoute.prototype.component = viewClassSpy
       router.transitionTo('parent').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
+        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
         expect(viewClassSpy).to.be.calledOnce
         expect(viewClassSpy).to.be.calledOn(routeInstance)
         done()
@@ -134,14 +134,14 @@ describe('Render', () => {
 
     it('can be passed through routeOptions.component', function (done) {
       router.transitionTo('root').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
+        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
         done()
       }).catch(done)
     })
 
     it('can be passed through component, without a class', function (done) {
       router.transitionTo('root2').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
+        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
         done()
       }).catch(done)
     })
@@ -149,7 +149,7 @@ describe('Render', () => {
     describe('of a root route', function () {
       it('should be rendered in rootRegion', function (done) {
         router.transitionTo('parent').then(function () {
-          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
+          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
           done()
         }).catch(done)
       })
@@ -165,7 +165,7 @@ describe('Render', () => {
         })
       })
 
-      it('should not abort transition when no rootRegion is defined and view is prerendered', function () {
+      it('should not abort transition when no rootRegion is defined and el is prerendered', function () {
         router.rootRegion = null
         // RootRoute.prototype.component = Mn.View.extend({ el: '#main' })
         return router.transitionTo('root3').then(function () {
@@ -175,14 +175,14 @@ describe('Render', () => {
     })
 
     describe('of a child route', function () {
-      it('should be rendered in the outlet region of the nearest route with a view', function (done) {
+      it('should be rendered in the outlet region of the nearest route with a el', function (done) {
         router.transitionTo('grandchild').then(function () {
-          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`)
+          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`)
           done()
         }).catch(done)
       })
 
-      it('should abort transition if no outlet region is defined in the nearest route with a view', function (done) {
+      it('should abort transition if no outlet region is defined in the nearest route with a el', function (done) {
         router.transitionTo('leaf').then(function () {
           done('transition resolved')
         }).catch(function (error) {
@@ -192,9 +192,9 @@ describe('Render', () => {
         })
       })
 
-      it('should look for outlet region in the parent routes when route with a view has option outlet = false', function () {
+      it('should look for outlet region in the parent routes when route with a el has option outlet = false', function () {
         return router.transitionTo('root2').then(function () {
-          // force root2 render view before going to leaf2
+          // force root2 render el before going to leaf2
           return router.transitionTo('leaf2')
         }).then(function () {
           expect($('#main').html()).to.be.equal(`<${leafTag}>Leaf</${leafTag}>`)
@@ -209,7 +209,7 @@ describe('Render', () => {
           return router.transitionTo('parent')
         }).then(function () {
           expect(spy).to.be.calledTwice
-          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-view"></div></${parentTag}>`)
+          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
         })
       })
     })
@@ -255,7 +255,7 @@ describe('Render', () => {
   })
 
   describe('updateView', function () {
-    it('should be called only if route has a rendered view', function () {
+    it('should be called only if route has a rendered el', function () {
       let spy = sinon.spy(ParentRoute.prototype, 'updateView')
       let transition
       return router.transitionTo('parent').then(function () {
@@ -268,7 +268,7 @@ describe('Render', () => {
       })
     })
 
-    it('should prevent view re render if returns truthy', function () {
+    it('should prevent el re render if returns truthy', function () {
       let routeInstance, savedView
       sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
@@ -279,16 +279,16 @@ describe('Render', () => {
       }
 
       return router.transitionTo('parent').then(function () {
-        savedView = routeInstance.view
+        savedView = routeInstance.el
         // force a new render
         return router.transitionTo('parent', {}, { id: 1 })
       }).then(function () {
-        expect(savedView).to.be.equal(routeInstance.view)
+        expect(savedView).to.be.equal(routeInstance.el)
       })
     })
   })
 
-  describe('view', function () {
+  describe('el', function () {
     it('should be set to undefined after is destroyed', function () {
       let routeInstance
       sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
@@ -298,7 +298,7 @@ describe('Render', () => {
       return router.transitionTo('parent').then(function () {
         return router.transitionTo('root')
       }).then(function () {
-        expect(routeInstance.view).to.not.exist
+        expect(routeInstance.el).to.not.exist
       })
     })
 
@@ -311,7 +311,7 @@ describe('Render', () => {
       return router.transitionTo('parent').then(function () {
         return router.transitionTo('parent', {}, { page: 1 })
       }).then(function () {
-        expect(routeInstance.view).to.exist
+        expect(routeInstance.el).to.exist
       })
     })
   })

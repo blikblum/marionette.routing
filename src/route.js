@@ -42,21 +42,21 @@ export default class Route extends Events {
   }
 
   renderView (region, transition) {
-    if (this.view && this.updateView(transition)) return
+    if (this.el && this.updateView(transition)) return
     let ViewClass = this.component
     let viewOptions = _.result(this, 'viewOptions', {})
-    let view = createElement(this, ViewClass)
-    if (!view) {
+    let el = createElement(this, ViewClass)
+    if (!el) {
       throw new Error(`${this.constructor.name}: component has invalid value ${ViewClass}. Expected a string or HTMLElement`)
     }
-    Object.assign(view, viewOptions)
+    Object.assign(el, viewOptions)
     if (region) {
-      region.show(view)
+      region.show(el)
     } else {
       // if region is undefined means no rootRegion is defined
       throw new Error('No root outlet region defined')
     }
-    this.view = view
+    this.el = el
     routerChannel.trigger('route:render', this)
   }
 
@@ -76,7 +76,7 @@ export default class Route extends Events {
 
   getOutlet () {
     if (!this.outletRegion) {
-      const root = this.view.shadowRoot ? this.view.shadowRoot : this.view
+      const root = this.el.shadowRoot ? this.el.shadowRoot : this.el
       const selector = this.constructor.outletSelector || 'router-outlet'
       const el = root.querySelector(selector)
       if (el) {
