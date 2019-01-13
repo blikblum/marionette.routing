@@ -42,7 +42,7 @@ export default class Route extends Events {
   }
 
   renderView (region, transition) {
-    if (this.el && this.updateView(transition)) return
+    if (this.el && this.updateEl(transition)) return
     let ViewClass = this.component
     let viewOptions = _.result(this, 'viewOptions', {})
     let el = createElement(this, ViewClass)
@@ -60,7 +60,7 @@ export default class Route extends Events {
     routerChannel.trigger('route:render', this)
   }
 
-  updateView () {
+  updateEl () {
 
   }
 

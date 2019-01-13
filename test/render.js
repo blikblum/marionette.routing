@@ -254,9 +254,9 @@ describe('Render', () => {
     })
   })
 
-  describe('updateView', function () {
+  describe('updateEl', function () {
     it('should be called only if route has a rendered el', function () {
-      let spy = sinon.spy(ParentRoute.prototype, 'updateView')
+      let spy = sinon.spy(ParentRoute.prototype, 'updateEl')
       let transition
       return router.transitionTo('parent').then(function () {
         expect(spy).not.to.be.called
@@ -274,7 +274,7 @@ describe('Render', () => {
         routeInstance = this
       })
 
-      ParentRoute.prototype.updateView = function () {
+      ParentRoute.prototype.updateEl = function () {
         return true
       }
 

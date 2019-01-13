@@ -57,7 +57,7 @@ const NoteEditRoute = Route.extend({
 })
 ```
 
-### <code>updateView(transition)</code>
+### <code>updateEl(transition)</code>
 
  Called when the view associated with the route is about to be re-rendered.
 
