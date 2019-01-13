@@ -1,17 +1,28 @@
 import _ from 'underscore'
 import { Events } from 'nextbone'
 import { Channel } from 'nextbone-radio'
-// import { bindEvents } from './utils/bind-events'
-// import { bindRequests } from './utils/bind-requests'
-// import { mergeOptions } from './utils/merge-options'
-import { View, bindEvents, bindRequests, mergeOptions } from 'backbone.marionette'
+import { bindEvents } from './utils/bind-events'
+import { bindRequests } from './utils/bind-requests'
+import { mergeOptions } from './utils/merge-options'
+import { Region } from './utils/region'
 import RouteContext from './routecontext'
 import { getMnRoutes, routerChannel } from './cherrytree-adapter'
+
+const createElement = (route, Definition) => {
+  if (typeof Definition === 'function') {
+    if (Definition.prototype instanceof HTMLElement) {
+      return new Definition()
+    }
+    return createElement(route, Definition.call(route))
+  } else if (typeof Definition === 'string') {
+    return document.createElement(Definition)
+  }
+}
 
 export default class Route extends Events {
   constructor (options, router, config) {
     super()
-    mergeOptions(this, options, ['viewClass', 'viewOptions'])
+    mergeOptions.call(this, options, ['viewClass', 'viewOptions'])
     this.$router = router
     this.$config = config
     this._bindContext()
@@ -32,33 +43,28 @@ export default class Route extends Events {
 
   renderView (region, transition) {
     if (this.view && this.updateView(transition)) return
-    let ViewClass = this.viewClass || View
+    let ViewClass = this.viewClass
     let viewOptions = _.result(this, 'viewOptions', {})
-    if (!(ViewClass.prototype instanceof View)) {
-      if (_.isFunction(ViewClass)) {
-        ViewClass = ViewClass.call(this)
-      }
-      if (!(ViewClass.prototype instanceof View)) {
-        viewOptions = _.extend({}, ViewClass, viewOptions)
-        ViewClass = View
-      }
+    let view = createElement(this, ViewClass)
+    if (!view) {
+      throw new Error(`${this.constructor.name}: viewClass has invalid value ${ViewClass}. Expected a string or HTMLElement`)
     }
-    let view = new ViewClass(viewOptions)
-    this.listenToOnce(view, 'destroy', function () {
-      this.view = void 0
-    })
+    Object.assign(view, viewOptions)
+    // this.listenToOnce(view, 'destroy', function () {
+    //  this.view = void 0
+    // })
     if (region) {
       region.show(view)
     } else {
       // if region is undefined means no rootRegion is defined
       // accept a pre-rendered view in those situations throwing otherwise
-      if (!view.isRendered()) throw new Error('No root outlet region defined')
+      // if (!view.isRendered()) throw new Error('No root outlet region defined')
     }
     this.view = view
     routerChannel.trigger('route:render', this)
-    if (this.viewEvents) {
-      bindEvents(this, view, this.viewEvents)
-    }
+    // if (this.viewEvents) {
+    //  bindEvents.call(this, view, this.viewEvents)
+    // }
   }
 
   updateView () {
@@ -76,7 +82,12 @@ export default class Route extends Events {
   }
 
   getOutlet () {
-    return this.view.getRegion('outlet')
+    if (!this.outletRegion) {
+      const root = this.view.shadowRoot ? this.view.shadowRoot : this.view
+      const selector = this.constructor.outletSelector || 'router-outlet'
+      this.outletRegion = new Region(root.querySelector(selector))
+    }
+    return this.outletRegion
   }
 
   _bindContext () {
@@ -89,8 +100,8 @@ export default class Route extends Events {
 
     this._contextChannel = channel = new Channel('__routeContext_' + this.cid)
 
-    bindRequests(this, channel, requests)
-    bindEvents(this, channel, events)
+    bindRequests.call(this, channel, requests)
+    bindEvents.call(this, channel, events)
   }
 
   destroy () {

@@ -7,6 +7,8 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
+export { Region } from './utils/region'
+
 export { default as Route } from './route'
 
 export { default as RouterLink } from './routerlink'

@@ -75,7 +75,7 @@ let GrandChildView = Mn.View.extend({
   }
 })
 
-describe('RouterLink', () => {
+describe.skip('RouterLink', () => {
   beforeEach(() => {
     router = new Router()
     ParentRoute = class extends Route {
