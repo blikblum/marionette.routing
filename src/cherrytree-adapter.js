@@ -156,6 +156,8 @@ function getParentRegion (routes, route) {
   return router.rootRegion
 }
 
+const resolved = Promise.resolve()
+
 function renderElements (mnRoutes, activated, transition) {
   // ensure at least the target (last) route is rendered
   let renderCandidates = activated.length ? activated : mnRoutes.slice(-1)
@@ -170,13 +172,24 @@ function renderElements (mnRoutes, activated, transition) {
     return memo
   }, [])
 
-  renderQueue.forEach(function (mnRoute) {
-    let parentRegion = getParentRegion(mnRoutes, mnRoute)
+  renderQueue.reduce((prevPromise, mnRoute) => {
+    let parentRegion
+    if (prevPromise) {
+      return prevPromise.then(function () {
+        parentRegion = getParentRegion(mnRoutes, mnRoute)
+        mnRoute.renderEl(parentRegion, transition)
+        return mnRoute.el.updateComplete
+      }).catch(function () {
+        parentRegion = getParentRegion(mnRoutes, mnRoute)
+        mnRoute.renderEl(parentRegion, transition)
+        return mnRoute.el.updateComplete
+      })
+    }
+    parentRegion = getParentRegion(mnRoutes, mnRoute)
     mnRoute.renderEl(parentRegion, transition)
-  })
+    return mnRoute.el.updateComplete
+  }, undefined)
 }
-
-const resolved = Promise.resolve()
 
 function runAsyncMethod (transition, routes, method) {
   return routes.reduce(function (prevPromise, mnRoute) {
