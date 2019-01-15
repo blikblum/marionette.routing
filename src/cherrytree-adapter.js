@@ -281,7 +281,6 @@ const middleware = {
       if (transition.isCancelled) return
 
       let loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
-        let nextPromise = prevPromise
         if (_.isFunction(mnRoute.load)) {
           if (prevPromise) {
             return prevPromise.then(function () {
@@ -293,7 +292,7 @@ const middleware = {
             return Promise.resolve(mnRoute.load(transition))
           }
         }
-        return nextPromise
+        return prevPromise
       }, undefined)
 
       deactivated.forEach(route => { route.el = undefined })
