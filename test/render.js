@@ -289,7 +289,7 @@ describe('Render', () => {
   })
 
   describe('el', function () {
-    it('should be set to undefined after is destroyed', function () {
+    it('should be set to undefined after its route is deactivated', function () {
       let routeInstance
       sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
@@ -297,6 +297,18 @@ describe('Render', () => {
 
       return router.transitionTo('parent').then(function () {
         return router.transitionTo('root')
+      }).then(function () {
+        expect(routeInstance.el).to.not.exist
+      })
+    })
+
+    it('should be set to undefined when a child of a route with option outlet = false is rendered', function () {
+      let routeInstance
+      return router.transitionTo('root2').then(function () {
+        routeInstance = router.state.mnRoutes[0]
+        expect(routeInstance.el).to.exist
+        // force root2 render el before going to leaf2
+        return router.transitionTo('leaf2')
       }).then(function () {
         expect(routeInstance.el).to.not.exist
       })

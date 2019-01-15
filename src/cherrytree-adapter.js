@@ -150,6 +150,9 @@ function getParentRegion (routes, route) {
       } else {
         throw new Error(`No outlet region defined in ${parent.$config.name} route`)
       }
+    } else {
+      // remove el reference for outlet less routes
+      parent.el = undefined
     }
     routeIndex--
   }
