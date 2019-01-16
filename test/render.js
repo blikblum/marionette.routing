@@ -175,8 +175,19 @@ describe('Render', () => {
     })
 
     describe('of a child route', function () {
-      it('should be rendered in the outlet region of the nearest route with a el', function (done) {
+      it('should be rendered in the outlet region of the nearest route with an el', function (done) {
         router.transitionTo('grandchild').then(function () {
+          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`)
+          done()
+        }).catch(done)
+      })
+
+      it('when re-activated should be rendered in the outlet region of the updated parent el', function (done) {
+        router.transitionTo('grandchild').then(function () {
+          return router.transitionTo('root')
+        }).then(function () {
+          return router.transitionTo('grandchild')
+        }).then(function () {
           expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`)
           done()
         }).catch(done)

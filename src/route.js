@@ -19,6 +19,9 @@ const createElement = (route, Definition) => {
   }
 }
 
+// stores the outletRegion for each element
+const outletRegionMap = new WeakMap()
+
 export default class Route extends Events {
   constructor (options, router, config) {
     super()
@@ -74,15 +77,17 @@ export default class Route extends Events {
   }
 
   getOutlet () {
-    if (!this.outletRegion) {
+    let outletRegion = outletRegionMap.get(this.el)
+    if (!outletRegion) {
       const root = this.el.shadowRoot ? this.el.shadowRoot : this.el
       const selector = this.constructor.outletSelector || 'router-outlet'
       const el = root.querySelector(selector)
       if (el) {
-        this.outletRegion = new Region(el)
+        outletRegion = new Region(el)
+        outletRegionMap.set(this.el, outletRegion)
       }
     }
-    return this.outletRegion
+    return outletRegion
   }
 
   _bindContext () {
