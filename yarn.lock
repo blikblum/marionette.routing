@@ -1037,10 +1037,10 @@ check-error@^1.0.2:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=
 
-cherrytreex@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.2.0.tgz#099e1f062f47305f657b5b21ace6a2a14371f537"
-  integrity sha512-rVpNizFiRv1B8IJeqevFmbh5KPzTc4Z0YlaV9pZz/6k5gBKqnsUGtLEp8P/ZHc7+o8nNGpjhCsOc9yDGHp8gXw==
+cherrytreex@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.3.0.tgz#471e5c199c5779a3a7ba5e039862490015b521a0"
+  integrity sha512-1xLoSeZtjIsNpDrXJc6Wi+WiNBps20TDSBc2bfDYUgsjtOvLR6wr1E6pOSefiv9+FvX8ywMX6N5+8mPRDxLa3g==
   dependencies:
     path-to-regexp "^2.1.0"
 
