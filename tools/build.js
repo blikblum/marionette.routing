@@ -32,7 +32,7 @@ for (const format of ['es', 'umd']) {
     globals: {
       backbone: 'Backbone',
       underscore: '_',
-      'backbone.marionette': 'Backbone.Marionette',
+      'backbone.marionette': 'Marionette',
       'backbone.radio': 'Backbone.Radio'
     }
   })))
