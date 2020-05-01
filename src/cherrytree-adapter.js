@@ -283,8 +283,8 @@ const middleware = {
           loadPromise.then(function () {
             renderViews(mnRoutes, activated, transition)
             resolve()
-          }).catch(function () {
-            renderViews(mnRoutes, activated, transition)
+          }).catch(function (err) {
+            routerChannel.trigger('transition:error', transition, err)
             resolve()
           })
         })
