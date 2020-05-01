@@ -27,14 +27,13 @@ export default MnObject.extend(
     renderView (region, transition) {
       if (this.view && this.updateView(transition)) return
       let ViewClass = this.viewClass || View
+      const isMarionetteView = proto => proto instanceof View || proto instanceof CollectionView
       let viewOptions = _.result(this, 'viewOptions', {})
-      if (!(ViewClass.prototype instanceof View) &&
-        !(ViewClass.prototype instanceof CollectionView)) {
+      if (!isMarionetteView(ViewClass.prototype)) {
         if (_.isFunction(ViewClass)) {
           ViewClass = ViewClass.call(this)
         }
-        if (!(ViewClass.prototype instanceof View) &&
-          !(ViewClass.prototype instanceof CollectionView)) {
+        if (!isMarionetteView(ViewClass.prototype)) {
           viewOptions = _.extend({}, ViewClass, viewOptions)
           ViewClass = View
         }
