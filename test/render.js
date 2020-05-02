@@ -38,6 +38,12 @@ let LeafView = Mn.View.extend({
   }
 })
 
+let LeafCollectionView = Mn.CollectionView.extend({
+  template: function () {
+    return 'Collection'
+  }
+})
+
 describe('rootRegion', () => {
   afterEach(() => {
     router.destroy()
@@ -85,6 +91,7 @@ describe('Render', () => {
         route('leaf2', { routeClass: LeafRoute, viewClass: LeafView })
       })
       route('root3', { routeClass: RootRoute })
+      route('collection', { viewClass: LeafCollectionView })
     }
     router.map(routes)
     router.listen()
@@ -200,6 +207,15 @@ describe('Render', () => {
           expect(spy).to.be.calledTwice
           expect($('#main').html()).to.be.equal('<div><div class="child-view"></div></div>')
         })
+      })
+    })
+
+    describe('for a CollectionView', function () {
+      it('can load successfully', function (done) {
+        router.transitionTo('collection').then(function () {
+          expect($('#main').html()).to.be.equal('<div>Collection</div>')
+          done()
+        }).catch(done)
       })
     })
   })
