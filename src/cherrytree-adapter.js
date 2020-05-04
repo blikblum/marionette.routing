@@ -167,7 +167,21 @@ function renderViews (mnRoutes, activated, transition) {
 
   renderQueue.forEach(function (mnRoute) {
     let parentRegion = getParentRegion(mnRoutes, mnRoute)
-    mnRoute.renderView(parentRegion, transition)
+
+    // Try to render the view
+    try {
+      mnRoute.renderView(parentRegion, transition)
+    }
+    // If something fails during rendering, emit a transition:error event
+    catch (err) {
+      routerChannel.trigger('transition:error', transition, err)
+      return // continue iterating and avoid throwing the error below
+    }
+
+    // If the view did not successfully render, or if no parentRegion exists, throw an error
+    if (!mnRoute.hasRenderedView() && !parentRegion) {
+      throw new Error('No root outlet region defined')
+    }
   })
 }
 
@@ -284,7 +298,7 @@ const middleware = {
             renderViews(mnRoutes, activated, transition)
             resolve()
           }).catch(function (err) {
-            routerChannel.trigger('transition:error', transition, err)
+            renderViews(mnRoutes, activated, transition)
             resolve()
           })
         })

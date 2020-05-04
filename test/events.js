@@ -6,7 +6,6 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import _ from 'underscore'
 import Radio from 'backbone.radio'
-import { View } from 'backbone.marionette'
 import { Route, Router } from '../src/index'
 
 let expect = chai.expect
@@ -130,26 +129,6 @@ describe('Events', () => {
       RootRoute.prototype.activate = function () {
         throw new Error('xx')
       }
-
-      return router.transitionTo('root').catch(function () {
-        return Promise.resolve().then(function () {
-          expect(spy).to.be.calledOnce
-        })
-      })
-    })
-
-    it('should be called when an error occurs in render chained to async load', function () {
-      let spy = sinon.spy()
-
-      Radio.channel('router').on('transition:error', spy)
-
-      RootRoute.prototype.load = async function () {}
-
-      RootRoute.prototype.ViewClass = View.extend({
-        onRender: function () {
-          throw new Error('xx')
-        }
-      })
 
       return router.transitionTo('root').catch(function () {
         return Promise.resolve().then(function () {

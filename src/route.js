@@ -45,18 +45,26 @@ export default MnObject.extend(
         }
         this.view = void 0
       })
+
+      // If region is falsy, no rootRegion was defined; only acceptable if view was pre-rendered.
+      // Return here without assigning `this.view` so `hasRenderedView` below returns false
       if (region) {
         region.show(view)
-      } else {
-        // if region is undefined means no rootRegion is defined
-        // accept a pre-rendered view in those situations throwing otherwise
-        if (!view.isRendered()) throw new Error('No root outlet region defined')
       }
+      else if (!view.isRendered()) {
+        return
+      }
+
       this.view = view
       routerChannel.trigger('route:render', this)
       if (this.viewEvents) {
         bindEvents(this, view, this.viewEvents)
       }
+    },
+
+    // Returns true if view is attached to route and has already been rendered
+    hasRenderedView () {
+      return this.view && this.view.isRendered()
     },
 
     updateView () {

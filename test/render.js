@@ -44,6 +44,12 @@ let LeafCollectionView = Mn.CollectionView.extend({
   }
 })
 
+let ErrorView = Mn.View.extend({
+  onRender: function () {
+    throw new Error('xx')
+  }
+})
+
 describe('rootRegion', () => {
   afterEach(() => {
     router.destroy()
@@ -92,6 +98,7 @@ describe('Render', () => {
       })
       route('root3', { routeClass: RootRoute })
       route('collection', { viewClass: LeafCollectionView })
+      route('error', { viewClass: ErrorView })
     }
     router.map(routes)
     router.listen()
@@ -288,6 +295,18 @@ describe('Render', () => {
         _.defer(function () {
           expect(spy).to.not.be.called
           done()
+        })
+      })
+    })
+
+    it('should emit transition:error for errors during View.render', function () {
+      let spy = sinon.spy()
+
+      Radio.channel('router').on('transition:error', spy)
+
+      return router.transitionTo('error').catch(function () {
+        return Promise.resolve().then(function () {
+          expect(spy).to.be.calledOnce
         })
       })
     })
