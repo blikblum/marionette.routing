@@ -121,7 +121,7 @@ describe('Events', () => {
   })
 
   describe('transition:error', () => {
-    it('should be called when an error occurs in middle of transaction', function () {
+    it('should be called when an error occurs in middle of transition', function () {
       let spy = sinon.spy()
 
       Radio.channel('router').on('transition:error', spy)

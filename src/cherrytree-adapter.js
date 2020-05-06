@@ -167,7 +167,21 @@ function renderViews (mnRoutes, activated, transition) {
 
   renderQueue.forEach(function (mnRoute) {
     let parentRegion = getParentRegion(mnRoutes, mnRoute)
-    mnRoute.renderView(parentRegion, transition)
+
+    // Try to render the view
+    try {
+      mnRoute.renderView(parentRegion, transition)
+    } catch (err) {
+      // If something fails during rendering, emit a transition:error event
+      routerChannel.trigger('transition:error', transition, err)
+      return // continue iterating and avoid throwing the error below
+    }
+
+    // If the view was not attached and rendered, or if no parentRegion exists, throw an error
+    const routeHasRenderedView = mnRoute.view && mnRoute.view.isRendered()
+    if (!routeHasRenderedView && !parentRegion) {
+      throw new Error('No root outlet region defined')
+    }
   })
 }
 
