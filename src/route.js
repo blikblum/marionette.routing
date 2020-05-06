@@ -47,11 +47,10 @@ export default MnObject.extend(
       })
 
       // If region is falsy, no rootRegion was defined; only acceptable if view was pre-rendered.
-      // Return here without assigning `this.view` so `hasRenderedView` below returns false
+      // Return here without assigning `this.view` so cherrytree-adapter:renderViews throws an error correctly
       if (region) {
         region.show(view)
-      }
-      else if (!view.isRendered()) {
+      } else if (!view.isRendered()) {
         return
       }
 
@@ -60,11 +59,6 @@ export default MnObject.extend(
       if (this.viewEvents) {
         bindEvents(this, view, this.viewEvents)
       }
-    },
-
-    // Returns true if view is attached to route and has already been rendered
-    hasRenderedView () {
-      return this.view && this.view.isRendered()
     },
 
     updateView () {

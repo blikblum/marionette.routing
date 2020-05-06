@@ -171,15 +171,15 @@ function renderViews (mnRoutes, activated, transition) {
     // Try to render the view
     try {
       mnRoute.renderView(parentRegion, transition)
-    }
-    // If something fails during rendering, emit a transition:error event
-    catch (err) {
+    } catch (err) {
+      // If something fails during rendering, emit a transition:error event
       routerChannel.trigger('transition:error', transition, err)
       return // continue iterating and avoid throwing the error below
     }
 
-    // If the view did not successfully render, or if no parentRegion exists, throw an error
-    if (!mnRoute.hasRenderedView() && !parentRegion) {
+    // If the view was not attached and rendered, or if no parentRegion exists, throw an error
+    const routeHasRenderedView = mnRoute.view && mnRoute.view.isRendered()
+    if (!routeHasRenderedView && !parentRegion) {
       throw new Error('No root outlet region defined')
     }
   })
@@ -297,7 +297,7 @@ const middleware = {
           loadPromise.then(function () {
             renderViews(mnRoutes, activated, transition)
             resolve()
-          }).catch(function (err) {
+          }).catch(function () {
             renderViews(mnRoutes, activated, transition)
             resolve()
           })
